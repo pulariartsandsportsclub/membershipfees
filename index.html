@@ -11,7 +11,32 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body>
+<body class="logged-out">
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="login-logo">
+          <img src="PULARI.png" alt="Pulari Arts & Sports Club Logo">
+        </div>
+        <h1>Pulari Club</h1>
+        <p>Membership Management System</p>
+      </div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-username">Username</label>
+          <input type="text" id="login-username" class="form-control" placeholder="Enter username" autocomplete="username" required autofocus>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="Enter password" autocomplete="current-password" required>
+        </div>
+        <p class="login-error" id="login-error" hidden>Invalid username or password.</p>
+        <button type="submit" class="btn btn-primary login-submit">Sign In</button>
+      </form>
+    </div>
+  </div>
 
   <div id="app-container">
 
@@ -515,30 +540,7 @@
 
   <!-- MODALS -->
 
-  <!-- 1. Admin Login Modal -->
-  <!-- <div class="modal-overlay" id="login-modal">
-    <div class="modal-container" style="max-width: 400px;">
-      <div class="modal-header">
-        <h4>Admin Sign In</h4>
-      </div>
-      <form id="login-form">
-        <div class="modal-body">
-          <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1rem;">
-            Please enter the admin password to access Pulari Club management system. Default password: <strong>admin</strong>
-          </p>
-          <div class="form-group">
-            <label for="login-password">Password</label>
-            <input type="password" id="login-password" class="form-control" placeholder="Enter password" required autofocus>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary" style="width:100%;">Sign In</button>
-        </div>
-      </form>
-    </div>
-  </div> -->
-
-  <!-- 2. Add / Edit Member Modal -->
+  <!-- 1. Add / Edit Member Modal -->
   <div class="modal-overlay" id="member-form-modal">
     <div class="modal-container">
       <div class="modal-header">

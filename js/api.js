@@ -19,7 +19,7 @@ const DEFAULT_SEED_DATA = {
     monthly_fee: 30,
     club_name: "Pulari Arts & Sports Club",
     currency: "₹",
-    admin_password: "admin"
+    admin_password: "admin@1235789"
   },
   members: [],
   payments: []
@@ -29,6 +29,12 @@ const DEFAULT_SEED_DATA = {
 (function initLocalStorage() {
   if (!localStorage.getItem(API_CONFIG.STORAGE_SETTINGS)) {
     localStorage.setItem(API_CONFIG.STORAGE_SETTINGS, JSON.stringify(DEFAULT_SEED_DATA.settings));
+  } else {
+    const storedSettings = JSON.parse(localStorage.getItem(API_CONFIG.STORAGE_SETTINGS) || '{}');
+    if (!storedSettings.admin_password || storedSettings.admin_password === 'admin') {
+      storedSettings.admin_password = DEFAULT_SEED_DATA.settings.admin_password;
+      localStorage.setItem(API_CONFIG.STORAGE_SETTINGS, JSON.stringify(storedSettings));
+    }
   }
   if (!localStorage.getItem(API_CONFIG.STORAGE_MEMBERS)) {
     localStorage.setItem(API_CONFIG.STORAGE_MEMBERS, JSON.stringify(DEFAULT_SEED_DATA.members));
@@ -171,10 +177,13 @@ function handleLocalApiCall(action, payload) {
     }
 
     case 'LOGIN': {
-      if (payload.password === settings.admin_password || payload.password === 'admin') {
+      const username = String(payload.username || '').trim();
+      const password = String(payload.password || '');
+      const expectedPassword = settings.admin_password || DEFAULT_SEED_DATA.settings.admin_password;
+      if (username === 'admin' && password === expectedPassword) {
         return { success: true, message: 'Login successful' };
       }
-      return { success: false, message: 'Invalid admin password' };
+      return { success: false, message: 'Invalid username or password' };
     }
 
     default:

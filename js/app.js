@@ -30,9 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Set top header month badge
   updateHeaderMonthBadge();
-  
-  // Load initial dataset
-  refreshAppData();
 });
 
 /**
@@ -137,38 +134,52 @@ function renderCurrentTab() {
 /**
  * Authentication Setup
  */
+function setAuthView(isLoggedIn) {
+  document.body.classList.toggle('logged-in', isLoggedIn);
+  document.body.classList.toggle('logged-out', !isLoggedIn);
+}
+
 function initAuthentication() {
-  const loginModal = document.getElementById('login-modal');
   const loginForm = document.getElementById('login-form');
   const logoutBtn = document.getElementById('btn-logout');
+  const loginError = document.getElementById('login-error');
 
-  if (!AppState.isLoggedIn) {
-    openModal('login-modal');
-  } else {
-    closeModal('login-modal');
+  setAuthView(AppState.isLoggedIn);
+  if (AppState.isLoggedIn) {
+    refreshAppData();
   }
 
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const username = document.getElementById('login-username').value.trim();
       const password = document.getElementById('login-password').value;
       const btn = loginForm.querySelector('button[type="submit"]');
-      
-      btn.disabled = true;
-      btn.textContent = 'Authenticating...';
 
-      const res = await apiCall('LOGIN', { password });
+      if (loginError) loginError.hidden = true;
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+
+      let res = handleLocalApiCall('LOGIN', { username, password });
+      if (!res.success) {
+        res = await apiCall('LOGIN', { username, password });
+      }
       btn.disabled = false;
       btn.textContent = 'Sign In';
 
       if (res.success) {
         AppState.isLoggedIn = true;
         sessionStorage.setItem('pulari_auth', 'true');
-        closeModal('login-modal');
+        setAuthView(true);
+        loginForm.reset();
         showToast('Login successful. Welcome admin!', 'success');
         refreshAppData();
       } else {
-        showToast(res.message || 'Invalid password', 'error');
+        if (loginError) {
+          loginError.textContent = res.message || 'Invalid username or password.';
+          loginError.hidden = false;
+        }
+        showToast(res.message || 'Invalid username or password.', 'error');
       }
     });
   }
@@ -177,7 +188,9 @@ function initAuthentication() {
     logoutBtn.addEventListener('click', () => {
       AppState.isLoggedIn = false;
       sessionStorage.removeItem('pulari_auth');
-      openModal('login-modal');
+      setAuthView(false);
+      const usernameInput = document.getElementById('login-username');
+      if (usernameInput) usernameInput.focus();
       showToast('Logged out successfully.', 'info');
     });
   }
@@ -212,7 +225,7 @@ function initModalListeners() {
   document.querySelectorAll('.modal-close, [data-dismiss="modal"]').forEach(btn => {
     btn.addEventListener('click', () => {
       const modal = btn.closest('.modal-overlay');
-      if (modal && modal.id !== 'login-modal') {
+      if (modal) {
         closeModal(modal.id);
       }
     });

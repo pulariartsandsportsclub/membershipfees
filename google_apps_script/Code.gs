@@ -121,7 +121,7 @@ function initSpreadsheetTables() {
     settingsSheet.appendRow(["monthly_fee", "30"]);
     settingsSheet.appendRow(["club_name", "Pulari Arts & Sports Club"]);
     settingsSheet.appendRow(["currency", "₹"]);
-    settingsSheet.appendRow(["admin_password", "admin"]);
+    settingsSheet.appendRow(["admin_password", "admin@1235789"]);
   }
 }
 
@@ -375,12 +375,13 @@ function updateSettings(payload) {
  */
 function authenticateAdmin(payload) {
   const settingsRes = getSettingsData();
-  const currentPassword = settingsRes.data.admin_password || "admin";
+  const username = String(payload.username || "").trim();
+  const currentPassword = settingsRes.data.admin_password || "admin@1235789";
 
-  if (String(payload.password || '') === String(currentPassword)) {
+  if (username === "admin" && String(payload.password || "") === String(currentPassword)) {
     return { success: true, message: "Authentication successful." };
   }
-  return { success: false, message: "Invalid admin password." };
+  return { success: false, message: "Invalid username or password." };
 }
 
 /**

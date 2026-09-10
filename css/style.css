@@ -58,6 +58,18 @@ body {
   overflow-x: hidden;
 }
 
+body.logged-out {
+  overflow: hidden;
+}
+
+body.logged-out #app-container {
+  display: none;
+}
+
+body.logged-in #login-screen {
+  display: none;
+}
+
 /* App Container Layout */
 #app-container {
   display: flex;
@@ -1375,6 +1387,76 @@ body {
   .bar-chart-wrapper {
     min-height: 220px;
   }
+}
+
+/* Full-page Admin Login */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(circle at top left, rgba(30, 58, 138, 0.45), transparent 42%),
+    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.22), transparent 40%),
+    #0f172a;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: var(--border-radius-lg);
+  padding: 2rem 1.75rem 1.75rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-logo {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 0.85rem;
+  background: #ffffff;
+  border-radius: 50%;
+  padding: 4px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.login-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.login-brand h1 {
+  font-size: 1.35rem;
+  color: var(--text-main);
+  margin-bottom: 0.2rem;
+}
+
+.login-brand p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.login-error {
+  color: var(--danger-color);
+  font-size: 0.85rem;
+  margin: -0.25rem 0 0.85rem;
+}
+
+.login-submit {
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.7rem 1rem;
 }
 
 @media (max-width: 480px) {
