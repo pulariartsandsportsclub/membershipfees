@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member Dashboard – Pulari Arts & Sports Club</title>
+  <meta name="description"
+    content="Public membership dashboard for Pulari Arts & Sports Club. View paid and unpaid members and monthly collection details.">
+  <link rel="icon" type="image/png" href="PULARI.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="public-page">
+
+  <header class="public-header">
+    <div class="public-header-inner">
+      <div class="public-brand">
+        <img src="PULARI.png" alt="Pulari Arts & Sports Club Logo">
+        <div>
+          <h1>Pulari Arts and Sports Club</h1>
+          <span>Member Payment Dashboard</span>
+        </div>
+      </div>
+      <div class="public-header-actions">
+        <span class="current-month-badge" id="public-month-badge"></span>
+        <div class="loading-spinner" id="public-spinner" style="display:none;"></div>
+
+      </div>
+    </div>
+  </header>
+
+  <main class="public-main">
+
+    <div class="section-header">
+      <div>
+        <h3>Monthly Payment Status</h3>
+        <p class="section-subtitle">Anyone can view how many members have paid, who is pending, and this month’s
+          collection.</p>
+      </div>
+      <div class="controls-bar">
+        <select id="public-month-select" class="form-select" style="width:auto;"></select>
+        <select id="public-year-select" class="form-select" style="width:auto;"></select>
+        <button class="btn btn-outline" id="btn-public-current-month" type="button">This Month</button>
+      </div>
+    </div>
+
+    <div class="public-progress-card">
+      <div class="public-progress-meta">
+        <span>Collection rate</span>
+        <strong id="public-collection-rate">0%</strong>
+      </div>
+      <div class="public-progress-track" aria-hidden="true">
+        <div class="public-progress-fill" id="public-progress-fill"></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon icon-blue">👥</div>
+        <div class="stat-info">
+          <div class="stat-label">Active Members</div>
+          <div class="stat-value" id="public-total-members">0</div>
+          <div class="stat-sub">Eligible for this month</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-green">✅</div>
+        <div class="stat-info">
+          <div class="stat-label">Paid</div>
+          <div class="stat-value" id="public-paid-count">0</div>
+          <div class="stat-sub">Fees received</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-red">⏳</div>
+        <div class="stat-info">
+          <div class="stat-label">Unpaid</div>
+          <div class="stat-value" id="public-unpaid-count">0</div>
+          <div class="stat-sub">Pending members</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon icon-amber">💰</div>
+        <div class="stat-info">
+          <div class="stat-label">Collected</div>
+          <div class="stat-value" id="public-collected-amount">₹0</div>
+          <div class="stat-sub">Selected month total</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="public-months-strip" id="public-months-strip"></div>
+
+    <div class="section-header">
+      <div>
+        <h3>Member List</h3>
+        <p class="section-subtitle">Paid and unpaid status for the selected month.</p>
+      </div>
+      <div class="controls-bar">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+          </svg>
+          <input type="text" id="public-search" class="form-control" placeholder="Search by name or ID...">
+        </div>
+        <div style="display:flex; gap:0.25rem;">
+          <button class="btn btn-primary btn-sm public-filter-btn" data-filter="All" type="button">All</button>
+          <button class="btn btn-outline btn-sm public-filter-btn" data-filter="Paid" type="button">Paid</button>
+          <button class="btn btn-outline btn-sm public-filter-btn" data-filter="Unpaid" type="button">Unpaid</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-box">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Member ID</th>
+              <th>Name</th>
+              <th>Monthly Fee</th>
+              <th>Status</th>
+              <th>Payment Date</th>
+            </tr>
+          </thead>
+          <tbody id="public-members-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="reports-dual-tables" style="margin-top:1.5rem;">
+      <div class="card-box">
+        <div class="public-list-title public-list-title-paid">Paid Members</div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Amount</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="public-paid-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-box">
+        <div class="public-list-title public-list-title-unpaid">Unpaid Members</div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Fee Due</th>
+              </tr>
+            </thead>
+            <tbody id="public-unpaid-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/public-dashboard.js"></script>
+</body>
+
+</html>

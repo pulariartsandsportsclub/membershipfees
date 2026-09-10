@@ -1459,6 +1459,211 @@ body.logged-in #login-screen {
   padding: 0.7rem 1rem;
 }
 
+.login-public-link {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-public-link:hover {
+  text-decoration: underline;
+}
+
+/* Public Member Dashboard */
+body.public-page {
+  display: block;
+  overflow-x: hidden;
+  background: var(--bg-color);
+}
+
+.public-header {
+  background: #0f172a;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 80;
+}
+
+.public-header-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0.9rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.public-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.public-brand img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #fff;
+  padding: 3px;
+}
+
+.public-brand h1 {
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+.public-brand span {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.public-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.public-admin-link {
+  background: transparent;
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.public-admin-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.public-main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.public-progress-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem 1.25rem 1.15rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.public-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.public-progress-meta strong {
+  color: var(--primary-color);
+  font-size: 1.05rem;
+}
+
+.public-progress-track {
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.public-progress-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--secondary-color), #34d399);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.public-months-strip {
+  display: flex;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.public-month-chip {
+  min-width: 118px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-main);
+}
+
+.public-month-chip.active {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.chip-month {
+  display: block;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.chip-count {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.public-list-title {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 700;
+}
+
+.public-list-title-paid {
+  color: var(--secondary-color);
+}
+
+.public-list-title-unpaid {
+  color: var(--danger-color);
+}
+
+.sidebar-public-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0.75rem 0.85rem;
+  padding: 0.55rem 0.85rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.sidebar-public-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 768px) {
+  .public-header-inner {
+    align-items: flex-start;
+  }
+  .public-main {
+    padding: 1.15rem 1rem 2.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .stats-grid {
     grid-template-columns: 1fr;
