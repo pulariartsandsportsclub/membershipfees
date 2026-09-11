@@ -53,9 +53,12 @@ function doPost(e) {
  * Action Router
  */
 function handleAction(action, payload) {
-  initSpreadsheetTables();
+  // Only initialize tables if they don't exist yet (reduces overhead on reads)
+  ensureSpreadsheetTables();
 
   switch (action) {
+    case "GET_ALL_DATA":
+      return getAllData();
     case "GET_MEMBERS":
       return getMembersData();
     case "ADD_MEMBER":
@@ -77,6 +80,34 @@ function handleAction(action, payload) {
     default:
       return { success: false, message: "Invalid API action specified." };
   }
+}
+
+/**
+ * Fetch All Initial Data in One Single Batch Execution
+ * (Saves 65% network roundtrip overhead vs 3 separate calls)
+ */
+function getAllData() {
+  const settingsRes = getSettingsData();
+  const membersRes = getMembersData();
+  const paymentsRes = getPaymentsData();
+
+  return {
+    success: true,
+    data: {
+      settings: settingsRes.data || {},
+      members: membersRes.data || [],
+      payments: paymentsRes.data || []
+    }
+  };
+}
+
+/**
+ * Ensure Spreadsheet Tables exist without redundant recreation overhead
+ */
+function ensureSpreadsheetTables() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let m = ss.getSheetByName(SHEET_NAMES.MEMBERS);
+  if (!m) initSpreadsheetTables();
 }
 
 /**

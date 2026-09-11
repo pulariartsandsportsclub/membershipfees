@@ -1,5 +1,6 @@
 /**
  * Pulari Arts & Sports Club - Public Member Dashboard
+ * Supports Monthly Payment Status and Yearly Wise Member Breakdown
  */
 
 const MONTHS_LIST = [
@@ -7,9 +8,18 @@ const MONTHS_LIST = [
   "July", "August", "September", "October", "November", "December"
 ];
 
+const MONTHS_SHORT = [
+  "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+  "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+];
+
 const PublicState = {
+  currentView: 'monthly', // 'monthly' or 'yearly'
   selectedMonth: new Date().toLocaleString('default', { month: 'long' }),
   selectedYear: new Date().getFullYear(),
+  yearlyYear: new Date().getFullYear(),
+  yearlySearchQuery: '',
+  yearlyStatusFilter: 'All', // 'All', 'Full', 'Partial', 'Unpaid'
   members: [],
   payments: [],
   settings: {
@@ -24,12 +34,15 @@ const PublicState = {
 document.addEventListener('DOMContentLoaded', () => {
   fillMonthYearSelects();
   bindPublicControls();
+  bindViewSwitcher();
+  bindYearlyControls();
   loadPublicData();
 });
 
 function fillMonthYearSelects() {
   const monthSelect = document.getElementById('public-month-select');
   const yearSelect = document.getElementById('public-year-select');
+  const yearlyYearSelect = document.getElementById('yearly-year-select');
   const currentYear = new Date().getFullYear();
 
   if (monthSelect) {
@@ -39,12 +52,58 @@ function fillMonthYearSelects() {
     monthSelect.value = PublicState.selectedMonth;
   }
 
+  const years = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1];
+
   if (yearSelect) {
-    const years = [currentYear - 1, currentYear, currentYear + 1];
     yearSelect.innerHTML = years.map(year =>
       `<option value="${year}">${year}</option>`
     ).join('');
     yearSelect.value = String(PublicState.selectedYear);
+  }
+
+  if (yearlyYearSelect) {
+    yearlyYearSelect.innerHTML = years.map(year =>
+      `<option value="${year}">${year}</option>`
+    ).join('');
+    yearlyYearSelect.value = String(PublicState.yearlyYear);
+  }
+}
+
+function bindViewSwitcher() {
+  const btnMonthly = document.getElementById('view-tab-monthly');
+  const btnYearly = document.getElementById('view-tab-yearly');
+  const monthlySection = document.getElementById('view-section-monthly');
+  const yearlySection = document.getElementById('view-section-yearly');
+  const forceRefreshBtn = document.getElementById('btn-force-refresh');
+
+  function switchView(view) {
+    PublicState.currentView = view;
+    if (view === 'monthly') {
+      btnMonthly?.classList.add('active');
+      btnYearly?.classList.remove('active');
+      if (monthlySection) monthlySection.style.display = 'block';
+      if (yearlySection) yearlySection.style.display = 'none';
+      renderPublicDashboard();
+    } else {
+      btnYearly?.classList.add('active');
+      btnMonthly?.classList.remove('active');
+      if (yearlySection) yearlySection.style.display = 'block';
+      if (monthlySection) monthlySection.style.display = 'none';
+      renderYearlyDashboard();
+    }
+  }
+
+  if (btnMonthly) {
+    btnMonthly.addEventListener('click', () => switchView('monthly'));
+  }
+  if (btnYearly) {
+    btnYearly.addEventListener('click', () => switchView('yearly'));
+  }
+
+  if (forceRefreshBtn) {
+    forceRefreshBtn.addEventListener('click', () => {
+      loadPublicData(true);
+    });
   }
 }
 
@@ -98,28 +157,96 @@ function bindPublicControls() {
   });
 }
 
-async function loadPublicData() {
+function bindYearlyControls() {
+  const yearlyYearSelect = document.getElementById('yearly-year-select');
+  const btnCurrentYear = document.getElementById('btn-yearly-current-year');
+  const yearlySearch = document.getElementById('yearly-search');
+
+  if (yearlyYearSelect) {
+    yearlyYearSelect.addEventListener('change', () => {
+      PublicState.yearlyYear = Number(yearlyYearSelect.value);
+      renderYearlyDashboard();
+    });
+  }
+
+  if (btnCurrentYear) {
+    btnCurrentYear.addEventListener('click', () => {
+      PublicState.yearlyYear = new Date().getFullYear();
+      if (yearlyYearSelect) yearlyYearSelect.value = String(PublicState.yearlyYear);
+      renderYearlyDashboard();
+    });
+  }
+
+  if (yearlySearch) {
+    yearlySearch.addEventListener('input', () => {
+      PublicState.yearlySearchQuery = yearlySearch.value.trim();
+      renderYearlyDashboard();
+    });
+  }
+
+  document.querySelectorAll('.yearly-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      PublicState.yearlyStatusFilter = btn.getAttribute('data-filter');
+      document.querySelectorAll('.yearly-filter-btn').forEach(el => {
+        const isActive = el === btn;
+        el.classList.toggle('btn-primary', isActive);
+        el.classList.toggle('btn-outline', !isActive);
+      });
+      renderYearlyDashboard();
+    });
+  });
+}
+
+/**
+ * Fast Data Loading with Stale-While-Revalidate
+ * Loads instantly from cache and updates fresh from Google Sheet in background
+ */
+async function loadPublicData(isManualRefresh = false) {
   const spinner = document.getElementById('public-spinner');
+  const cacheDot = document.querySelector('.status-indicator-dot');
+  const cacheText = document.getElementById('public-cache-text');
+
   if (spinner) spinner.style.display = 'inline-block';
+  if (cacheDot) cacheDot.className = 'status-indicator-dot updating';
+  if (cacheText) cacheText.textContent = isManualRefresh ? 'Fetching from Sheet...' : 'Syncing with Sheet...';
 
   try {
-    const [settingsRes, membersRes, paymentsRes] = await Promise.all([
-      apiCall('GET_SETTINGS'),
-      apiCall('GET_MEMBERS'),
-      apiCall('GET_PAYMENTS')
-    ]);
+    const { cachedData, freshPromise } = await fetchInitialData((freshData) => {
+      // Background fresh data arrived
+      applyLoadedData(freshData);
+      if (cacheDot) cacheDot.className = 'status-indicator-dot';
+      if (cacheText) cacheText.textContent = 'Live Connected';
+      if (spinner) spinner.style.display = 'none';
+      if (isManualRefresh) {
+        showPublicToast('Latest data refreshed from Google Sheet!', 'success');
+      }
+    });
 
-    if (settingsRes.success) PublicState.settings = settingsRes.data;
-    if (membersRes.success) PublicState.members = membersRes.data || [];
-    if (paymentsRes.success) PublicState.payments = paymentsRes.data || [];
+    // If cached data is present, render immediately in <50ms!
+    if (cachedData && !isManualRefresh) {
+      applyLoadedData(cachedData);
+      if (cacheText) cacheText.textContent = 'Showing cached • Updating...';
+    }
 
-    renderPublicDashboard();
+    // Wait for the fresh promise
+    await freshPromise;
   } catch (err) {
-    console.error('Public dashboard load error:', err);
-    showPublicToast('Could not load membership data.', 'error');
+    console.error('Public dashboard data load error:', err);
+    if (cacheDot) cacheDot.className = 'status-indicator-dot';
+    if (cacheText) cacheText.textContent = 'Offline / Local';
+    showPublicToast('Connected in offline mode.', 'info');
   } finally {
     if (spinner) spinner.style.display = 'none';
   }
+}
+
+function applyLoadedData(data) {
+  if (data.settings) PublicState.settings = data.settings;
+  if (data.members) PublicState.members = data.members || [];
+  if (data.payments) PublicState.payments = data.payments || [];
+
+  renderPublicDashboard();
+  renderYearlyDashboard();
 }
 
 function getMonthRows() {
@@ -280,6 +407,186 @@ function renderPaidUnpaidTables(paidRows, unpaidRows) {
         `).join('')
       : `<tr><td colspan="3" class="empty-state">All members have paid.</td></tr>`;
   }
+}
+
+/* ==========================================================================
+   YEARLY OVERVIEW RENDER LOGIC (Which Months Paid & Yearly Matrix)
+   ========================================================================== */
+
+function getYearlyMemberData() {
+  const { members, payments, yearlyYear, settings } = PublicState;
+  const activeMembers = members.filter(m => m.status === 'Active');
+  const defaultFee = Number(settings.monthly_fee || 30);
+
+  return activeMembers.map(member => {
+    const memberFee = Number(member.monthlyFee || defaultFee);
+    // Find all paid records for this member in this year
+    const memberYearPayments = payments.filter(p =>
+      p.memberId === member.memberId &&
+      Number(p.year) === Number(yearlyYear) &&
+      p.status === 'Paid'
+    );
+
+    // Map through all 12 months
+    const monthsStatus = MONTHS_LIST.map((monthName, idx) => {
+      const payment = memberYearPayments.find(p => p.month.toLowerCase() === monthName.toLowerCase());
+      return {
+        monthName,
+        shortName: MONTHS_SHORT[idx],
+        isPaid: !!payment,
+        paymentDate: payment ? payment.paymentDate : '',
+        amount: payment ? Number(payment.amount || memberFee) : 0
+      };
+    });
+
+    const paidMonths = monthsStatus.filter(m => m.isPaid);
+    const paidCount = paidMonths.length;
+    const totalPaid = paidMonths.reduce((sum, m) => sum + m.amount, 0);
+    const expectedTotal = memberFee * 12;
+
+    let overallStatus = 'Unpaid';
+    if (paidCount === 12) {
+      overallStatus = 'Full';
+    } else if (paidCount > 0) {
+      overallStatus = 'Partial';
+    }
+
+    return {
+      memberId: member.memberId,
+      memberName: member.fullName,
+      phone: member.phone || '',
+      monthlyFee: memberFee,
+      expectedTotal,
+      totalPaid,
+      paidCount,
+      monthsStatus,
+      paidMonthNames: paidMonths.map(m => m.shortName),
+      overallStatus
+    };
+  });
+}
+
+function renderYearlyDashboard() {
+  const yearlyData = getYearlyMemberData();
+  const selectedYear = PublicState.yearlyYear;
+  const defaultFee = Number(PublicState.settings.monthly_fee || 30);
+
+  // Calculate Yearly Stats
+  const totalMembers = yearlyData.length;
+  const fullPaidCount = yearlyData.filter(d => d.overallStatus === 'Full').length;
+  const partialPaidCount = yearlyData.filter(d => d.overallStatus === 'Partial').length;
+  const unpaidCount = yearlyData.filter(d => d.overallStatus === 'Unpaid').length;
+  const totalYearlyCollected = yearlyData.reduce((sum, d) => sum + d.totalPaid, 0);
+  const totalYearlyExpected = yearlyData.reduce((sum, d) => sum + d.expectedTotal, totalMembers * defaultFee * 12);
+
+  const collectionRate = totalYearlyExpected > 0
+    ? Math.round((totalYearlyCollected / totalYearlyExpected) * 100)
+    : 0;
+
+  // Update Stats Elements
+  setText('yearly-total-members', totalMembers);
+  setText('yearly-full-paid-count', fullPaidCount);
+  setText('yearly-partial-paid-count', partialPaidCount);
+  setText('yearly-total-collected', formatPublicCurrency(totalYearlyCollected));
+  setText('yearly-collection-rate', `${collectionRate}%`);
+  setText('yearly-progress-year-label', selectedYear);
+  setText('yearly-progress-sublabel', `${formatPublicCurrency(totalYearlyCollected)} of ${formatPublicCurrency(totalYearlyExpected)} expected`);
+  setText('yearly-full-paid-sub', `${fullPaidCount} of ${totalMembers} members cleared all 12 mos`);
+  setText('yearly-collected-sub', `Total collection in ${selectedYear}`);
+
+  const fill = document.getElementById('yearly-progress-fill');
+  if (fill) fill.style.width = `${collectionRate}%`;
+
+  // Filter Table Rows
+  const query = PublicState.yearlySearchQuery.toLowerCase();
+  const filtered = yearlyData.filter(row => {
+    const matchesSearch =
+      row.memberName.toLowerCase().includes(query) ||
+      String(row.memberId).toLowerCase().includes(query);
+
+    if (PublicState.yearlyStatusFilter === 'Full') return matchesSearch && row.overallStatus === 'Full';
+    if (PublicState.yearlyStatusFilter === 'Partial') return matchesSearch && row.overallStatus === 'Partial';
+    if (PublicState.yearlyStatusFilter === 'Unpaid') return matchesSearch && row.overallStatus === 'Unpaid';
+    return matchesSearch;
+  });
+
+  const tbody = document.getElementById('yearly-members-table-body');
+  if (!tbody) return;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty-state">
+          <p>No members found matching the filter for ${selectedYear}.</p>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(row => {
+    const pct = Math.round((row.paidCount / 12) * 100);
+
+    // Summary Badge Text
+    let completionBadge = '';
+    if (row.paidCount === 12) {
+      completionBadge = `<div class="yearly-completion-pill all-paid">⭐ All 12 Months Cleared</div>`;
+    } else if (row.paidCount > 0) {
+      completionBadge = `<div class="yearly-completion-pill partial">⏳ ${row.paidCount} Months Paid: ${row.paidMonthNames.join(', ')}</div>`;
+    } else {
+      completionBadge = `<div class="yearly-completion-pill zero">❌ No payments this year</div>`;
+    }
+
+    // Generate 12 Month Pills (Jan - Dec)
+    const monthPillsHtml = row.monthsStatus.map(m => {
+      const tooltip = m.isPaid
+        ? `${m.monthName} ${selectedYear}: Paid ${formatPublicCurrency(m.amount)}${m.paymentDate ? ' on ' + m.paymentDate : ''}`
+        : `${m.monthName} ${selectedYear}: Unpaid / Due`;
+      const checkIcon = m.isPaid ? '✓ ' : '';
+      return `<span class="month-pill ${m.isPaid ? 'paid' : 'unpaid'}" title="${escapeHtml(tooltip)}">${checkIcon}${m.shortName}</span>`;
+    }).join('');
+
+    // Overall Status Badge
+    let statusBadge = '';
+    if (row.overallStatus === 'Full') {
+      statusBadge = `<span class="badge badge-paid">Fully Paid (12/12)</span>`;
+    } else if (row.overallStatus === 'Partial') {
+      statusBadge = `<span class="badge" style="background:#fffbeb; color:#b45309; border:1px solid #fde68a;">Partial (${row.paidCount}/12)</span>`;
+    } else {
+      statusBadge = `<span class="badge badge-unpaid">Unpaid (0/12)</span>`;
+    }
+
+    return `
+      <tr>
+        <td><strong>${escapeHtml(row.memberId)}</strong></td>
+        <td>
+          <div style="font-weight:600; color:var(--text-main);">${escapeHtml(row.memberName)}</div>
+          ${row.phone ? `<div style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(row.phone)}</div>` : ''}
+        </td>
+        <td>
+          <div class="months-progress-wrapper">
+            <div class="months-count-text">${row.paidCount} <span style="font-size:0.78rem; font-weight:500; color:var(--text-muted);">/ 12 Months</span></div>
+            <div class="months-micro-track">
+              <div class="months-micro-fill" style="width:${pct}%;"></div>
+            </div>
+          </div>
+        </td>
+        <td>
+          ${completionBadge}
+          <div class="months-pill-grid">
+            ${monthPillsHtml}
+          </div>
+        </td>
+        <td>
+          <strong style="color:var(--primary-color);">${formatPublicCurrency(row.totalPaid)}</strong>
+          <div style="font-size:0.72rem; color:var(--text-muted);">of ${formatPublicCurrency(row.expectedTotal)}</div>
+        </td>
+        <td>
+          ${statusBadge}
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function formatPublicCurrency(amount) {

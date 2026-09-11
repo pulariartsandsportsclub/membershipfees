@@ -25,25 +25,53 @@
       <div class="public-header-actions">
         <span class="current-month-badge" id="public-month-badge"></span>
         <div class="loading-spinner" id="public-spinner" style="display:none;"></div>
-
       </div>
     </div>
   </header>
 
   <main class="public-main">
 
-    <div class="section-header">
-      <div>
-        <h3>Monthly Payment Status</h3>
-        <p class="section-subtitle">Anyone can view how many members have paid, who is pending, and this month’s
-          collection.</p>
+    <!-- Top View Switcher & Live Connection Status -->
+    <div class="public-toolbar-bar">
+      <div class="segmented-control" role="tablist" aria-label="Dashboard View Selection">
+        <button class="segmented-btn active" id="view-tab-monthly" type="button" data-view="monthly">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+          </svg>
+          Monthly View
+        </button>
+        <button class="segmented-btn" id="view-tab-yearly" type="button" data-view="yearly">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+          </svg>
+          Yearly Overview
+        </button>
       </div>
-      <div class="controls-bar">
-        <select id="public-month-select" class="form-select" style="width:auto;"></select>
-        <select id="public-year-select" class="form-select" style="width:auto;"></select>
-        <button class="btn btn-outline" id="btn-public-current-month" type="button">This Month</button>
+
+      <div class="cache-status-pill" id="public-cache-badge" title="Data connection state">
+        <span class="status-indicator-dot"></span>
+        <span id="public-cache-text">Checking data...</span>
+        <button class="btn-refresh-data" id="btn-force-refresh" title="Force reload latest data from Google Sheet" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+        </button>
       </div>
     </div>
+
+    <!-- ================= MONTHLY VIEW CONTAINER ================= -->
+    <div id="view-section-monthly">
+      <div class="section-header">
+        <div>
+          <h3>Monthly Payment Status</h3>
+          <p class="section-subtitle">Anyone can view how many members have paid, who is pending, and this month’s collection.</p>
+        </div>
+        <div class="controls-bar">
+          <select id="public-month-select" class="form-select" style="width:auto;"></select>
+          <select id="public-year-select" class="form-select" style="width:auto;"></select>
+          <button class="btn btn-outline" id="btn-public-current-month" type="button">This Month</button>
+        </div>
+      </div>
 
     <div class="public-progress-card">
       <div class="public-progress-meta">
@@ -163,6 +191,124 @@
         </div>
       </div>
     </div>
+    </div>
+    <!-- ================= END MONTHLY VIEW CONTAINER ================= -->
+
+    <!-- ================= YEARLY VIEW CONTAINER ================= -->
+    <div id="view-section-yearly" style="display:none;">
+      
+      <div class="section-header">
+        <div>
+          <h3>Yearly Payment Overview</h3>
+          <p class="section-subtitle">Annual payment history for each member. Easily see all months paid at a glance.</p>
+        </div>
+        <div class="controls-bar">
+          <label for="yearly-year-select" style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Select Year:</label>
+          <select id="yearly-year-select" class="form-select" style="width:auto; font-weight:600;"></select>
+          <button class="btn btn-outline" id="btn-yearly-current-year" type="button">This Year</button>
+        </div>
+      </div>
+
+      <!-- Yearly Overall Progress Card -->
+      <div class="public-progress-card">
+        <div class="public-progress-meta">
+          <div>
+            <span>Yearly Collection Progress (<span id="yearly-progress-year-label">2026</span>)</span>
+            <span class="text-muted" style="font-size:0.8rem; margin-left:0.5rem;" id="yearly-progress-sublabel"></span>
+          </div>
+          <strong id="yearly-collection-rate">0%</strong>
+        </div>
+        <div class="public-progress-track" aria-hidden="true">
+          <div class="public-progress-fill" id="yearly-progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Yearly Stats Cards Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon icon-blue">👥</div>
+          <div class="stat-info">
+            <div class="stat-label">Active Members</div>
+            <div class="stat-value" id="yearly-total-members">0</div>
+            <div class="stat-sub">Registered members</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-green">🏆</div>
+          <div class="stat-info">
+            <div class="stat-label">All 12 Months Paid</div>
+            <div class="stat-value" id="yearly-full-paid-count">0</div>
+            <div class="stat-sub" id="yearly-full-paid-sub">Fully cleared for year</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-amber">⏳</div>
+          <div class="stat-info">
+            <div class="stat-label">Partially Paid</div>
+            <div class="stat-value" id="yearly-partial-paid-count">0</div>
+            <div class="stat-sub">1 to 11 months paid</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon icon-amber">💰</div>
+          <div class="stat-info">
+            <div class="stat-label">Yearly Collection</div>
+            <div class="stat-value" id="yearly-total-collected">₹0</div>
+            <div class="stat-sub" id="yearly-collected-sub">Fees received this year</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Yearly Member Breakdown Header & Controls -->
+      <div class="section-header" style="margin-top:1.5rem;">
+        <div>
+          <h3>Member Annual Payment Status</h3>
+          <p class="section-subtitle">Check which specific months each member has paid in the year.</p>
+        </div>
+        <div class="controls-bar">
+          <div class="search-input-wrapper">
+            <svg viewBox="0 0 24 24">
+              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+            </svg>
+            <input type="text" id="yearly-search" class="form-control" placeholder="Search by name or ID...">
+          </div>
+          <div style="display:flex; gap:0.25rem; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm yearly-filter-btn" data-filter="All" type="button">All</button>
+            <button class="btn btn-outline btn-sm yearly-filter-btn" data-filter="Full" type="button">All 12 Months Paid</button>
+            <button class="btn btn-outline btn-sm yearly-filter-btn" data-filter="Partial" type="button">Partially Paid</button>
+            <button class="btn btn-outline btn-sm yearly-filter-btn" data-filter="Unpaid" type="button">No Payments</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend for Month Indicators -->
+      <div class="yearly-legend-bar">
+        <div class="legend-item"><span class="legend-pill pill-paid">✓ JAN</span> Paid Month</div>
+        <div class="legend-item"><span class="legend-pill pill-unpaid">JAN</span> Unpaid / Pending</div>
+        <div class="legend-item"><span class="badge badge-paid" style="font-size:0.75rem;">12/12 Paid</span> Completed Year</div>
+      </div>
+
+      <!-- Yearly Members Table -->
+      <div class="card-box">
+        <div class="table-responsive">
+          <table class="data-table yearly-data-table">
+            <thead>
+              <tr>
+                <th style="min-width:100px;">Member ID</th>
+                <th style="min-width:160px;">Member Name</th>
+                <th style="min-width:140px;">Months Paid</th>
+                <th style="min-width:340px;">Paid Months Status (Jan – Dec)</th>
+                <th style="min-width:110px;">Total Paid</th>
+                <th style="min-width:110px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="yearly-members-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <!-- ================= END YEARLY VIEW CONTAINER ================= -->
 
   </main>
 

@@ -1655,12 +1655,294 @@ body.public-page {
   background: rgba(255, 255, 255, 0.06);
 }
 
+/* ==========================================================================
+   Public Dashboard View Switcher & Live Connection Status
+   ========================================================================== */
+.public-toolbar-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.segmented-control {
+  display: inline-flex;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.segmented-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: none;
+  background: transparent;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.segmented-btn:hover {
+  color: var(--text-main);
+}
+
+.segmented-btn.active {
+  background: #ffffff;
+  color: var(--primary-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.segmented-btn svg {
+  opacity: 0.75;
+}
+
+.segmented-btn.active svg {
+  opacity: 1;
+  fill: var(--primary-color);
+}
+
+/* Cache & Live Indicator */
+.cache-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.status-indicator-dot.updating {
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+  animation: pulse-dot 1.2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.btn-refresh-data {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  margin-left: 2px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-refresh-data:hover {
+  color: var(--primary-color);
+  transform: rotate(45deg);
+}
+
+/* ==========================================================================
+   Yearly Overview Matrix & Month Indicators
+   ========================================================================== */
+.yearly-legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: 1rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 500;
+}
+
+.legend-pill {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.pill-paid {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.pill-unpaid {
+  background: #f8fafc;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+}
+
+/* 12 Months Pills Grid */
+.months-pill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  max-width: 440px;
+}
+
+.month-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 6px;
+  min-width: 32px;
+  text-align: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  cursor: default;
+}
+
+.month-pill.paid {
+  background: #10b981;
+  color: #ffffff;
+  border: 1px solid #059669;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.25);
+}
+
+.month-pill.paid:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(16, 185, 129, 0.35);
+}
+
+.month-pill.unpaid {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+  opacity: 0.8;
+}
+
+.yearly-completion-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.yearly-completion-pill.all-paid {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.yearly-completion-pill.partial {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.yearly-completion-pill.zero {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.months-progress-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 110px;
+}
+
+.months-count-text {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--text-main);
+}
+
+.months-micro-track {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.months-micro-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--secondary-color), #34d399);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.yearly-data-table td {
+  vertical-align: middle;
+  padding: 0.85rem 1rem;
+}
+
+.paid-summary-text {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  display: block;
+}
+
 @media (max-width: 768px) {
   .public-header-inner {
     align-items: flex-start;
   }
   .public-main {
     padding: 1.15rem 1rem 2.5rem;
+  }
+  .public-toolbar-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .segmented-control {
+    width: 100%;
+    justify-content: center;
+  }
+  .segmented-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  .cache-status-pill {
+    align-self: flex-start;
   }
 }
 
@@ -1678,4 +1960,5 @@ body.public-page {
     justify-content: space-between;
   }
 }
+
 

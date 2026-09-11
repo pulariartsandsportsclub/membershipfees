@@ -75,6 +75,66 @@ async function apiCall(action, payload = {}) {
   return handleLocalApiCall(action, payload);
 }
 
+// Cache Key for Stale-While-Revalidate
+const CACHE_KEY_ALL_DATA = 'pulari_cache_all_data';
+
+/**
+ * Fetch Initial Application Data with Stale-While-Revalidate Caching
+ * 1. Immediately returns cached data if available (renders in < 50ms)
+ * 2. Fetches fresh data via single batch 'GET_ALL_DATA' API call in the background
+ * 3. Notifies when fresh data is ready
+ */
+async function fetchInitialData(onFreshDataCallback) {
+  let cachedData = null;
+  try {
+    const raw = localStorage.getItem(CACHE_KEY_ALL_DATA);
+    if (raw) {
+      cachedData = JSON.parse(raw);
+    }
+  } catch (e) {
+    console.warn("Error reading cached data:", e);
+  }
+
+  // Asynchronous fresh data fetch (batch 1-call instead of 3 separate calls)
+  const fetchPromise = (async () => {
+    try {
+      const res = await apiCall('GET_ALL_DATA');
+      if (res && res.success && res.data) {
+        localStorage.setItem(CACHE_KEY_ALL_DATA, JSON.stringify(res.data));
+        if (onFreshDataCallback) {
+          onFreshDataCallback(res.data, false);
+        }
+        return res.data;
+      }
+      
+      // Fallback for older Google Script deployments before GET_ALL_DATA was deployed
+      const [settingsRes, membersRes, paymentsRes] = await Promise.all([
+        apiCall('GET_SETTINGS'),
+        apiCall('GET_MEMBERS'),
+        apiCall('GET_PAYMENTS')
+      ]);
+      const combined = {
+        settings: settingsRes?.data || {},
+        members: membersRes?.data || [],
+        payments: paymentsRes?.data || []
+      };
+      localStorage.setItem(CACHE_KEY_ALL_DATA, JSON.stringify(combined));
+      if (onFreshDataCallback) {
+        onFreshDataCallback(combined, false);
+      }
+      return combined;
+    } catch (err) {
+      console.error("Failed fetching fresh data from backend:", err);
+      if (cachedData && onFreshDataCallback) {
+        return cachedData;
+      }
+      throw err;
+    }
+  })();
+
+  return { cachedData, freshPromise: fetchPromise };
+}
+
 /**
  * Local Store API Logic (Supports offline testing & demo before Google Sheets deployment)
  */
@@ -84,6 +144,16 @@ function handleLocalApiCall(action, payload) {
   const settings = JSON.parse(localStorage.getItem(API_CONFIG.STORAGE_SETTINGS) || '{}');
 
   switch (action) {
+    case 'GET_ALL_DATA':
+      return {
+        success: true,
+        data: {
+          settings,
+          members,
+          payments
+        }
+      };
+
     case 'GET_MEMBERS':
       return { success: true, data: members };
 

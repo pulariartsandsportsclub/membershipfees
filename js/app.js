@@ -38,15 +38,22 @@ document.addEventListener('DOMContentLoaded', () => {
 async function refreshAppData() {
   showGlobalLoading(true);
   try {
-    const [settingsRes, membersRes, paymentsRes] = await Promise.all([
-      apiCall('GET_SETTINGS'),
-      apiCall('GET_MEMBERS'),
-      apiCall('GET_PAYMENTS')
-    ]);
+    const res = await apiCall('GET_ALL_DATA');
+    if (res && res.success && res.data) {
+      if (res.data.settings) AppState.settings = res.data.settings;
+      if (res.data.members) AppState.members = res.data.members;
+      if (res.data.payments) AppState.payments = res.data.payments;
+    } else {
+      const [settingsRes, membersRes, paymentsRes] = await Promise.all([
+        apiCall('GET_SETTINGS'),
+        apiCall('GET_MEMBERS'),
+        apiCall('GET_PAYMENTS')
+      ]);
 
-    if (settingsRes.success) AppState.settings = settingsRes.data;
-    if (membersRes.success) AppState.members = membersRes.data;
-    if (paymentsRes.success) AppState.payments = paymentsRes.data;
+      if (settingsRes.success) AppState.settings = settingsRes.data;
+      if (membersRes.success) AppState.members = membersRes.data;
+      if (paymentsRes.success) AppState.payments = paymentsRes.data;
+    }
 
     // Trigger tab specific view renders
     renderCurrentTab();
