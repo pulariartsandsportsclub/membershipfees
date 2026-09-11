@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulari Arts & Sports Club – Membership Management System</title>
+  <meta name="description" content="Simple, modern, responsive membership fee management system for Pulari Arts & Sports Club using Google Sheets backend and GitHub Pages.">
+  <link rel="icon" type="image/png" href="PULARI.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div id="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <img src="PULARI.png" alt="Pulari Arts & Sports Club Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-text">
+          <h1>Pulari Club</h1>
+          <span>Membership System</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          Dashboard
+        </a>
+        <a class="nav-item" data-tab="members">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          Members
+        </a>
+        <a class="nav-item" data-tab="payments">
+          <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          Monthly Payments
+        </a>
+        <a class="nav-item" data-tab="reports">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          Reports
+        </a>
+        <a class="nav-item" data-tab="settings">
+          <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-details">
+            <div class="avatar">A</div>
+            <div>
+              <div class="user-name">Club Admin</div>
+              <div class="user-role">Administrator</div>
+            </div>
+          </div>
+          <button class="btn-logout" id="btn-logout" title="Sign Out">
+            <svg style="width:18px;height:18px;" viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="mobile-toggle" id="mobile-toggle" aria-label="Open Navigation">☰</button>
+          <div class="header-brand-wrap">
+            <img src="PULARI.png" alt="Pulari Arts & Sports Club Logo" class="header-logo">
+            <div class="header-title">
+              <h2 id="page-header-title">Dashboard Overview</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <span class="current-month-badge" id="header-month-badge">September 2026</span>
+          <div class="loading-spinner" id="global-spinner" style="display:none;"></div>
+        </div>
+      </header>
+
+      <!-- Content Views -->
+      <main class="content-area">
+        
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="page-view active">
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon icon-blue">👥</div>
+              <div class="stat-info">
+                <div class="stat-label">Total Members</div>
+                <div class="stat-value" id="dash-total-members">0</div>
+                <div class="stat-sub">Active Club Members</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon icon-green">✅</div>
+              <div class="stat-info">
+                <div class="stat-label">Paid This Month</div>
+                <div class="stat-value" id="dash-paid-count">0</div>
+                <div class="stat-sub">Completed Payments</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon icon-red">⏳</div>
+              <div class="stat-info">
+                <div class="stat-label">Unpaid This Month</div>
+                <div class="stat-value" id="dash-unpaid-count">0</div>
+                <div class="stat-sub">Pending Members</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon icon-amber">💰</div>
+              <div class="stat-info">
+                <div class="stat-label">Collected This Month</div>
+                <div class="stat-value" id="dash-collected-amount">₹0</div>
+                <div class="stat-sub">Monthly Fee Total</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <!-- Monthly Collection Trends Card -->
+            <div class="chart-card trends-card">
+              <div class="trends-header">
+                <div class="trends-title-group">
+                  <div class="trends-title-row">
+                    <span class="trends-badge-icon">📊</span>
+                    <h4>Monthly Collection Trends</h4>
+                  </div>
+                  <span class="section-subtitle" id="trends-subtitle">Collection performance & payment rate over time</span>
+                </div>
+                
+                <div class="trends-controls">
+                  <div class="range-toggle-group" id="trends-range-toggle">
+                    <button type="button" class="range-btn active" data-range="6">6 Months</button>
+                    <button type="button" class="range-btn" data-range="12">12 Months</button>
+                    <button type="button" class="range-btn" data-range="year">This Year</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Trends Metrics Strip -->
+              <div class="trends-stats-banner">
+                <div class="tstat-box">
+                  <span class="tstat-label">Period Total</span>
+                  <span class="tstat-value text-primary" id="tstat-total">₹0</span>
+                </div>
+                <div class="tstat-box">
+                  <span class="tstat-label">Monthly Average</span>
+                  <span class="tstat-value text-success" id="tstat-avg">₹0</span>
+                </div>
+                <div class="tstat-box">
+                  <span class="tstat-label">Peak Month</span>
+                  <span class="tstat-value text-amber" id="tstat-peak">—</span>
+                </div>
+                <div class="tstat-box">
+                  <span class="tstat-label">Selected Month</span>
+                  <span class="tstat-value text-highlight" id="tstat-selected">Sep 2026</span>
+                </div>
+              </div>
+
+              <!-- Bar Chart SVG Container & Floating Tooltip -->
+              <div class="bar-chart-wrapper">
+                <div class="bar-chart-container" id="dash-bar-chart">
+                  <!-- SVG dynamically rendered here -->
+                </div>
+                <div class="chart-tooltip" id="chart-tooltip"></div>
+              </div>
+
+              <!-- Chart Footer Info & Legend -->
+              <div class="trends-footer">
+                <div class="trends-legend">
+                  <span class="legend-chip chip-selected">
+                    <span class="chip-dot dot-selected"></span> Selected Month
+                  </span>
+                  <span class="legend-chip chip-default">
+                    <span class="chip-dot dot-default"></span> Other Months
+                  </span>
+                </div>
+                <div class="trends-instruction">
+                  <span class="hint-icon">💡</span>
+                  <span>Click on any bar to switch dashboard data to that month</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Status Ring Chart -->
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h4>Payment Status</h4>
+                <span class="section-subtitle">Selected Month</span>
+              </div>
+              <div class="ring-chart-container">
+                <div class="ring-graphic">
+                  <svg viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="54" fill="none" stroke="#f1f5f9" stroke-width="12" />
+                    <circle id="ring-circle" cx="60" cy="60" r="54" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="339.29" stroke-dashoffset="339.29" stroke-linecap="round" />
+                  </svg>
+                  <div class="ring-inner-text">
+                    <div class="ring-percent" id="ring-percent">0%</div>
+                    <div class="ring-label">Paid Rate</div>
+                  </div>
+                </div>
+                <div class="chart-legend">
+                  <div class="legend-item"><span class="legend-dot dot-paid"></span> <span id="legend-paid-txt">Paid (0)</span></div>
+                  <div class="legend-item"><span class="legend-dot dot-unpaid"></span> <span id="legend-unpaid-txt">Unpaid (0)</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- 2. MEMBERS VIEW -->
+        <section id="view-members" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Club Members Directory</h3>
+              <p class="section-subtitle">Manage member profiles, contact info, and status.</p>
+            </div>
+            <div class="controls-bar">
+              <div class="search-input-wrapper">
+                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="member-search" class="form-control" placeholder="Search by name, ID, phone...">
+              </div>
+              <select id="member-status-filter" class="form-select" style="width: auto;">
+                <option value="All">All Members</option>
+                <option value="Active" selected>Active Only</option>
+                <option value="Inactive">Inactive Only</option>
+              </select>
+              <button class="btn btn-primary" id="btn-add-member">+ Add Member</button>
+            </div>
+          </div>
+
+          <div class="card-box">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Member ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Join Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="members-table-body">
+                  <!-- Injected via members.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 3. MONTHLY PAYMENTS VIEW -->
+        <section id="view-payments" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Monthly Fee Collection</h3>
+              <p class="section-subtitle">Track and mark member payments for each month.</p>
+            </div>
+            <div class="controls-bar">
+              <select id="payment-month-select" class="form-select" style="width:auto;">
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+              </select>
+              <select id="payment-year-select" class="form-select" style="width:auto;">
+                <option value="2025">2025</option>
+                <option value="2026" selected>2026</option>
+                <option value="2027">2027</option>
+              </select>
+              <button class="btn btn-outline" id="btn-current-month">Current Month</button>
+              <div class="search-input-wrapper">
+                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="payment-search" class="form-control" placeholder="Search member...">
+              </div>
+              <div style="display:flex; gap:0.25rem;">
+                <button class="btn btn-primary btn-sm payment-filter-btn" data-filter="All">All</button>
+                <button class="btn btn-outline btn-sm payment-filter-btn" data-filter="Paid">Paid</button>
+                <button class="btn btn-outline btn-sm payment-filter-btn" data-filter="Unpaid">Unpaid</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-box">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Member ID</th>
+                    <th>Member Name</th>
+                    <th>Monthly Fee</th>
+                    <th>Status</th>
+                    <th>Payment Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="payments-table-body">
+                  <!-- Injected via payments.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 4. REPORTS VIEW -->
+        <section id="view-reports" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>Monthly Collection Reports</h3>
+              <p class="section-subtitle">Summary metrics and printable collection statements.</p>
+            </div>
+            <div class="controls-bar">
+              <select id="report-month-select" class="form-select" style="width:auto;">
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+              </select>
+              <select id="report-year-select" class="form-select" style="width:auto;">
+                <option value="2025">2025</option>
+                <option value="2026" selected>2026</option>
+                <option value="2027">2027</option>
+              </select>
+              <button class="btn btn-outline" id="btn-print-report">🖨️ Print Report</button>
+              <button class="btn btn-secondary" id="btn-export-csv">📥 Export CSV</button>
+            </div>
+          </div>
+
+          <div class="report-summary-box">
+            <div class="report-stat-item">
+              <span class="report-stat-label">Total Active Members</span>
+              <span class="report-stat-val" id="report-total-active">0</span>
+            </div>
+            <div class="report-stat-item">
+              <span class="report-stat-label">Paid Members</span>
+              <span class="report-stat-val" id="report-paid-count">0</span>
+            </div>
+            <div class="report-stat-item">
+              <span class="report-stat-label">Unpaid Members</span>
+              <span class="report-stat-val" id="report-unpaid-count">0</span>
+            </div>
+            <div class="report-stat-item">
+              <span class="report-stat-label">Total Collected</span>
+              <span class="report-stat-val" id="report-total-collected">₹0</span>
+            </div>
+            <div class="report-stat-item">
+              <span class="report-stat-label">Collection Rate</span>
+              <span class="report-stat-val" id="report-collection-rate">0%</span>
+            </div>
+          </div>
+
+          <div class="reports-dual-tables">
+            <div class="card-box">
+              <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); font-weight:700; color:var(--secondary-color);">
+                Paid Members List
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr><th>ID</th><th>Name</th><th>Payment Date</th></tr>
+                  </thead>
+                  <tbody id="report-paid-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card-box">
+              <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); font-weight:700; color:var(--danger-color);">
+                Unpaid / Pending Members
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr><th>ID</th><th>Name</th><th>Phone</th></tr>
+                  </thead>
+                  <tbody id="report-unpaid-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- 5. SETTINGS VIEW -->
+        <section id="view-settings" class="page-view">
+          <div class="section-header">
+            <div>
+              <h3>System Settings</h3>
+              <p class="section-subtitle">Configure club details, fee parameters, and Google Apps Script integration.</p>
+            </div>
+          </div>
+
+          <div class="card-box" style="max-width: 680px; padding: 1.5rem;">
+            <form id="settings-form">
+              
+              <div class="form-group">
+                <label for="settings-club-name">Club Name</label>
+                <input type="text" id="settings-club-name" class="form-control" required>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                  <label for="settings-monthly-fee">Default Monthly Fee (₹)</label>
+                  <input type="number" id="settings-monthly-fee" class="form-control" min="1" required>
+                </div>
+                <div class="form-group">
+                  <label for="settings-currency">Currency Symbol</label>
+                  <input type="text" id="settings-currency" class="form-control" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="settings-admin-password">Change Admin Password (Optional)</label>
+                <input type="password" id="settings-admin-password" class="form-control" placeholder="Leave blank to keep current password">
+              </div>
+
+              <hr style="border:none; border-top:1px solid var(--border-color); margin:1.5rem 0;">
+
+              <div class="form-group">
+                <label for="settings-api-url">Google Apps Script Web App URL</label>
+                <input type="url" id="settings-api-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+                <small style="color:var(--text-muted); margin-top:0.25rem; display:block;">
+                  If left empty, system operates in <strong>Local Storage Demo Mode</strong>.
+                </small>
+              </div>
+
+              <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+                <button type="button" class="btn btn-outline" id="btn-test-api">Test API Connection</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+
+  <!-- MODALS -->
+
+  <!-- 1. Admin Login Modal -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal-container" style="max-width: 400px;">
+      <div class="modal-header">
+        <h4>Admin Sign In</h4>
+      </div>
+      <form id="login-form">
+        <div class="modal-body">
+          <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1rem;">
+            Please enter the admin password to access Pulari Club management system. Default password: <strong>admin</strong>
+          </p>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" class="form-control" placeholder="Enter password" required autofocus>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" style="width:100%;">Sign In</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Add / Edit Member Modal -->
+  <div class="modal-overlay" id="member-form-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h4 id="member-modal-title">Add New Member</h4>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="add-member-form">
+        <input type="hidden" id="member-is-edit" value="false">
+        <div class="modal-body">
+          <div style="display:grid; grid-template-columns: 1fr 2fr; gap:1rem;">
+            <div class="form-group">
+              <label for="member-id-input">Member ID</label>
+              <input type="text" id="member-id-input" class="form-control" required readonly style="background-color:#f1f5f9;">
+            </div>
+            <div class="form-group">
+              <label for="member-name-input">Full Name *</label>
+              <input type="text" id="member-name-input" class="form-control" placeholder="e.g. Muhammed Ali" required>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label for="member-phone-input">Phone Number</label>
+              <input type="tel" id="member-phone-input" class="form-control" placeholder="9876543210">
+            </div>
+            <div class="form-group">
+              <label for="member-join-date">Join Date</label>
+              <input type="date" id="member-join-date" class="form-control" required>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label for="member-fee-input">Monthly Fee (₹)</label>
+              <input type="number" id="member-fee-input" class="form-control" min="1" required>
+            </div>
+            <div class="form-group">
+              <label for="member-status-input">Status</label>
+              <select id="member-status-input" class="form-select">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="member-address-input">Address</label>
+            <input type="text" id="member-address-input" class="form-control" placeholder="Ward / House Name">
+          </div>
+
+          <div class="form-group">
+            <label for="member-notes-input">Notes (Optional)</label>
+            <input type="text" id="member-notes-input" class="form-control" placeholder="e.g. Executive Committee Member">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline modal-close">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Member Details & History Modal -->
+  <div class="modal-overlay" id="member-details-modal">
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h4>Member Details</h4>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="member-detail-grid">
+          <div class="detail-item"><div class="detail-label">Name</div><div class="detail-value" id="view-member-name"></div></div>
+          <div class="detail-item"><div class="detail-label">Member ID</div><div class="detail-value" id="view-member-id"></div></div>
+          <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value" id="view-member-phone"></div></div>
+          <div class="detail-item"><div class="detail-label">Join Date</div><div class="detail-value" id="view-member-join"></div></div>
+          <div class="detail-item"><div class="detail-label">Status</div><div class="detail-value" id="view-member-status"></div></div>
+          <div class="detail-item"><div class="detail-label">Monthly Fee</div><div class="detail-value" id="view-member-fee"></div></div>
+        </div>
+
+        <h5 style="font-size:0.95rem; font-weight:700; margin-bottom:0.75rem;">Payment History</h5>
+        <div class="table-responsive" style="max-height:220px; overflow-y:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Period</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date Paid</th>
+                <th>Method</th>
+              </tr>
+            </thead>
+            <tbody id="view-member-payments-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline modal-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Payment Confirmation Modal -->
+  <div class="modal-overlay" id="payment-confirm-modal">
+    <div class="modal-container" style="max-width: 440px;">
+      <div class="modal-header">
+        <h4>Confirm Monthly Payment</h4>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="payment-confirm-desc" style="font-size:0.95rem; color:var(--text-main); margin-bottom:1rem;"></p>
+        <p style="font-size:0.8rem; color:var(--text-muted);">This action will record the fee payment in the Google Sheets database.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline modal-close">Cancel</button>
+        <button type="button" class="btn btn-secondary" id="btn-confirm-payment">Confirm Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Area -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/members.js"></script>
+  <script src="js/payments.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>
