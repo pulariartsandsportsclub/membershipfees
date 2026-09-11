@@ -14,7 +14,7 @@ const MONTHS_SHORT = [
 ];
 
 const PublicState = {
-  currentView: 'monthly', // 'monthly' or 'yearly'
+  currentView: 'yearly', // 'monthly' or 'yearly'
   selectedMonth: new Date().toLocaleString('default', { month: 'long' }),
   selectedYear: new Date().getFullYear(),
   yearlyYear: new Date().getFullYear(),
@@ -99,6 +99,9 @@ function bindViewSwitcher() {
   if (btnYearly) {
     btnYearly.addEventListener('click', () => switchView('yearly'));
   }
+
+  // Set default view on load (yearly view)
+  switchView(PublicState.currentView || 'yearly');
 
   if (forceRefreshBtn) {
     forceRefreshBtn.addEventListener('click', () => {
@@ -477,13 +480,16 @@ function renderYearlyDashboard() {
   const partialPaidCount = yearlyData.filter(d => d.overallStatus === 'Partial').length;
   const unpaidCount = yearlyData.filter(d => d.overallStatus === 'Unpaid').length;
   const totalYearlyCollected = yearlyData.reduce((sum, d) => sum + d.totalPaid, 0);
-  const totalYearlyExpected = yearlyData.reduce((sum, d) => sum + d.expectedTotal, totalMembers * defaultFee * 12);
+  const totalYearlyExpected = yearlyData.reduce((sum, d) => sum + d.expectedTotal, 0);
 
   const collectionRate = totalYearlyExpected > 0
     ? Math.round((totalYearlyCollected / totalYearlyExpected) * 100)
     : 0;
 
   // Update Stats Elements
+  if (PublicState.currentView === 'yearly') {
+    setText('public-month-badge', `Year ${selectedYear}`);
+  }
   setText('yearly-total-members', totalMembers);
   setText('yearly-full-paid-count', fullPaidCount);
   setText('yearly-partial-paid-count', partialPaidCount);
