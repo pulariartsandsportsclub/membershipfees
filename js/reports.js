@@ -52,7 +52,7 @@ function renderReportsPage() {
           <tr>
             <td><strong>${m.memberId}</strong></td>
             <td>${m.fullName}</td>
-            <td>${pay ? pay.paymentDate : '—'}</td>
+            <td>${pay ? `${pay.month || selectedMonth} (${pay.paymentDate || 'Recorded'})` : '—'}</td>
           </tr>
         `;
       }).join('');

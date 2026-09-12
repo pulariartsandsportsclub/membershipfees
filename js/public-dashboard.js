@@ -52,7 +52,7 @@ function fillMonthYearSelects() {
     monthSelect.value = PublicState.selectedMonth;
   }
 
-  const years = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1];
+  const years = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
 
   if (yearSelect) {
     yearSelect.innerHTML = years.map(year =>
@@ -416,26 +416,44 @@ function renderPaidUnpaidTables(paidRows, unpaidRows) {
    YEARLY OVERVIEW RENDER LOGIC (Which Months Paid & Yearly Matrix)
    ========================================================================== */
 
+// Membership Cycle Months: September (selected year) to August (next year)
+const CYCLE_MONTHS = [
+  { name: "September", short: "SEP", yearOffset: 0 },
+  { name: "October", short: "OCT", yearOffset: 0 },
+  { name: "November", short: "NOV", yearOffset: 0 },
+  { name: "December", short: "DEC", yearOffset: 0 },
+  { name: "January", short: "JAN", yearOffset: 1 },
+  { name: "February", short: "FEB", yearOffset: 1 },
+  { name: "March", short: "MAR", yearOffset: 1 },
+  { name: "April", short: "APR", yearOffset: 1 },
+  { name: "May", short: "MAY", yearOffset: 1 },
+  { name: "June", short: "JUN", yearOffset: 1 },
+  { name: "July", short: "JUL", yearOffset: 1 },
+  { name: "August", short: "AUG", yearOffset: 1 }
+];
+
 function getYearlyMemberData() {
   const { members, payments, yearlyYear, settings } = PublicState;
   const activeMembers = members.filter(m => m.status === 'Active');
   const defaultFee = Number(settings.monthly_fee || 30);
+  const baseYear = Number(yearlyYear);
 
   return activeMembers.map(member => {
     const memberFee = Number(member.monthlyFee || defaultFee);
-    // Find all paid records for this member in this year
-    const memberYearPayments = payments.filter(p =>
-      p.memberId === member.memberId &&
-      Number(p.year) === Number(yearlyYear) &&
-      p.status === 'Paid'
-    );
 
-    // Map through all 12 months
-    const monthsStatus = MONTHS_LIST.map((monthName, idx) => {
-      const payment = memberYearPayments.find(p => p.month.toLowerCase() === monthName.toLowerCase());
+    // Map through 12 cycle months: Sep (baseYear) to Aug (baseYear + 1)
+    const monthsStatus = CYCLE_MONTHS.map(cm => {
+      const targetYear = baseYear + cm.yearOffset;
+      const payment = (payments || []).find(p =>
+        p.memberId === member.memberId &&
+        p.month && p.month.toLowerCase() === cm.name.toLowerCase() &&
+        Number(p.year) === targetYear &&
+        p.status === 'Paid'
+      );
       return {
-        monthName,
-        shortName: MONTHS_SHORT[idx],
+        monthName: cm.name,
+        shortName: cm.short,
+        year: targetYear,
         isPaid: !!payment,
         paymentDate: payment ? payment.paymentDate : '',
         amount: payment ? Number(payment.amount || memberFee) : 0
@@ -464,6 +482,7 @@ function getYearlyMemberData() {
       paidCount,
       monthsStatus,
       paidMonthNames: paidMonths.map(m => m.shortName),
+      paidFullMonthNames: paidMonths.map(m => `${m.monthName} ${m.year}`),
       overallStatus
     };
   });
@@ -487,18 +506,22 @@ function renderYearlyDashboard() {
     : 0;
 
   // Update Stats Elements
+  // Update Stats Elements
+  const nextYear = selectedYear + 1;
+  const cycleLabel = `Sep ${selectedYear} – Aug ${nextYear}`;
+
   if (PublicState.currentView === 'yearly') {
-    setText('public-month-badge', `Year ${selectedYear}`);
+    setText('public-month-badge', cycleLabel);
   }
   setText('yearly-total-members', totalMembers);
   setText('yearly-full-paid-count', fullPaidCount);
   setText('yearly-partial-paid-count', partialPaidCount);
   setText('yearly-total-collected', formatPublicCurrency(totalYearlyCollected));
   setText('yearly-collection-rate', `${collectionRate}%`);
-  setText('yearly-progress-year-label', selectedYear);
+  setText('yearly-progress-year-label', cycleLabel);
   setText('yearly-progress-sublabel', `${formatPublicCurrency(totalYearlyCollected)} of ${formatPublicCurrency(totalYearlyExpected)} expected`);
   setText('yearly-full-paid-sub', `${fullPaidCount} of ${totalMembers} members cleared all 12 mos`);
-  setText('yearly-collected-sub', `Total collection in ${selectedYear}`);
+  setText('yearly-collected-sub', `Total collection for ${cycleLabel}`);
 
   const fill = document.getElementById('yearly-progress-fill');
   if (fill) fill.style.width = `${collectionRate}%`;
@@ -523,7 +546,7 @@ function renderYearlyDashboard() {
     tbody.innerHTML = `
       <tr>
         <td colspan="6" class="empty-state">
-          <p>No members found matching the filter for ${selectedYear}.</p>
+          <p>No members found matching the filter for ${cycleLabel}.</p>
         </td>
       </tr>
     `;
@@ -540,14 +563,14 @@ function renderYearlyDashboard() {
     } else if (row.paidCount > 0) {
       completionBadge = `<div class="yearly-completion-pill partial">⏳ ${row.paidCount} Months Paid: ${row.paidMonthNames.join(', ')}</div>`;
     } else {
-      completionBadge = `<div class="yearly-completion-pill zero">❌ No payments this year</div>`;
+      completionBadge = `<div class="yearly-completion-pill zero">❌ No payments for ${cycleLabel}</div>`;
     }
 
-    // Generate 12 Month Pills (Jan - Dec)
+    // Generate 12 Month Pills (Sep - Aug)
     const monthPillsHtml = row.monthsStatus.map(m => {
       const tooltip = m.isPaid
-        ? `${m.monthName} ${selectedYear}: Paid ${formatPublicCurrency(m.amount)}${m.paymentDate ? ' on ' + m.paymentDate : ''}`
-        : `${m.monthName} ${selectedYear}: Unpaid / Due`;
+        ? `${m.monthName} ${m.year}: Paid ${formatPublicCurrency(m.amount)}${m.paymentDate ? ' on ' + m.paymentDate : ''}`
+        : `${m.monthName} ${m.year}: Unpaid / Due`;
       const checkIcon = m.isPaid ? '✓ ' : '';
       return `<span class="month-pill ${m.isPaid ? 'paid' : 'unpaid'}" title="${escapeHtml(tooltip)}">${checkIcon}${m.shortName}</span>`;
     }).join('');
