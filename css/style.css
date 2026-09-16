@@ -2157,7 +2157,7 @@ body.public-page {
 .goal-pitch {
   position: relative;
   width: 100%;
-  height: 340px;
+  height: 420px;
   background: radial-gradient(circle at 50% 18%, #1e293b 0%, #090d16 100%);
   overflow: hidden;
   display: flex;
@@ -2628,21 +2628,6 @@ body.public-page {
   margin-top: 0.35rem;
 }
 
-/* Game Footer */
-.goal-game-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1.4rem;
-  background: rgba(15, 23, 42, 0.95);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.goal-hint {
-  font-size: 0.82rem;
-  color: #94a3b8;
-}
-
 .highscore-card {
   background: rgba(99, 102, 241, 0.12);
   border-color: rgba(99, 102, 241, 0.35);
@@ -2802,7 +2787,8 @@ body.public-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem;
+  padding: 0.85rem;
+  overflow-y: auto;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
@@ -2815,15 +2801,17 @@ body.public-page {
 
 .goal-gameover-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   background: linear-gradient(180deg, #1e293b 0%, #090d16 100%);
   border: 1px solid rgba(239, 68, 68, 0.35);
   border-radius: 18px;
-  padding: 1.75rem 1.5rem;
+  padding: 1.25rem 1.25rem;
   text-align: center;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(239, 68, 68, 0.2);
   transform: scale(0.9);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-height: 95%;
+  overflow-y: auto;
 }
 
 .goal-gameover-overlay.active .goal-gameover-card {
@@ -2848,7 +2836,7 @@ body.public-page {
 .gameover-desc {
   font-size: 0.84rem;
   color: #94a3b8;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.85rem;
   line-height: 1.4;
 }
 
@@ -2859,12 +2847,12 @@ body.public-page {
 .gameover-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
+  gap: 0.4rem;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
-  padding: 0.75rem 0.5rem;
-  margin-bottom: 1.25rem;
+  padding: 0.6rem 0.4rem;
+  margin-bottom: 0.85rem;
 }
 
 .gstat-item {
@@ -2896,16 +2884,29 @@ body.public-page {
   animation: pulse-dot 1.5s infinite ease-in-out;
 }
 
+.gameover-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.65rem;
+  justify-content: center;
+}
+
+.btn-play-again,
+.btn-leaderboard {
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
 .btn-play-again {
-  width: 100%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
   border: none;
-  padding: 0.85rem;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 800;
-  cursor: pointer;
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
   transition: all 0.2s ease;
 }
@@ -2916,7 +2917,21 @@ body.public-page {
   box-shadow: 0 8px 24px rgba(16, 185, 129, 0.65);
 }
 
-/* Leaderboard Button on Game Over */
+.btn-leaderboard {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-leaderboard:hover {
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.6);
+}
+
+/* Leaderboard Button on Header Controls */
 .game-lb-btn {
   background: rgba(245, 158, 11, 0.15) !important;
   border: 1px solid rgba(245, 158, 11, 0.35) !important;
@@ -2928,33 +2943,6 @@ body.public-page {
   background: rgba(245, 158, 11, 0.3) !important;
   box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
   transform: scale(1.1);
-}
-
-.gameover-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.btn-leaderboard {
-  width: 100%;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: #ffffff;
-  border: none;
-  padding: 0.75rem;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
-  transition: all 0.2s ease;
-  letter-spacing: 0.3px;
-}
-
-.btn-leaderboard:hover {
-  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.6);
 }
 
 /* Leaderboard Overlay */
@@ -3251,7 +3239,7 @@ body.public-page {
   }
 
   .goal-pitch {
-    height: 270px;
+    height: 350px;
   }
 
   .goal-frame {
@@ -3356,29 +3344,29 @@ body.public-page {
 
   .goal-gameover-card,
   .goal-name-card {
-    padding: 1.25rem 1rem;
-    max-width: 94%;
+    padding: 1rem 0.85rem;
+    max-width: 95%;
   }
 
   .gameover-whistle-icon,
   .name-card-icon {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 
   .gameover-title {
-    font-size: 1.18rem;
+    font-size: 1.15rem;
   }
 
   .gameover-desc,
   .goal-name-card p {
-    font-size: 0.78rem;
-    margin-bottom: 0.9rem;
+    font-size: 0.76rem;
+    margin-bottom: 0.6rem;
   }
 
   .gameover-stats-grid {
-    padding: 0.5rem 0.3rem;
+    padding: 0.45rem 0.25rem;
     gap: 0.2rem;
-    margin-bottom: 0.9rem;
+    margin-bottom: 0.65rem;
   }
 
   .gstat-val {
@@ -3390,17 +3378,10 @@ body.public-page {
   }
 
   .btn-play-again,
+  .btn-leaderboard,
   .btn-kickoff {
-    padding: 0.7rem;
-    font-size: 0.92rem;
-  }
-
-  .goal-game-footer {
-    padding: 0.45rem 0.85rem;
-  }
-
-  .goal-hint {
-    font-size: 0.72rem;
+    padding: 0.65rem 0.4rem;
+    font-size: 0.86rem;
   }
 
   .goal-leaderboard-card {
@@ -3433,7 +3414,7 @@ body.public-page {
 
 @media (max-width: 380px) {
   .goal-pitch {
-    height: 250px;
+    height: 320px;
   }
   .goal-frame {
     height: 140px;

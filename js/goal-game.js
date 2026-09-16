@@ -585,12 +585,6 @@
               </div>
             </div>
 
-          <!-- Bottom Footer -->
-          <div class="goal-game-footer">
-            <span class="goal-hint">🎯 Tap any crosshair on the net to shoot! (5 saves max)</span>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-reset-game">New Match</button>
-          </div>
-
         </div>
       </div>
     `;
@@ -625,7 +619,8 @@
       });
     }
 
-    modalEl.querySelector('#btn-reset-game').addEventListener('click', resetScoreboard);
+    const resetGameBtn = modalEl.querySelector('#btn-reset-game');
+    if (resetGameBtn) resetGameBtn.addEventListener('click', resetScoreboard);
     modalEl.querySelector('#btn-play-again').addEventListener('click', resetScoreboard);
 
     // Leaderboard button listeners
