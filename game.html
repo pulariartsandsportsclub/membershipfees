@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penalty Shootout Game – Pulari Arts & Sports Club</title>
+  <meta name="description"
+    content="Penalty Shootout Mini-Game with live highscore leaderboard for Pulari Arts & Sports Club.">
+  <link rel="icon" type="image/png" href="PULARI.png">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body.game-page {
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #090d16 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    .game-page-header {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      padding: 0 0.5rem;
+    }
+
+    .game-nav-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .game-nav-back:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(-2px);
+    }
+
+    .game-brand-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .game-brand-pill img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+    }
+
+    .game-brand-pill span {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      letter-spacing: -0.2px;
+    }
+
+    /* Standalone wrapper for modal container */
+    .game-page-container {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      justify-content: center;
+    }
+
+    body.game-page .goal-modal-overlay {
+      position: static !important;
+      inset: auto !important;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      padding: 0 !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    body.game-page .goal-game-container {
+      transform: none !important;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      body.game-page {
+        padding: 0.5rem;
+        justify-content: flex-start;
+      }
+      .game-page-header {
+        margin-bottom: 0.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body class="game-page">
+
+  <!-- Top Navigation Bar -->
+  <header class="game-page-header">
+    <div class="game-brand-pill">
+      <img src="PULARI.png" alt="Pulari Club Logo">
+      <span>Pulari Arts & Sports Club</span>
+    </div>
+    <a href="dashboard.html" class="game-nav-back" title="Back to Dashboard">
+      ← Back to Dashboard
+    </a>
+  </header>
+
+  <!-- Game Container Mounting Area -->
+  <div class="game-page-container" id="game-standalone-mount"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/goal-game.js"></script>
+</body>
+
+</html>

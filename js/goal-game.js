@@ -136,11 +136,19 @@
     createGameModal();
     attachGlobalTriggers();
     fetchGlobalHighScore();
+
+    // If on a dedicated standalone page (game.html), automatically initialize and open the game
+    if (document.body.classList.contains('game-page') || document.getElementById('game-standalone-mount')) {
+      openGameModal();
+      // On standalone page, hide the modal close button since user has the page back link
+      const closeBtn = document.getElementById('game-close-btn');
+      if (closeBtn) closeBtn.style.display = 'none';
+    }
   }
 
   function attachGlobalTriggers() {
     const triggerBtn = document.getElementById('btn-open-game');
-    if (triggerBtn) {
+    if (triggerBtn && triggerBtn.tagName === 'BUTTON') {
       triggerBtn.addEventListener('click', openGameModal);
     }
   }
@@ -587,7 +595,8 @@
       </div>
     `;
 
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const mountTarget = document.getElementById('game-standalone-mount') || document.body;
+    mountTarget.insertAdjacentHTML('beforeend', modalHtml);
 
     // Cache elements
     modalEl = document.getElementById('goal-game-modal');
