@@ -308,13 +308,19 @@
           if (tableEl) tableEl.style.display = 'table';
           if (tbody) {
             const rankIcons = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-            tbody.innerHTML = rows.map((row, idx) => `
-              <tr class="lb-row ${idx === 0 ? 'lb-gold' : idx === 1 ? 'lb-silver' : idx === 2 ? 'lb-bronze' : ''}">
+            const currentPlayer = (GameState.playerName || '').trim().toLowerCase();
+            tbody.innerHTML = rows.map((row, idx) => {
+              const isCurrentPlayer = currentPlayer && row.player_name && row.player_name.trim().toLowerCase() === currentPlayer;
+              const rankClass = idx === 0 ? 'lb-gold' : idx === 1 ? 'lb-silver' : idx === 2 ? 'lb-bronze' : '';
+              const playerClass = isCurrentPlayer ? 'lb-current-player' : '';
+              return `
+              <tr class="lb-row ${rankClass} ${playerClass}">
                 <td class="lb-rank">${rankIcons[idx] || idx + 1}</td>
-                <td class="lb-name">${escapeHtml(row.player_name)}</td>
+                <td class="lb-name">${escapeHtml(row.player_name)}${isCurrentPlayer ? ' <span class="lb-you-badge">(You)</span>' : ''}</td>
                 <td class="lb-score">${row.high_score}</td>
               </tr>
-            `).join('');
+            `;
+            }).join('');
           }
         } else {
           if (emptyEl) emptyEl.style.display = 'block';
