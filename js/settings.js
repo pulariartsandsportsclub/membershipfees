@@ -9,12 +9,16 @@ function renderSettingsPage() {
   const clubNameInput = document.getElementById('settings-club-name');
   const feeInput = document.getElementById('settings-monthly-fee');
   const currencyInput = document.getElementById('settings-currency');
-  const apiUrlInput = document.getElementById('settings-api-url');
+  const supabaseUrlInput = document.getElementById('settings-supabase-url');
+  const supabaseKeyInput = document.getElementById('settings-supabase-key');
+  const sheetUrlInput = document.getElementById('settings-sheet-url');
 
   if (clubNameInput) clubNameInput.value = settings.club_name || "Pulari Arts & Sports Club";
   if (feeInput) feeInput.value = settings.monthly_fee || 30;
   if (currencyInput) currencyInput.value = settings.currency || "₹";
-  if (apiUrlInput) apiUrlInput.value = localStorage.getItem('pulari_api_url') || "";
+  if (supabaseUrlInput) supabaseUrlInput.value = localStorage.getItem('pulari_supabase_url') || SUPABASE_CONFIG.url;
+  if (supabaseKeyInput) supabaseKeyInput.value = localStorage.getItem('pulari_supabase_key') || SUPABASE_CONFIG.anonKey;
+  if (sheetUrlInput) sheetUrlInput.value = localStorage.getItem('pulari_api_url') || GOOGLE_SHEET_CONFIG.url;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -32,10 +36,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const monthly_fee = Number(document.getElementById('settings-monthly-fee').value || 30);
       const currency = document.getElementById('settings-currency').value.trim();
       const admin_password = document.getElementById('settings-admin-password').value.trim();
-      const api_url = document.getElementById('settings-api-url').value.trim();
+      const supabase_url = document.getElementById('settings-supabase-url').value.trim();
+      const supabase_key = document.getElementById('settings-supabase-key').value.trim();
+      const sheet_url = (document.getElementById('settings-sheet-url')?.value || '').trim();
 
-      // Store API URL in LocalStorage
-      localStorage.setItem('pulari_api_url', api_url);
+      // Store Supabase Credentials in LocalStorage
+      SUPABASE_CONFIG.url = supabase_url;
+      SUPABASE_CONFIG.anonKey = supabase_key;
+      GOOGLE_SHEET_CONFIG.url = sheet_url;
 
       const payload = {
         club_name,
@@ -53,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.textContent = 'Save Settings';
 
       if (res.success) {
-        showToast('Settings saved successfully!', 'success');
+        showToast('Settings & Supabase credentials saved successfully!', 'success');
         refreshAppData();
       } else {
         showToast(res.message || 'Error saving settings.', 'error');
@@ -63,9 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (testApiBtn) {
     testApiBtn.addEventListener('click', async () => {
-      const url = document.getElementById('settings-api-url').value.trim();
-      if (!url) {
-        showToast('Running in Local Demo Mode (No API URL set).', 'info');
+      const url = document.getElementById('settings-supabase-url').value.trim().replace(/\/+$/, '');
+      const key = document.getElementById('settings-supabase-key').value.trim();
+
+      if (!url || !key) {
+        showToast('Please enter both Supabase Project URL and Public Anon Key.', 'warning');
         return;
       }
 
@@ -73,23 +83,27 @@ document.addEventListener('DOMContentLoaded', () => {
       testApiBtn.textContent = 'Testing connection...';
 
       try {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'GET_SETTINGS' })
+        const testEndpoint = `${url}/rest/v1/settings?select=*&limit=1`;
+        const res = await fetch(testEndpoint, {
+          method: 'GET',
+          headers: {
+            'apikey': key,
+            'Authorization': `Bearer ${key}`
+          }
         });
-        const json = await res.json();
-        if (json.success) {
-          showToast('Connected to Google Apps Script successfully! 🎉', 'success');
+
+        if (res.ok) {
+          showToast('Connected to Supabase Database successfully! 🚀', 'success');
         } else {
-          showToast('API URL responded, but returned an error.', 'warning');
+          const errData = await res.json().catch(() => ({}));
+          showToast(`Supabase responded with error (${res.status}): ${errData.message || res.statusText}`, 'error');
         }
       } catch (err) {
-        showToast('Could not reach Google Apps Script Web App. Check URL and CORS deployment settings.', 'error');
-        console.error('API Test Error:', err);
+        showToast('Could not reach Supabase. Check URL, network, or CORS settings.', 'error');
+        console.error('Supabase Test Error:', err);
       } finally {
         testApiBtn.disabled = false;
-        testApiBtn.textContent = 'Test API Connection';
+        testApiBtn.textContent = 'Test Supabase Connection';
       }
     });
   }

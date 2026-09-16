@@ -199,6 +199,7 @@
                     <button type="button" class="range-btn active" data-range="6">6 Months</button>
                     <button type="button" class="range-btn" data-range="12">12 Months</button>
                     <button type="button" class="range-btn" data-range="year">This Year</button>
+                    <button type="button" class="range-btn" data-range="fy">FY 26-27</button>
                   </div>
                 </div>
               </div>
@@ -495,7 +496,7 @@
           <div class="section-header">
             <div>
               <h3>System Settings</h3>
-              <p class="section-subtitle">Configure club details, fee parameters, and Google Apps Script integration.
+              <p class="section-subtitle">Configure club details, fee parameters, and Supabase database integration.
               </p>
             </div>
           </div>
@@ -528,17 +529,32 @@
               <hr style="border:none; border-top:1px solid var(--border-color); margin:1.5rem 0;">
 
               <div class="form-group">
-                <label for="settings-api-url">Google Apps Script Web App URL</label>
-                <input type="url" id="settings-api-url" class="form-control"
+                <label for="settings-supabase-url">Supabase Project URL</label>
+                <input type="url" id="settings-supabase-url" class="form-control"
+                  placeholder="https://your-project-id.supabase.co">
+              </div>
+
+              <div class="form-group">
+                <label for="settings-supabase-key">Supabase Public Anon Key</label>
+                <input type="password" id="settings-supabase-key" class="form-control"
+                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                <small style="color:var(--text-muted); margin-top:0.25rem; display:block;">
+                  Found in your Supabase Dashboard &rarr; Project Settings &rarr; API &rarr; <code>anon / public</code> key.
+                </small>
+              </div>
+
+              <div class="form-group">
+                <label for="settings-sheet-url">Google Sheet Backup Web App URL (Optional)</label>
+                <input type="url" id="settings-sheet-url" class="form-control"
                   placeholder="https://script.google.com/macros/s/.../exec">
                 <small style="color:var(--text-muted); margin-top:0.25rem; display:block;">
-                  If left empty, system operates in <strong>Local Storage Demo Mode</strong>.
+                  Dual-write backup: All member/payment changes are automatically mirrored to your Google Sheet in the background.
                 </small>
               </div>
 
               <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
                 <button type="submit" class="btn btn-primary">Save Settings</button>
-                <button type="button" class="btn btn-outline" id="btn-test-api">Test API Connection</button>
+                <button type="button" class="btn btn-outline" id="btn-test-api">Test Supabase Connection</button>
               </div>
             </form>
           </div>
@@ -684,8 +700,7 @@
       </div>
       <div class="modal-body">
         <p id="payment-confirm-desc" style="font-size:0.95rem; color:var(--text-main); margin-bottom:1rem;"></p>
-        <p style="font-size:0.8rem; color:var(--text-muted);">This action will record the fee payment in the Google
-          Sheets database.</p>
+        <p style="font-size:0.8rem; color:var(--text-muted);">This action will record the fee payment in the database.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline modal-close">Cancel</button>

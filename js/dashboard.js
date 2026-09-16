@@ -67,7 +67,47 @@ function renderMonthlyBarChart() {
   // 1. Build time series data based on selected range
   const chartData = [];
   
-  if (trendsRange === 'year') {
+  if (trendsRange === 'fy') {
+    // Financial Year 26-27: September 2026 to August 2027
+    const fyStartYear = 2026;
+    const fyEndYear = 2027;
+
+    const fyMonths = [
+      { month: "September", year: fyStartYear },
+      { month: "October", year: fyStartYear },
+      { month: "November", year: fyStartYear },
+      { month: "December", year: fyStartYear },
+      { month: "January", year: fyEndYear },
+      { month: "February", year: fyEndYear },
+      { month: "March", year: fyEndYear },
+      { month: "April", year: fyEndYear },
+      { month: "May", year: fyEndYear },
+      { month: "June", year: fyEndYear },
+      { month: "July", year: fyEndYear },
+      { month: "August", year: fyEndYear }
+    ];
+
+    fyMonths.forEach(item => {
+      const monthName = item.month;
+      const y = item.year;
+      const monthPays = payments.filter(p => p.month === monthName && Number(p.year) === y && p.status === 'Paid');
+      const totalAmount = monthPays.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      const paidMembersCount = monthPays.length;
+      const rate = activeMembersCount > 0 ? Math.min(100, Math.round((paidMembersCount / activeMembersCount) * 100)) : 0;
+
+      chartData.push({
+        month: monthName,
+        year: y,
+        shortLabel: `${monthName.substring(0, 3)} '${String(y).slice(-2)}`,
+        fullLabel: `${monthName} ${y}`,
+        amount: totalAmount,
+        paidCount: paidMembersCount,
+        totalMembers: activeMembersCount,
+        rate: rate,
+        isSelected: (monthName === selectedMonth && y === Number(selectedYear))
+      });
+    });
+  } else if (trendsRange === 'year') {
     // 12 calendar months for the selected year
     for (let m = 0; m < 12; m++) {
       const monthName = MONTHS_LIST[m];
@@ -136,7 +176,9 @@ function renderMonthlyBarChart() {
   if (selEl) selEl.textContent = `${selectedMonth.substring(0, 3)} ${selectedYear}`;
   
   if (subtitleEl) {
-    if (trendsRange === 'year') {
+    if (trendsRange === 'fy') {
+      subtitleEl.textContent = `Financial Year 2026–2027 (Sep 2026 – Aug 2027) Total Collection & Trends`;
+    } else if (trendsRange === 'year') {
       subtitleEl.textContent = `Full Year Collections for ${currentYear} (${chartData.length} Months)`;
     } else if (trendsRange === '12') {
       subtitleEl.textContent = `Rolling 12-Month Performance Overview`;

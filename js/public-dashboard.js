@@ -202,7 +202,7 @@ function bindYearlyControls() {
 
 /**
  * Fast Data Loading with Stale-While-Revalidate
- * Loads instantly from cache and updates fresh from Google Sheet in background
+ * Loads instantly from cache and updates fresh from Supabase DB in background
  */
 async function loadPublicData(isManualRefresh = false) {
   const spinner = document.getElementById('public-spinner');
@@ -211,7 +211,7 @@ async function loadPublicData(isManualRefresh = false) {
 
   if (spinner) spinner.style.display = 'inline-block';
   if (cacheDot) cacheDot.className = 'status-indicator-dot updating';
-  if (cacheText) cacheText.textContent = isManualRefresh ? 'Fetching from Sheet...' : 'Syncing with Sheet...';
+  if (cacheText) cacheText.textContent = isManualRefresh ? 'Fetching from DB...' : 'Syncing with Supabase...';
 
   try {
     const { cachedData, freshPromise } = await fetchInitialData((freshData) => {
@@ -221,7 +221,7 @@ async function loadPublicData(isManualRefresh = false) {
       if (cacheText) cacheText.textContent = 'Live Connected';
       if (spinner) spinner.style.display = 'none';
       if (isManualRefresh) {
-        showPublicToast('Latest data refreshed from Google Sheet!', 'success');
+        showPublicToast('Latest data refreshed from Supabase DB!', 'success');
       }
     });
 
