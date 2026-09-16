@@ -146,49 +146,205 @@
   }
 
   /**
-   * Supabase DB Sync for High Score Leaderboard (Single-row table)
+   * Supabase DB Sync — Connected Highscore + Leaderboard
+   * The global high score is derived from goal_leaderboard (top 1 entry).
+   * The goal_highscore single-row table is also kept in sync for backwards compatibility.
    */
   async function fetchGlobalHighScore() {
     try {
-      if (typeof supabaseRequest === 'function' && typeof isSupabaseConfigured === 'function' && isSupabaseConfigured()) {
-        const rows = await supabaseRequest('goal_highscore?select=*&limit=1');
-        if (rows && rows.length > 0) {
-          GameState.globalHighScore = Number(rows[0].high_score || 0);
-          GameState.globalHighScorer = rows[0].player_name || 'Champion';
-          updateScoreboardUI();
-        } else {
-          await supabaseRequest('goal_highscore', {
-            method: 'POST',
-            body: JSON.stringify([{ id: 1, player_name: 'Pulari Striker', high_score: 0 }])
-          });
-          GameState.globalHighScore = 0;
-          GameState.globalHighScorer = 'Pulari Striker';
-          updateScoreboardUI();
-        }
+      if (typeof supabaseRequest !== 'function' || typeof isSupabaseConfigured !== 'function' || !isSupabaseConfigured()) return;
+
+      // Primary source: derive global high score from the leaderboard table (top 1)
+      const leaderboardTop = await supabaseRequest('goal_leaderboard?select=player_name,high_score&order=high_score.desc&limit=1');
+      if (leaderboardTop && leaderboardTop.length > 0) {
+        GameState.globalHighScore = Number(leaderboardTop[0].high_score || 0);
+        GameState.globalHighScorer = leaderboardTop[0].player_name || 'Champion';
+        updateScoreboardUI();
+
+        // Keep goal_highscore in sync with leaderboard top
+        syncHighscoreRow(GameState.globalHighScore, GameState.globalHighScorer);
+        return;
+      }
+
+      // Fallback: read from legacy goal_highscore single-row table
+      const rows = await supabaseRequest('goal_highscore?select=*&limit=1');
+      if (rows && rows.length > 0) {
+        GameState.globalHighScore = Number(rows[0].high_score || 0);
+        GameState.globalHighScorer = rows[0].player_name || 'Champion';
+        updateScoreboardUI();
+      } else {
+        // Initialize the highscore row if it doesn't exist
+        await supabaseRequest('goal_highscore', {
+          method: 'POST',
+          body: JSON.stringify([{ id: 1, player_name: 'Pulari Striker', high_score: 0 }])
+        });
+        GameState.globalHighScore = 0;
+        GameState.globalHighScorer = 'Pulari Striker';
+        updateScoreboardUI();
       }
     } catch (err) {
       console.warn('Highscore fetch notice:', err);
     }
   }
 
+  /**
+   * Update the goal_highscore single-row table (keeps it in sync with leaderboard)
+   */
+  async function syncHighscoreRow(score, playerName) {
+    try {
+      if (typeof supabaseRequest !== 'function' || typeof isSupabaseConfigured !== 'function' || !isSupabaseConfigured()) return;
+      await supabaseRequest('goal_highscore?on_conflict=id', {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify([{
+          id: 1,
+          player_name: playerName || 'Champion',
+          high_score: score,
+          updated_at: new Date().toISOString()
+        }])
+      });
+    } catch (err) {
+      console.warn('Could not sync highscore row:', err);
+    }
+  }
+
+  /**
+   * Called when a new global high score is set during gameplay.
+   * Updates both goal_highscore AND goal_leaderboard tables.
+   */
   async function syncGlobalHighScoreToDb(score, playerName) {
     try {
-      if (typeof supabaseRequest === 'function' && typeof isSupabaseConfigured === 'function' && isSupabaseConfigured()) {
-        await supabaseRequest('goal_highscore?on_conflict=id', {
-          method: 'POST',
-          headers: { 'Prefer': 'resolution=merge-duplicates' },
-          body: JSON.stringify([{
-            id: 1,
-            player_name: playerName || 'Champion',
-            high_score: score,
-            updated_at: new Date().toISOString()
-          }])
-        });
-        console.log(`🏆 Global Highscore updated: ${score} by ${playerName}`);
-      }
+      if (typeof supabaseRequest !== 'function' || typeof isSupabaseConfigured !== 'function' || !isSupabaseConfigured()) return;
+
+      // 1. Update the goal_highscore single-row table
+      await syncHighscoreRow(score, playerName);
+      console.log(`🏆 Global Highscore updated: ${score} by ${playerName}`);
+
+      // 2. Also upsert into goal_leaderboard so both tables stay in sync
+      await upsertLeaderboardEntry(score, playerName);
     } catch (err) {
       console.warn('Could not update highscore in DB:', err);
     }
+  }
+
+  /**
+   * Upsert a player's score into goal_leaderboard (only if new score is higher).
+   */
+  async function upsertLeaderboardEntry(score, playerName) {
+    try {
+      if (!playerName || score <= 0) return;
+      if (typeof supabaseRequest !== 'function' || typeof isSupabaseConfigured !== 'function' || !isSupabaseConfigured()) return;
+
+      // Check if player already has an entry
+      const existing = await supabaseRequest(`goal_leaderboard?select=id,high_score&player_name=eq.${encodeURIComponent(playerName)}&limit=1`);
+      if (existing && existing.length > 0) {
+        // Only update if new score is higher
+        if (score > existing[0].high_score) {
+          await supabaseRequest(`goal_leaderboard?id=eq.${existing[0].id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ high_score: score, updated_at: new Date().toISOString() })
+          });
+          console.log(`📊 Leaderboard updated for ${playerName}: ${score}`);
+        }
+      } else {
+        // Insert new entry
+        await supabaseRequest('goal_leaderboard', {
+          method: 'POST',
+          body: JSON.stringify([{ player_name: playerName, high_score: score }])
+        });
+        console.log(`📊 Leaderboard new entry for ${playerName}: ${score}`);
+      }
+    } catch (err) {
+      console.warn('Leaderboard upsert error:', err);
+    }
+  }
+
+  /**
+   * Sync player score to leaderboard on game over, then refresh global high score from leaderboard.
+   */
+  async function syncToLeaderboard(score, playerName) {
+    await upsertLeaderboardEntry(score, playerName);
+
+    // After writing, re-derive the global high score from the leaderboard
+    try {
+      if (typeof supabaseRequest !== 'function' || typeof isSupabaseConfigured !== 'function' || !isSupabaseConfigured()) return;
+      const top = await supabaseRequest('goal_leaderboard?select=player_name,high_score&order=high_score.desc&limit=1');
+      if (top && top.length > 0) {
+        GameState.globalHighScore = Number(top[0].high_score || 0);
+        GameState.globalHighScorer = top[0].player_name || 'Champion';
+        updateScoreboardUI();
+        // Keep the highscore row in sync
+        await syncHighscoreRow(GameState.globalHighScore, GameState.globalHighScorer);
+      }
+    } catch (err) {
+      console.warn('Could not refresh global highscore from leaderboard:', err);
+    }
+  }
+
+  /**
+   * Fetch top 5 from goal_leaderboard and display in overlay
+   */
+  async function fetchAndShowLeaderboard() {
+    const overlay = document.getElementById('game-leaderboard-overlay');
+    const tbody = document.getElementById('leaderboard-tbody');
+    const loadingEl = document.getElementById('leaderboard-loading');
+    const tableEl = document.getElementById('leaderboard-table');
+    const emptyEl = document.getElementById('leaderboard-empty');
+
+    if (!overlay) return;
+    overlay.classList.add('active');
+
+    // Show loading state
+    if (loadingEl) loadingEl.style.display = 'flex';
+    if (tableEl) tableEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'none';
+
+    try {
+      if (typeof supabaseRequest === 'function' && typeof isSupabaseConfigured === 'function' && isSupabaseConfigured()) {
+        const rows = await supabaseRequest('goal_leaderboard?select=player_name,high_score&order=high_score.desc&limit=5');
+        if (loadingEl) loadingEl.style.display = 'none';
+
+        if (rows && rows.length > 0) {
+          if (tableEl) tableEl.style.display = 'table';
+          if (tbody) {
+            const rankIcons = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+            tbody.innerHTML = rows.map((row, idx) => `
+              <tr class="lb-row ${idx === 0 ? 'lb-gold' : idx === 1 ? 'lb-silver' : idx === 2 ? 'lb-bronze' : ''}">
+                <td class="lb-rank">${rankIcons[idx] || idx + 1}</td>
+                <td class="lb-name">${escapeHtml(row.player_name)}</td>
+                <td class="lb-score">${row.high_score}</td>
+              </tr>
+            `).join('');
+          }
+        } else {
+          if (emptyEl) emptyEl.style.display = 'block';
+        }
+      } else {
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (emptyEl) {
+          emptyEl.textContent = 'Leaderboard unavailable';
+          emptyEl.style.display = 'block';
+        }
+      }
+    } catch (err) {
+      console.warn('Leaderboard fetch error:', err);
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (emptyEl) {
+        emptyEl.textContent = 'Could not load leaderboard';
+        emptyEl.style.display = 'block';
+      }
+    }
+  }
+
+  function hideLeaderboard() {
+    const overlay = document.getElementById('game-leaderboard-overlay');
+    if (overlay) overlay.classList.remove('active');
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
   }
 
   function createGameModal() {
@@ -210,6 +366,9 @@
             <div class="goal-header-controls">
               <button type="button" class="game-btn-icon" id="game-edit-name-btn" title="Change Player Name">
                 ✏️
+              </button>
+              <button type="button" class="game-btn-icon game-lb-btn" id="game-header-leaderboard-btn" title="View Leaderboard">
+                🏆
               </button>
               <button type="button" class="game-btn-icon" id="game-sound-toggle" title="Toggle Sound">
                 🔊
@@ -364,6 +523,9 @@
                   <button type="button" class="btn btn-primary btn-play-again" id="btn-play-again">
                     Play Again 🔄
                   </button>
+                  <button type="button" class="btn btn-leaderboard" id="btn-show-leaderboard">
+                    🏆 Leaderboard
+                  </button>
                 </div>
               </div>
             </div>
@@ -382,6 +544,32 @@
             </div>
 
           </div>
+
+            <!-- Leaderboard Overlay -->
+            <div class="goal-leaderboard-overlay" id="game-leaderboard-overlay">
+              <div class="goal-leaderboard-card">
+                <div class="lb-header">
+                  <h2 class="lb-title">🏆 Top Strikers</h2>
+                  <button type="button" class="game-btn-icon lb-close-btn" id="lb-close-btn" title="Close Leaderboard">&times;</button>
+                </div>
+                <div class="lb-loading" id="leaderboard-loading">
+                  <div class="lb-spinner"></div>
+                  <span>Loading leaderboard...</span>
+                </div>
+                <table class="lb-table" id="leaderboard-table" style="display:none;">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Player</th>
+                      <th>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody id="leaderboard-tbody"></tbody>
+                </table>
+                <p class="lb-empty" id="leaderboard-empty" style="display:none;">No scores yet. Be the first to play!</p>
+                <button type="button" class="btn btn-outline btn-sm lb-back-btn" id="lb-back-btn">← Back to Results</button>
+              </div>
+            </div>
 
           <!-- Bottom Footer -->
           <div class="goal-game-footer">
@@ -424,6 +612,24 @@
 
     modalEl.querySelector('#btn-reset-game').addEventListener('click', resetScoreboard);
     modalEl.querySelector('#btn-play-again').addEventListener('click', resetScoreboard);
+
+    // Leaderboard button listeners
+    const leaderboardBtn = modalEl.querySelector('#btn-show-leaderboard');
+    if (leaderboardBtn) {
+      leaderboardBtn.addEventListener('click', fetchAndShowLeaderboard);
+    }
+    const lbCloseBtn = modalEl.querySelector('#lb-close-btn');
+    if (lbCloseBtn) {
+      lbCloseBtn.addEventListener('click', hideLeaderboard);
+    }
+    const lbBackBtn = modalEl.querySelector('#lb-back-btn');
+    if (lbBackBtn) {
+      lbBackBtn.addEventListener('click', hideLeaderboard);
+    }
+    const headerLbBtn = modalEl.querySelector('#game-header-leaderboard-btn');
+    if (headerLbBtn) {
+      headerLbBtn.addEventListener('click', fetchAndShowLeaderboard);
+    }
 
     // Name prompt form submit
     const nameForm = modalEl.querySelector('#game-name-form');
@@ -558,6 +764,11 @@
     if (hsBanner) {
       const isNewRecord = GameState.score >= GameState.globalHighScore && GameState.score > 0;
       hsBanner.style.display = isNewRecord ? 'block' : 'none';
+    }
+
+    // Sync to leaderboard table
+    if (GameState.score > 0 && GameState.playerName) {
+      syncToLeaderboard(GameState.score, GameState.playerName);
     }
 
     if (overlay) overlay.classList.add('active');
