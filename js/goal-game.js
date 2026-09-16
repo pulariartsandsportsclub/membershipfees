@@ -455,7 +455,7 @@
           return;
         }
         const zoneId = btn.getAttribute('data-zone');
-        takeShot(zoneId);
+        takeShot(zoneId, btn);
       });
     });
   }
@@ -597,9 +597,9 @@
   }
 
   /**
-   * Execute Shot Action
+   * Execute Shot Action with Responsive Target Alignment
    */
-  function takeShot(zoneId) {
+  function takeShot(zoneId, targetBtnElement) {
     if (GameState.isShooting || GameState.isGameOver) return;
     GameState.isShooting = true;
 
@@ -614,7 +614,7 @@
     animateKeeperDive(keeperDiveZoneId);
 
     // 3. Animate Ball Flight Path
-    animateBallFlight(targetZone, isGoal);
+    animateBallFlight(targetZone, isGoal, targetBtnElement);
 
     // 4. Resolve Outcome
     setTimeout(() => {
@@ -627,14 +627,29 @@
     keeperEl.className = `goalkeeper diving dive-${diveZoneId}`;
   }
 
-  function animateBallFlight(targetZone, isGoal) {
+  function animateBallFlight(targetZone, isGoal, targetBtnElement) {
     if (!ballEl) return;
     
-    const targetX = (targetZone.x - 50) * 3.8;
-    const targetY = -180 + (targetZone.y * 1.2);
+    if (targetBtnElement) {
+      const ballRect = ballEl.getBoundingClientRect();
+      const targetRect = targetBtnElement.getBoundingClientRect();
+      
+      const deltaX = (targetRect.left + targetRect.width / 2) - (ballRect.left + ballRect.width / 2);
+      const deltaY = (targetRect.top + targetRect.height / 2) - (ballRect.top + ballRect.height / 2);
+      
+      ballEl.style.transition = 'all 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
+      ballEl.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${isGoal ? 0.44 : 0.54}) rotate(720deg)`;
+      return;
+    }
+
+    const isMobile = window.innerWidth <= 600;
+    const factorX = isMobile ? 2.8 : 3.8;
+    const factorY = isMobile ? -145 : -180;
+    const targetX = (targetZone.x - 50) * factorX;
+    const targetY = factorY + (targetZone.y * (isMobile ? 0.9 : 1.2));
 
     ballEl.style.transition = 'all 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
-    ballEl.style.transform = `translate(${targetX}px, ${targetY}px) scale(${isGoal ? 0.48 : 0.58}) rotate(720deg)`;
+    ballEl.style.transform = `translate(${targetX}px, ${targetY}px) scale(${isGoal ? 0.44 : 0.54}) rotate(720deg)`;
   }
 
   function resolveOutcome(isGoal, targetZone) {

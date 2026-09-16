@@ -2917,15 +2917,237 @@ body.public-page {
 }
 
 @media (max-width: 600px) {
+  .goal-modal-overlay {
+    padding: 0.4rem;
+  }
+
+  .goal-game-container {
+    max-width: 100%;
+    border-radius: 16px;
+    max-height: 96vh;
+  }
+
+  .goal-game-header {
+    padding: 0.65rem 0.85rem;
+  }
+
+  .game-ball-icon {
+    font-size: 1.35rem;
+  }
+
+  .goal-header-title h3 {
+    font-size: 0.95rem;
+  }
+
+  .goal-header-title span {
+    font-size: 0.72rem;
+  }
+
+  .game-btn-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 0.85rem;
+  }
+
+  .goal-scoreboard {
+    padding: 0.4rem 0.5rem;
+    gap: 0.25rem;
+  }
+
+  .score-card {
+    padding: 0.25rem 0.25rem;
+    border-radius: 6px;
+  }
+
+  .score-label {
+    font-size: 0.54rem;
+    letter-spacing: 0px;
+  }
+
+  .score-val {
+    font-size: 0.88rem;
+  }
+
+  .highscore-holder {
+    font-size: 0.54rem;
+  }
+
+  .saves-dots-track {
+    gap: 3px;
+    margin-top: 2px;
+  }
+
+  .save-dot {
+    width: 5px;
+    height: 5px;
+  }
+
   .goal-pitch {
-    height: 300px;
+    height: 270px;
+  }
+
+  .goal-frame {
+    width: 92%;
+    height: 155px;
+    margin-top: 6px;
+  }
+
+  .goal-crossbar {
+    height: 6px;
+  }
+
+  .goal-post-left,
+  .goal-post-right {
+    width: 6px;
+  }
+
+  .goal-targets-grid {
+    inset: 6px;
+    gap: 4px;
+  }
+
+  .goal-target-spot {
+    touch-action: manipulation;
+  }
+
+  .target-crosshair {
+    width: 28px;
+    height: 28px;
+  }
+
+  .goalkeeper {
+    width: 44px;
+    height: 76px;
+    bottom: 4px;
+  }
+
+  .keeper-head { width: 15px; height: 15px; }
+  .keeper-torso { width: 24px; height: 26px; }
+  .keeper-leg { width: 8px; height: 26px; }
+  .keeper-arms { top: 18px; width: 46px; }
+  .keeper-glove { font-size: 0.92rem; }
+
+  /* Mobile responsive keeper dive coordinates */
+  .goalkeeper.dive-top-left {
+    transform: translate(-100px, -55px) rotate(-48deg) scale(1.02);
+  }
+  .goalkeeper.dive-top-right {
+    transform: translate(65px, -55px) rotate(48deg) scale(1.02);
+  }
+  .goalkeeper.dive-top-center {
+    transform: translate(-50%, -58px) scale(1.04);
+  }
+  .goalkeeper.dive-bottom-left {
+    transform: translate(-90px, 0px) rotate(-65deg) scale(0.96);
+  }
+  .goalkeeper.dive-bottom-right {
+    transform: translate(58px, 0px) rotate(65deg) scale(0.96);
+  }
+  .goalkeeper.dive-bottom-center {
+    transform: translate(-50%, 0px) scale(0.92);
+  }
+
+  .pitch-ground {
+    height: 105px;
+  }
+
+  .penalty-box-line {
+    height: 55px;
+  }
+
+  .penalty-arc {
+    top: 55px;
+    width: 75px;
+    height: 30px;
+  }
+
+  .penalty-spot {
+    bottom: 20px;
+  }
+
+  .game-ball {
+    width: 36px;
+    height: 36px;
+  }
+
+  .game-ball::before {
+    font-size: 1.8rem;
+  }
+
+  .banner-emoji {
+    font-size: 2.5rem;
+  }
+
+  .banner-text {
+    font-size: 1.7rem;
+  }
+
+  .banner-sub {
+    font-size: 0.78rem;
+  }
+
+  .goal-gameover-card,
+  .goal-name-card {
+    padding: 1.25rem 1rem;
+    max-width: 94%;
+  }
+
+  .gameover-whistle-icon,
+  .name-card-icon {
+    font-size: 2.2rem;
+  }
+
+  .gameover-title {
+    font-size: 1.18rem;
+  }
+
+  .gameover-desc,
+  .goal-name-card p {
+    font-size: 0.78rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .gameover-stats-grid {
+    padding: 0.5rem 0.3rem;
+    gap: 0.2rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .gstat-val {
+    font-size: 0.92rem;
+  }
+
+  .gstat-lbl {
+    font-size: 0.55rem;
+  }
+
+  .btn-play-again,
+  .btn-kickoff {
+    padding: 0.7rem;
+    font-size: 0.92rem;
+  }
+
+  .goal-game-footer {
+    padding: 0.45rem 0.85rem;
+  }
+
+  .goal-hint {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .goal-pitch {
+    height: 250px;
   }
   .goal-frame {
-    width: 90%;
-    height: 170px;
+    height: 140px;
   }
-  .banner-text {
-    font-size: 2rem;
+  .score-val {
+    font-size: 0.8rem;
+  }
+  .goal-header-title h3 {
+    font-size: 0.85rem;
   }
 }
 
