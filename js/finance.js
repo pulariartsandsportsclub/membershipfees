@@ -512,7 +512,7 @@
               ` : ''}
               <button type="button" class="btn-action-icon btn-view-voucher" data-id="${escapeHtml(item.ID || '')}" title="View Receipt Voucher">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                <span>Voucher</span>
+                <span>View</span>
               </button>
             </div>
           </td>
@@ -678,7 +678,7 @@
             <img src="PULARI.png" alt="Pulari Club Logo" class="voucher-logo">
             <div class="voucher-club-info">
               <h2>PULARI ARTS & SPORTS CLUB</h2>
-              <p>Reg No. 248/2004 • Financial Accounts Department</p>
+              <p>Reg No. MPM/CA/355/2017 • Porur, Malappuram</p>
             </div>
           </div>
           <div class="voucher-badge-wrap">
