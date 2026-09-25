@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulari Finance – Financial Accounts & Transactions Dashboard | Pulari Club</title>
+  <meta name="description"
+    content="Public financial management dashboard for Pulari Arts & Sports Club. Real-time income and expense tracking, receipts, vouchers, and statements.">
+  <link rel="icon" type="image/png" href="PULARI.png">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Chart.js for analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+
+<body class="public-page finance-page">
+
+  <!-- Sticky Top Header -->
+  <header class="public-header">
+    <div class="public-header-inner">
+      <div class="public-brand">
+        <img src="PULARI.png" alt="Pulari Arts & Sports Club Logo">
+        <div>
+          <h1>Pulari Arts and Sports Club</h1>
+          <span>Financial Management & Accounts</span>
+        </div>
+      </div>
+      <div class="public-header-actions">
+        <a href="dashboard.html" class="btn btn-outline btn-sm"
+          style="color: #e2e8f0; border-color: rgba(255,255,255,0.25); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.8rem; font-weight: 600; border-radius: 9999px;">
+          👥 Monthly payments
+        </a>
+        <a href="game.html" class="btn-goal-game" id="btn-open-game">⚽ Score a Goal</a>
+        <button type="button" class="btn-refresh-finance" id="btn-finance-refresh"
+          title="Reload fresh data from Google Sheet">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Financial Dashboard Container -->
+  <main class="finance-main">
+
+    <!-- 4 Key Metric Summary KPI Cards -->
+    <section class="finance-kpi-grid">
+      <!-- 1. Total Income -->
+      <div class="kpi-card">
+        <div class="kpi-top-row">
+          <div class="kpi-title-wrap">
+            <span class="kpi-title">Total Income</span>
+          </div>
+          <div class="kpi-icon-badge icon-income-bg">📈</div>
+        </div>
+        <div class="kpi-stat-number text-positive" id="stat-total-income">₹0</div>
+        <div class="kpi-footer-row">
+          <span id="stat-income-count">0 Records</span>
+          <span class="status-chip chip-positive">Income Flow</span>
+        </div>
+      </div>
+
+      <!-- 2. Total Expenses -->
+      <div class="kpi-card">
+        <div class="kpi-top-row">
+          <div class="kpi-title-wrap">
+            <span class="kpi-title">Total Expenses</span>
+          </div>
+          <div class="kpi-icon-badge icon-expense-bg">📉</div>
+        </div>
+        <div class="kpi-stat-number text-negative" id="stat-total-expense">₹0</div>
+        <div class="kpi-footer-row">
+          <span id="stat-expense-count">0 Records</span>
+          <span class="status-chip chip-negative">Expense Flow</span>
+        </div>
+      </div>
+
+      <!-- 3. Net Balance -->
+      <div class="kpi-card">
+        <div class="kpi-top-row">
+          <div class="kpi-title-wrap">
+            <span class="kpi-title">Net Balance</span>
+          </div>
+          <div class="kpi-icon-badge icon-balance-bg">⚖️</div>
+        </div>
+        <div class="kpi-stat-number" id="stat-net-balance">₹0</div>
+        <div class="kpi-footer-row">
+          <span>Fund Status:</span>
+          <span class="status-chip chip-positive" id="stat-balance-badge">Surplus Fund</span>
+        </div>
+      </div>
+
+      <!-- 4. Activity & Documents -->
+      <div class="kpi-card">
+        <div class="kpi-top-row">
+          <div class="kpi-title-wrap">
+            <span class="kpi-title">Accounts Activity</span>
+          </div>
+          <div class="kpi-icon-badge icon-activity-bg">📊</div>
+        </div>
+        <div class="kpi-stat-number" id="stat-total-count">0 Total</div>
+        <div class="kpi-footer-row">
+          <span>Avg. Flow: <strong id="stat-avg-amount">₹0</strong></span>
+          <span class="status-chip chip-neutral" id="stat-invoice-count">0 Invoices</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual Charts Row -->
+    <section class="finance-charts-grid">
+      <!-- Income vs Expense Pie Chart -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>Income vs Expense Distribution</h3>
+          <span>Total Income vs Total Expense Breakdown</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="chart-income-expense-pie"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Search Toolbar -->
+    <section class="finance-toolbar">
+      <div class="toolbar-top-row">
+        <!-- Quick Type Selector -->
+        <div class="type-filter-group" role="tablist">
+          <button type="button" class="type-filter-btn active" data-type="all">
+            All Records <span>(0)</span>
+          </button>
+          <button type="button" class="type-filter-btn" data-type="income">
+            🟢 Income <span>(0)</span>
+          </button>
+          <button type="button" class="type-filter-btn" data-type="expense">
+            🔴 Expenses <span>(0)</span>
+          </button>
+        </div>
+
+        <!-- Sort Select & Reset -->
+        <div class="filter-selects-wrap">
+          <select id="filter-sort" class="form-select" style="font-size: 0.85rem; padding: 0.45rem 0.75rem;">
+            <option value="date-desc">Sort: Date (Newest first)</option>
+            <option value="date-asc">Sort: Date (Oldest first)</option>
+            <option value="amount-desc">Sort: Amount (High to Low)</option>
+            <option value="amount-asc">Sort: Amount (Low to High)</option>
+            <option value="title-asc">Sort: Title (A - Z)</option>
+          </select>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-reset-filters"
+            style="font-size: 0.82rem; padding: 0.45rem 0.75rem;">
+            ↺ Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar-bottom-row">
+        <!-- Search Input -->
+        <div class="search-field-wrap">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+          </svg>
+          <input type="text" id="finance-search" class="form-control"
+            placeholder="Search by title, ID, person, note, item, or amount...">
+        </div>
+
+        <!-- Category & Payment Selects -->
+        <div class="filter-selects-wrap">
+          <select id="filter-category" class="form-select" style="font-size: 0.85rem; padding: 0.45rem 0.75rem;">
+            <option value="all">All Categories</option>
+          </select>
+          <select id="filter-payment" class="form-select" style="font-size: 0.85rem; padding: 0.45rem 0.75rem;">
+            <option value="all">All Payment Modes</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading Skeleton Shimmer -->
+    <div id="finance-skeleton" style="display: none; padding: 2rem 0; text-align: center;">
+      <div class="loading-spinner" style="margin: 0 auto 1rem; width: 36px; height: 36px; border-width: 3px;"></div>
+      <p style="color: #64748b; font-weight: 600;">Fetching live transaction records from Google Sheet...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="finance-empty-state" class="empty-state-card" style="display: none;">
+      <div class="empty-icon">🔍</div>
+      <h3>No Transactions Found</h3>
+      <p>No records matched your search or active filter criteria.</p>
+      <button class="btn btn-primary btn-sm" id="btn-empty-reset" type="button">Clear All Filters</button>
+    </div>
+
+    <!-- Transactions Data Table (Desktop & Tablet with Smooth Horizontal Scroll) -->
+    <div class="finance-table-card" id="finance-table-wrapper">
+      <div class="table-responsive">
+        <table class="finance-table">
+          <thead>
+            <tr>
+              <th style="width: 140px;">Date &amp; ID</th>
+              <th style="width: 100px;">Type</th>
+              <th>Title &amp; Description</th>
+              <th style="width: 130px;">Category</th>
+              <th style="width: 90px;">Mode</th>
+              <th style="width: 120px;">Handled By</th>
+              <th style="width: 120px;" class="text-right">Amount</th>
+              <th style="width: 120px;" class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="finance-table-body">
+            <!-- Dynamically populated via js/finance.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Official Digital Voucher Modal -->
+  <div class="voucher-modal-overlay" id="voucher-modal" role="dialog" aria-modal="true">
+    <div class="voucher-modal-wrap">
+      <div class="voucher-modal-header-bar">
+        <h4>🧾 Official Transaction Voucher</h4>
+        <div class="voucher-header-tools">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-print-voucher" style="padding: 0.35rem 0.75rem;">
+            🖨️ Print
+          </button>
+          <button type="button" class="btn-modal-close" id="btn-close-voucher" aria-label="Close modal"
+            style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#64748b; line-height:1;">
+            ✕
+          </button>
+        </div>
+      </div>
+      <div class="voucher-modal-body" id="voucher-modal-content">
+        <!-- Dynamically rendered voucher receipt -->
+      </div>
+    </div>
+    <div class="modal-backdrop" id="voucher-backdrop"></div>
+  </div>
+
+  <!-- Script Controller -->
+  <script src="js/finance.js"></script>
+</body>
+
+</html>

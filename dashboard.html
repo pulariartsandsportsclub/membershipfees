@@ -19,10 +19,12 @@
         <img src="PULARI.png" alt="Pulari Arts & Sports Club Logo">
         <div>
           <h1>Pulari Arts and Sports Club</h1>
-          <span>Member Payment Dashboard</span>
+          <span>Monthly Payment Dashboard</span>
         </div>
       </div>
       <div class="public-header-actions">
+        <a href="finance.html" class="btn-pulari-finance" id="btn-pularifinance" title="Pulari Finance Dashboard">💰
+          Pulari Finance</a>
         <a href="game.html" class="btn-goal-game" id="btn-open-game">⚽ Score a Goal</a>
         <span class="current-month-badge" id="public-month-badge"></span>
         <div class="loading-spinner" id="public-spinner" style="display:none;"></div>
@@ -163,39 +165,6 @@
         </div>
       </div>
 
-      <div class="reports-dual-tables" style="margin-top:1.5rem;">
-        <div class="card-box">
-          <div class="public-list-title public-list-title-paid">Paid Members</div>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Amount</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody id="public-paid-table-body"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card-box">
-          <div class="public-list-title public-list-title-unpaid">Unpaid Members</div>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Fee Due</th>
-                </tr>
-              </thead>
-              <tbody id="public-unpaid-table-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </div>
     <!-- ================= END MONTHLY VIEW CONTAINER ================= -->
 
@@ -230,17 +199,19 @@
         </div>
       </div>
 
-      <!-- Yearly Stats Cards Grid -->
+      <!-- Yearly Stats Cards Grid (Clickable Filter Boxes) -->
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card yearly-stat-filter-card active" data-filter="All" role="button" tabindex="0"
+          title="Filter: Show All Members">
           <div class="stat-icon icon-blue">👥</div>
           <div class="stat-info">
             <div class="stat-label">Active Members</div>
             <div class="stat-value" id="yearly-total-members">0</div>
-            <div class="stat-sub">Registered members</div>
+            <div class="stat-sub">Show all members</div>
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card yearly-stat-filter-card" data-filter="Full" role="button" tabindex="0"
+          title="Filter: All 12 Months Paid">
           <div class="stat-icon icon-green">🏆</div>
           <div class="stat-info">
             <div class="stat-label">All 12 Months Paid</div>
@@ -248,7 +219,8 @@
             <div class="stat-sub" id="yearly-full-paid-sub">Fully cleared for year</div>
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card yearly-stat-filter-card" data-filter="Partial" role="button" tabindex="0"
+          title="Filter: Partially Paid">
           <div class="stat-icon icon-amber">⏳</div>
           <div class="stat-info">
             <div class="stat-label">Partially Paid</div>
@@ -256,7 +228,7 @@
             <div class="stat-sub">1 to 11 months paid</div>
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" style="cursor:default;" title="Total Annual Collections">
           <div class="stat-icon icon-amber">💰</div>
           <div class="stat-info">
             <div class="stat-label">Yearly Collection</div>
@@ -267,28 +239,19 @@
       </div>
 
       <!-- Yearly Member Breakdown Header & Controls -->
-      <div class="section-header" style="margin-top:1.5rem;">
-        <div>
-          <h3>Member Annual Payment Status</h3>
-          <p class="section-subtitle">Check which specific months each member has paid in the year.</p>
+      <div class="yearly-toolbar-row">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+          </svg>
+          <input type="text" id="yearly-search" class="form-control" placeholder="Search by name or ID...">
         </div>
-        <div class="controls-bar">
-          <div class="search-input-wrapper">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-            </svg>
-            <input type="text" id="yearly-search" class="form-control" placeholder="Search by name or ID...">
-          </div>
-          <div style="display:flex; gap:0.25rem; flex-wrap:wrap;">
-            <button class="btn btn-primary btn-sm yearly-filter-btn" data-filter="All" type="button">All</button>
-            <button class="btn btn-outline btn-sm yearly-filter-btn" data-filter="Full" type="button">All 12 Months
-              Paid</button>
-            <button class="btn btn-outline btn-sm yearly-filter-btn" data-filter="Partial" type="button">Partially
-              Paid</button>
-            <button class="btn btn-outline btn-sm yearly-filter-btn" data-filter="Unpaid" type="button">No
-              Payments</button>
-          </div>
+        <div class="yearly-filter-tabset" role="tablist" aria-label="Member Payment Filter">
+          <button class="yearly-filter-tab active" data-filter="All" type="button">All</button>
+          <button class="yearly-filter-tab" data-filter="Full" type="button">All 12 Months Paid</button>
+          <button class="yearly-filter-tab" data-filter="Partial" type="button">Partially Paid</button>
+          <button class="yearly-filter-tab" data-filter="Unpaid" type="button">No Payments</button>
         </div>
       </div>
 
@@ -306,10 +269,13 @@
           <table class="data-table yearly-data-table">
             <thead>
               <tr>
-                <th style="min-width:100px;">Member ID</th>
-                <th style="min-width:160px;">Member Name</th>
-                <th style="min-width:140px;">Months Paid</th>
-                <th style="min-width:340px;">Paid Months Status (Jan – Dec)</th>
+                <th style="min-width:100px; cursor:pointer;" id="th-sort-id" title="Click to sort by ID">Member ID ⇕
+                </th>
+                <th style="min-width:160px; cursor:pointer;" id="th-sort-name"
+                  title="Click to sort alphabetically by Name">Member Name ⇕</th>
+                <th style="min-width:140px; cursor:pointer;" id="th-sort-paid" title="Click to sort by Months Paid">
+                  Months Paid ⇕</th>
+                <th style="min-width:340px;">Paid Months Status (Sep – Aug)</th>
                 <th style="min-width:110px;">Total Paid</th>
                 <th style="min-width:110px;">Status</th>
               </tr>

@@ -20,6 +20,7 @@ const PublicState = {
   yearlyYear: new Date().getFullYear(),
   yearlySearchQuery: '',
   yearlyStatusFilter: 'All', // 'All', 'Full', 'Partial', 'Unpaid'
+  yearlySort: 'name-asc', // 'name-asc', 'name-desc', 'id-asc', 'id-desc', 'paid-desc', 'paid-asc'
   members: [],
   payments: [],
   settings: {
@@ -187,15 +188,68 @@ function bindYearlyControls() {
     });
   }
 
-  document.querySelectorAll('.yearly-filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      PublicState.yearlyStatusFilter = btn.getAttribute('data-filter');
-      document.querySelectorAll('.yearly-filter-btn').forEach(el => {
-        const isActive = el === btn;
-        el.classList.toggle('btn-primary', isActive);
-        el.classList.toggle('btn-outline', !isActive);
-      });
+  // Header click sorting
+  const thId = document.getElementById('th-sort-id');
+  const thName = document.getElementById('th-sort-name');
+  const thPaid = document.getElementById('th-sort-paid');
+
+  if (thId) {
+    thId.addEventListener('click', () => {
+      PublicState.yearlySort = (PublicState.yearlySort === 'id-asc') ? 'id-desc' : 'id-asc';
       renderYearlyDashboard();
+    });
+  }
+
+  if (thName) {
+    thName.addEventListener('click', () => {
+      PublicState.yearlySort = (PublicState.yearlySort === 'name-asc') ? 'name-desc' : 'name-asc';
+      renderYearlyDashboard();
+    });
+  }
+
+  if (thPaid) {
+    thPaid.addEventListener('click', () => {
+      PublicState.yearlySort = (PublicState.yearlySort === 'paid-desc') ? 'paid-asc' : 'paid-desc';
+      renderYearlyDashboard();
+    });
+  }
+
+  // Yearly Filter Tabs and Clickable Stat Filter Cards
+  function applyYearlyFilter(filterValue) {
+    PublicState.yearlyStatusFilter = filterValue;
+    
+    // Sync filter tabs
+    document.querySelectorAll('.yearly-filter-tab').forEach(el => {
+      el.classList.toggle('active', (el.getAttribute('data-filter') || 'All') === filterValue);
+    });
+
+    // Sync stat cards
+    document.querySelectorAll('.yearly-stat-filter-card').forEach(el => {
+      el.classList.toggle('active', (el.getAttribute('data-filter') || 'All') === filterValue);
+    });
+
+    renderYearlyDashboard();
+  }
+
+  document.querySelectorAll('.yearly-filter-tab').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const filterValue = btn.getAttribute('data-filter') || 'All';
+      applyYearlyFilter(filterValue);
+    });
+  });
+
+  document.querySelectorAll('.yearly-stat-filter-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const filterValue = card.getAttribute('data-filter') || 'All';
+      applyYearlyFilter(filterValue);
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const filterValue = card.getAttribute('data-filter') || 'All';
+        applyYearlyFilter(filterValue);
+      }
     });
   });
 }
@@ -538,6 +592,38 @@ function renderYearlyDashboard() {
     if (PublicState.yearlyStatusFilter === 'Unpaid') return matchesSearch && row.overallStatus === 'Unpaid';
     return matchesSearch;
   });
+
+  // Sort Table Rows (Alphabetic, ID, Paid Count)
+  const sortMode = PublicState.yearlySort || 'name-asc';
+  filtered.sort((a, b) => {
+    if (sortMode === 'name-asc') {
+      return (a.memberName || '').localeCompare(b.memberName || '', undefined, { sensitivity: 'base' });
+    }
+    if (sortMode === 'name-desc') {
+      return (b.memberName || '').localeCompare(a.memberName || '', undefined, { sensitivity: 'base' });
+    }
+    if (sortMode === 'id-asc') {
+      return String(a.memberId).localeCompare(String(b.memberId), undefined, { numeric: true });
+    }
+    if (sortMode === 'id-desc') {
+      return String(b.memberId).localeCompare(String(a.memberId), undefined, { numeric: true });
+    }
+    if (sortMode === 'paid-desc') {
+      return b.paidCount - a.paidCount || (a.memberName || '').localeCompare(b.memberName || '', undefined, { sensitivity: 'base' });
+    }
+    if (sortMode === 'paid-asc') {
+      return a.paidCount - b.paidCount || (a.memberName || '').localeCompare(b.memberName || '', undefined, { sensitivity: 'base' });
+    }
+    return 0;
+  });
+
+  // Update table header sort indicators
+  const thId = document.getElementById('th-sort-id');
+  const thName = document.getElementById('th-sort-name');
+  const thPaid = document.getElementById('th-sort-paid');
+  if (thId) thId.textContent = `Member ID ${sortMode === 'id-asc' ? '▲' : sortMode === 'id-desc' ? '▼' : '⇕'}`;
+  if (thName) thName.textContent = `Member Name ${sortMode === 'name-asc' ? '▲' : sortMode === 'name-desc' ? '▼' : '⇕'}`;
+  if (thPaid) thPaid.textContent = `Months Paid ${sortMode === 'paid-desc' ? '▼' : sortMode === 'paid-asc' ? '▲' : '⇕'}`;
 
   const tbody = document.getElementById('yearly-members-table-body');
   if (!tbody) return;
