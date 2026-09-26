@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pulari Arts & Sports Club – Membership Management System</title>
+  <title>Pulari Arts & Sports Club – Membership Management</title>
   <meta name="description"
     content="Simple, modern, responsive membership fee management system for Pulari Arts & Sports Club using Google Sheets backend and GitHub Pages.">
   <link rel="icon" type="image/png" href="PULARI.png">
@@ -39,8 +39,10 @@
         <button type="submit" class="btn btn-primary login-submit">Sign In</button>
       </form>
       <a class="login-public-link" href="dashboard.html">View public member dashboard</a>
-      <a class="login-public-link" href="finance.html" style="margin-top: 0.35rem; color: #10b981;">💰 View Pulari Finance Dashboard</a>
-      <a class="login-public-link" href="game.html" style="margin-top: 0.35rem; color: #10b981;">⚽ Play Penalty Shootout Game</a>
+      <a class="login-public-link" href="finance.html" style="margin-top: 0.35rem; color: #10b981;">💰 View Pulari
+        Finance Dashboard</a>
+      <a class="login-public-link" href="game.html" style="margin-top: 0.35rem; color: #10b981;">⚽ Play Penalty Shootout
+        Game</a>
     </div>
   </div>
 
@@ -99,11 +101,13 @@
         Open public dashboard
       </a>
 
-      <a class="sidebar-public-link" href="finance.html" target="_blank" rel="noopener" style="margin-top: 0.35rem; color: #34d399; border-color: rgba(16, 185, 129, 0.25);">
+      <a class="sidebar-public-link" href="finance.html" target="_blank" rel="noopener"
+        style="margin-top: 0.35rem; color: #34d399; border-color: rgba(16, 185, 129, 0.25);">
         💰 Pulari Finance
       </a>
 
-      <a class="sidebar-public-link" href="game.html" target="_blank" rel="noopener" style="margin-top: 0.35rem; color: #34d399; border-color: rgba(16, 185, 129, 0.25);">
+      <a class="sidebar-public-link" href="game.html" target="_blank" rel="noopener"
+        style="margin-top: 0.35rem; color: #34d399; border-color: rgba(16, 185, 129, 0.25);">
         ⚽ Play Penalty Game
       </a>
 
@@ -142,7 +146,8 @@
         </div>
 
         <div class="header-actions">
-          <a href="finance.html" class="btn btn-outline btn-sm btn-pularifinance" id="header-btn-finance" target="_blank" rel="noopener" style="text-decoration: none;">
+          <a href="finance.html" class="btn btn-outline btn-sm btn-pularifinance" id="header-btn-finance"
+            target="_blank" rel="noopener" style="text-decoration: none;">
             💰 Pulari Finance
           </a>
           <span class="current-month-badge" id="header-month-badge">September 2026</span>
@@ -552,7 +557,8 @@
                 <input type="password" id="settings-supabase-key" class="form-control"
                   placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
                 <small style="color:var(--text-muted); margin-top:0.25rem; display:block;">
-                  Found in your Supabase Dashboard &rarr; Project Settings &rarr; API &rarr; <code>anon / public</code> key.
+                  Found in your Supabase Dashboard &rarr; Project Settings &rarr; API &rarr; <code>anon / public</code>
+                  key.
                 </small>
               </div>
 
@@ -561,7 +567,8 @@
                 <input type="url" id="settings-sheet-url" class="form-control"
                   placeholder="https://script.google.com/macros/s/.../exec">
                 <small style="color:var(--text-muted); margin-top:0.25rem; display:block;">
-                  Dual-write backup: All member/payment changes are automatically mirrored to your Google Sheet in the background.
+                  Dual-write backup: All member/payment changes are automatically mirrored to your Google Sheet in the
+                  background.
                 </small>
               </div>
 
@@ -713,7 +720,8 @@
       </div>
       <div class="modal-body">
         <p id="payment-confirm-desc" style="font-size:0.95rem; color:var(--text-main); margin-bottom:1rem;"></p>
-        <p style="font-size:0.8rem; color:var(--text-muted);">This action will record the fee payment in the database.</p>
+        <p style="font-size:0.8rem; color:var(--text-muted);">This action will record the fee payment in the database.
+        </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline modal-close">Cancel</button>
