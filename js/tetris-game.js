@@ -1,7 +1,7 @@
 /**
  * Pulari Arts & Sports Club - Tetris Arcade Mini-Game
- * Supabase Live Top-5 Leaderboard, Authentic SRS Rotation, 7-Bag Randomizer,
- * Ghost Piece, Web Audio Synthesizer & Mobile Touch Controls (js/tetris-game.js)
+ * Mobile-First Ergonomic UI, Touch Haptic Feedback, Turbo DAS Repeat,
+ * Supabase Live Top-5 Leaderboard, Authentic SRS Rotation, 7-Bag Randomizer (js/tetris-game.js)
  */
 
 (function () {
@@ -10,7 +10,9 @@
   // --- Constants & Config ---
   const COLS = 10;
   const ROWS = 20;
-  const BLOCK_SIZE = 30; // Native canvas logical grid size (300 x 600)
+  const LOGICAL_WIDTH = 300;
+  const LOGICAL_HEIGHT = 600;
+  const BLOCK_SIZE = 30;
 
   // Neon Cyberpunk Tetromino Colors
   const COLORS = {
@@ -18,7 +20,7 @@
     J: { main: '#3b82f6', glow: 'rgba(59, 130, 246, 0.6)', light: '#93c5fd', dark: '#1d4ed8' },
     L: { main: '#f97316', glow: 'rgba(249, 115, 22, 0.6)', light: '#fdba74', dark: '#c2410c' },
     O: { main: '#eab308', glow: 'rgba(234, 179, 8, 0.6)', light: '#fef08a', dark: '#a16207' },
-    S: { main: '#10b981', glow: 'rgba(168, 185, 129, 0.6)', light: '#6ee7b7', dark: '#047857' },
+    S: { main: '#10b981', glow: 'rgba(16, 185, 129, 0.6)', light: '#6ee7b7', dark: '#047857' },
     T: { main: '#a855f7', glow: 'rgba(168, 85, 247, 0.6)', light: '#d8b4fe', dark: '#7e22ce' },
     Z: { main: '#ef4444', glow: 'rgba(239, 68, 68, 0.6)', light: '#fca5a5', dark: '#b91c1c' }
   };
@@ -92,6 +94,15 @@
       100, 80, 65, 50, 40, 30
     ];
     return speeds[Math.min(level - 1, speeds.length - 1)] || 30;
+  }
+
+  // --- Haptic Feedback ---
+  function haptic(ms) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try {
+        navigator.vibrate(ms);
+      } catch (e) {}
+    }
   }
 
   // --- Web Audio Synthesizer ---
@@ -232,9 +243,7 @@
           osc.stop(now + i * 0.14 + 0.25);
         });
       }
-    } catch (e) {
-      // Audio error fallback
-    }
+    } catch (e) {}
   }
 
   // --- Game State Object ---
@@ -309,9 +318,10 @@
   const gameoverPlayerInput = document.getElementById('gameover-player-input');
   const changePlayerBtn = document.getElementById('btn-change-player');
   const leaderboardListEl = document.getElementById('tetris-leaderboard-list');
+  const modalLeaderboardListEl = document.getElementById('modal-leaderboard-list');
   const leaderboardBadge = document.getElementById('leaderboard-badge');
 
-  // Overlays
+  // Overlays & Modal
   const overlayStart = document.getElementById('overlay-start');
   const overlayPause = document.getElementById('overlay-pause');
   const overlayGameOver = document.getElementById('overlay-gameover');
@@ -321,6 +331,10 @@
   const goHighScore = document.getElementById('go-high-score');
   const newHighBadgeContainer = document.getElementById('new-high-badge-container');
   const soundBtn = document.getElementById('btn-sound-toggle');
+  const mobileLeaderboardModal = document.getElementById('mobile-leaderboard-modal');
+  const btnOpenLeaderboardModal = document.getElementById('btn-open-leaderboard-modal');
+  const btnCloseLeaderboardModal = document.getElementById('btn-close-leaderboard-modal');
+  const btnModalChangeTag = document.getElementById('btn-modal-change-tag');
 
   function createGrid() {
     return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
@@ -435,6 +449,7 @@
       state.currentPos = newPos;
       onPieceAdjusted();
       playSfx('move');
+      haptic(10);
     }
   }
 
@@ -446,6 +461,7 @@
       state.currentPos = newPos;
       onPieceAdjusted();
       playSfx('move');
+      haptic(10);
     }
   }
 
@@ -458,6 +474,7 @@
       state.score += 1;
       updateScoreUI();
       playSfx('soft_drop');
+      haptic(8);
       state.dropTimer = 0;
     } else {
       lockPiece();
@@ -472,6 +489,7 @@
     state.score += dropDistance * 2;
     updateScoreUI();
     playSfx('hard_drop');
+    haptic(45);
     triggerScreenShake();
     createHardDropSparks(ghost);
     lockPiece();
@@ -501,6 +519,7 @@
         state.currentPos = testPos;
         onPieceAdjusted();
         playSfx('rotate');
+        haptic(15);
         return;
       }
     }
@@ -510,6 +529,7 @@
     if (!state.isPlaying || state.isPaused || state.isGameOver || !state.canHold) return;
 
     playSfx('hold');
+    haptic(20);
     const prevHeld = state.heldPiece;
     state.heldPiece = state.currentPiece;
     state.canHold = false;
@@ -577,16 +597,19 @@
       if (lineCount === 1) {
         baseScore = 100 * state.level;
         playSfx('clear1');
+        haptic([30, 40, 50]);
         showBanner('+100', 'rgba(56, 189, 248, 0.9)');
         state.backToBack = false;
       } else if (lineCount === 2) {
         baseScore = 300 * state.level;
         playSfx('clear2');
+        haptic([40, 40, 60]);
         showBanner('DOUBLE! +300', 'rgba(16, 185, 129, 0.9)');
         state.backToBack = false;
       } else if (lineCount === 3) {
         baseScore = 500 * state.level;
         playSfx('clear3');
+        haptic([50, 40, 80]);
         showBanner('TRIPLE! +500', 'rgba(249, 115, 22, 0.9)');
         state.backToBack = false;
       } else if (lineCount === 4) {
@@ -599,6 +622,7 @@
         }
         state.backToBack = true;
         playSfx('tetris');
+        haptic([60, 50, 80, 50, 120]);
         triggerScreenShake();
       }
 
@@ -614,6 +638,7 @@
       if (newLevel > state.level) {
         state.level = newLevel;
         playSfx('levelup');
+        haptic([80, 50, 100, 50, 120]);
         showBanner(`LEVEL ${state.level}!`, 'rgba(250, 204, 21, 1)');
       }
 
@@ -713,7 +738,7 @@
 
   function drawGrid() {
     if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
     ctx.lineWidth = 1;
@@ -788,7 +813,7 @@
     if (!pieceType) return;
 
     const mat = TETROMINOES[pieceType];
-    const cellSize = pieceType === 'I' ? 18 : 20;
+    const cellSize = targetWidth < 80 ? (pieceType === 'I' ? 10 : 12) : (pieceType === 'I' ? 16 : 18);
     const pieceWidth = mat[0].length * cellSize;
     const pieceHeight = mat.length * cellSize;
 
@@ -811,15 +836,12 @@
   function renderHoldPreview() {
     if (holdCtx && holdCanvas) {
       renderMiniPiece(holdCtx, state.heldPiece, holdCanvas.width, holdCanvas.height);
-      if (!state.canHold && holdCanvas) {
-        holdCanvas.style.opacity = '0.45';
-      } else if (holdCanvas) {
-        holdCanvas.style.opacity = '1';
-      }
+      holdCanvas.style.opacity = !state.canHold ? '0.45' : '1';
     }
 
     if (mHoldCtx && mHoldCanvas) {
       renderMiniPiece(mHoldCtx, state.heldPiece, mHoldCanvas.width, mHoldCanvas.height);
+      mHoldCanvas.style.opacity = !state.canHold ? '0.45' : '1';
     }
   }
 
@@ -841,7 +863,7 @@
     const burstColors = ['#06b6d4', '#a855f7', '#facc15', '#ffffff', '#10b981', '#f97316'];
     rows.forEach(y => {
       const py = y * BLOCK_SIZE + BLOCK_SIZE / 2;
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 35; i++) {
         particles.push({
           x: Math.random() * (COLS * BLOCK_SIZE),
           y: py + (Math.random() - 0.5) * 12,
@@ -882,7 +904,7 @@
 
   function updateAndDrawParticles() {
     if (!fxCtx || !fxCanvas) return;
-    fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+    fxCtx.clearRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
@@ -978,12 +1000,14 @@
     updateScoreUI();
     spawnPiece();
     getAudioCtx();
+    haptic(30);
   }
 
   function pauseGame() {
     if (!state.isPlaying || state.isGameOver) return;
     state.isPaused = true;
     if (overlayPause) overlayPause.classList.remove('hidden');
+    haptic(15);
   }
 
   function resumeGame() {
@@ -991,6 +1015,7 @@
     state.isPaused = false;
     state.lastTime = performance.now();
     if (overlayPause) overlayPause.classList.add('hidden');
+    haptic(15);
   }
 
   function togglePause() {
@@ -1002,6 +1027,7 @@
     state.isGameOver = true;
     state.isPlaying = false;
     playSfx('gameover');
+    haptic([100, 50, 150]);
 
     const isNewHigh = state.score > 0 && state.score >= state.highScore;
 
@@ -1021,16 +1047,15 @@
 
     if (overlayGameOver) overlayGameOver.classList.remove('hidden');
 
-    // Sync score to Supabase and update leaderboard
     if (state.score > 0) {
       await syncScoreToSupabase(state.score, state.lines, state.level);
     }
   }
 
-  // --- Player Name Management ---
+  // --- Player Gamer Tag Management ---
   function setPlayerName(name) {
     if (!name || !name.trim()) return;
-    state.playerName = name.trim().slice(0, 20);
+    state.playerName = name.trim().slice(0, 18);
     localStorage.setItem('pulari_player_name', state.playerName);
     if (currentPlayerNameEl) currentPlayerNameEl.textContent = state.playerName;
     if (startPlayerInput) startPlayerInput.value = state.playerName;
@@ -1043,6 +1068,7 @@
     if (newName && newName.trim()) {
       setPlayerName(newName);
       fetchTop5Leaderboard();
+      haptic(20);
     }
   }
 
@@ -1066,11 +1092,10 @@
           return;
         }
       } catch (err) {
-        console.warn('[Tetris Supabase] Table query fallback:', err);
+        console.warn('[Tetris Supabase] Fallback:', err);
       }
     }
 
-    // LocalStorage Fallback if Supabase not yet created or offline
     if (leaderboardBadge) {
       leaderboardBadge.textContent = '🟡 Local';
       leaderboardBadge.className = 'badge';
@@ -1083,17 +1108,13 @@
     if (score <= 0 || state.isSyncingScore) return;
     state.isSyncingScore = true;
 
-    // Use current value from gameover input if updated
     if (gameoverPlayerInput && gameoverPlayerInput.value.trim()) {
       setPlayerName(gameoverPlayerInput.value.trim());
     }
 
     const playerName = state.playerName || 'Player';
-
-    // 1. Save to LocalStorage Hall of Fame as immediate backup
     saveLocalScore(playerName, score, lines, level);
 
-    // 2. Dual-Write to Supabase tetris_leaderboard
     if (typeof supabaseRequest === 'function' && typeof isSupabaseConfigured === 'function' && isSupabaseConfigured()) {
       try {
         const existing = await supabaseRequest(
@@ -1111,7 +1132,6 @@
                 updated_at: new Date().toISOString()
               })
             });
-            console.log(`🏆 Supabase Tetris high score updated for ${playerName}: ${score}`);
           }
         } else {
           await supabaseRequest('tetris_leaderboard', {
@@ -1123,10 +1143,9 @@
               level: level
             }])
           });
-          console.log(`🏆 Supabase Tetris new leaderboard entry for ${playerName}: ${score}`);
         }
       } catch (err) {
-        console.warn('[Tetris Supabase] Upsert error:', err);
+        console.warn('[Tetris Supabase] Sync error:', err);
       }
     }
 
@@ -1140,7 +1159,6 @@
       if (Array.isArray(stored) && stored.length > 0) return stored.slice(0, 5);
     } catch (e) {}
 
-    // Initial default demo top 5
     return [
       { player_name: 'Pulari Pro', high_score: 14500, lines: 38, level: 4 },
       { player_name: 'Arun K', high_score: 11200, lines: 30, level: 4 },
@@ -1175,39 +1193,33 @@
   }
 
   function renderLeaderboard(rows) {
-    if (!leaderboardListEl) return;
-    if (!rows || rows.length === 0) {
-      leaderboardListEl.innerHTML = `
-        <li style="color: #64748b; font-size: 0.75rem; text-align: center; padding: 0.5rem 0;">
-          No top scores recorded yet!
-        </li>
-      `;
-      return;
-    }
+    const htmlContent = (!rows || rows.length === 0)
+      ? `<li style="color: #64748b; font-size: 0.75rem; text-align: center; padding: 0.5rem 0;">No top scores recorded yet!</li>`
+      : rows.map((item, idx) => {
+          const rankIcons = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+          const currentName = (state.playerName || '').trim().toLowerCase();
+          const isYou = currentName && (item.player_name || '').trim().toLowerCase() === currentName;
+          const topClass = idx === 0 ? 'top-1' : idx === 1 ? 'top-2' : idx === 2 ? 'top-3' : '';
+          const youClass = isYou ? 'is-you' : '';
+          const score = Number(item.high_score || 0);
 
-    const rankIcons = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-    const currentName = (state.playerName || '').trim().toLowerCase();
+          return `
+            <li class="leaderboard-item ${topClass} ${youClass}">
+              <span class="leaderboard-rank">${rankIcons[idx] || '#' + (idx + 1)}</span>
+              <div class="leaderboard-name-wrap">
+                <span class="leaderboard-name">
+                  ${escapeHtml(item.player_name || 'Player')}
+                  ${isYou ? '<span class="you-tag">YOU</span>' : ''}
+                </span>
+                <span class="leaderboard-meta">Lvl ${item.level || 1} • ${item.lines || 0} Lines</span>
+              </div>
+              <span class="leaderboard-score">${score.toLocaleString()}</span>
+            </li>
+          `;
+        }).join('');
 
-    leaderboardListEl.innerHTML = rows.map((item, idx) => {
-      const isYou = currentName && (item.player_name || '').trim().toLowerCase() === currentName;
-      const topClass = idx === 0 ? 'top-1' : idx === 1 ? 'top-2' : idx === 2 ? 'top-3' : '';
-      const youClass = isYou ? 'is-you' : '';
-      const score = Number(item.high_score || 0);
-
-      return `
-        <li class="leaderboard-item ${topClass} ${youClass}">
-          <span class="leaderboard-rank">${rankIcons[idx] || '#' + (idx + 1)}</span>
-          <div class="leaderboard-name-wrap">
-            <span class="leaderboard-name">
-              ${escapeHtml(item.player_name || 'Player')}
-              ${isYou ? '<span class="you-tag">YOU</span>' : ''}
-            </span>
-            <span class="leaderboard-meta">Lvl ${item.level || 1} • ${item.lines || 0} Lines</span>
-          </div>
-          <span class="leaderboard-score">${score.toLocaleString()}</span>
-        </li>
-      `;
-    }).join('');
+    if (leaderboardListEl) leaderboardListEl.innerHTML = htmlContent;
+    if (modalLeaderboardListEl) modalLeaderboardListEl.innerHTML = htmlContent;
   }
 
   function escapeHtml(str) {
@@ -1216,7 +1228,124 @@
     return div.innerHTML;
   }
 
-  // --- Input & Controls Binding ---
+  // --- Turbo DAS Touch Button Handling ---
+  function setupTurboTouchButton(btnId, action) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+
+    let repeatTimer = null;
+    let initialDelayTimer = null;
+
+    const startAction = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      btn.classList.add('active-touch');
+
+      action();
+
+      // Delayed Auto Shift (DAS): wait 160ms, then auto-repeat every 50ms
+      initialDelayTimer = setTimeout(() => {
+        repeatTimer = setInterval(() => {
+          action();
+        }, 50);
+      }, 160);
+    };
+
+    const stopAction = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      btn.classList.remove('active-touch');
+      if (initialDelayTimer) clearTimeout(initialDelayTimer);
+      if (repeatTimer) clearInterval(repeatTimer);
+      initialDelayTimer = null;
+      repeatTimer = null;
+    };
+
+    btn.addEventListener('touchstart', startAction, { passive: false });
+    btn.addEventListener('touchend', stopAction, { passive: false });
+    btn.addEventListener('touchcancel', stopAction, { passive: false });
+
+    // Fallback mouse clicks for testing on desktop
+    btn.addEventListener('mousedown', startAction);
+    btn.addEventListener('mouseup', stopAction);
+    btn.addEventListener('mouseleave', stopAction);
+  }
+
+  function setupMobileControls() {
+    setupTurboTouchButton('m-btn-left', moveLeft);
+    setupTurboTouchButton('m-btn-right', moveRight);
+    setupTurboTouchButton('m-btn-down', softDrop);
+
+    // Single-press action buttons
+    const bindSingleTouch = (id, action) => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      const handler = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        action();
+      };
+      btn.addEventListener('touchstart', handler, { passive: false });
+      btn.addEventListener('click', handler);
+    };
+
+    bindSingleTouch('m-btn-rot-cw', () => rotatePiece(1));
+    bindSingleTouch('m-btn-rot-ccw', () => rotatePiece(-1));
+    bindSingleTouch('m-btn-hard-drop', hardDrop);
+    bindSingleTouch('m-btn-hold', holdPiece);
+    bindSingleTouch('m-btn-hold-wing', holdPiece);
+
+    // Touch Gestures on Board Canvas
+    if (canvas) {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchStartTime = 0;
+
+      canvas.addEventListener('touchstart', (e) => {
+        if (!state.isPlaying || state.isPaused) return;
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchStartTime = Date.now();
+      }, { passive: true });
+
+      canvas.addEventListener('touchend', (e) => {
+        if (!state.isPlaying || state.isPaused) return;
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        const duration = Date.now() - touchStartTime;
+
+        const absDx = Math.abs(dx);
+        const absDy = Math.abs(dy);
+
+        // Tap to rotate
+        if (absDx < 15 && absDy < 15 && duration < 240) {
+          rotatePiece(1);
+          return;
+        }
+
+        // Horizontal Swipe
+        if (absDx > absDy && absDx > 25) {
+          if (dx > 0) moveRight();
+          else moveLeft();
+        }
+        // Vertical Swipe
+        else if (absDy > absDx && absDy > 30) {
+          if (dy > 0) {
+            if (absDy > 65) hardDrop();
+            else softDrop();
+          } else {
+            holdPiece(); // Swipe Up to Hold
+          }
+        }
+      }, { passive: true });
+    }
+  }
+
+  // --- Keyboard Controls ---
   function setupKeyboardControls() {
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
@@ -1270,70 +1399,6 @@
     });
   }
 
-  function setupMobileControls() {
-    const bindBtn = (id, action) => {
-      const btn = document.getElementById(id);
-      if (!btn) return;
-
-      const trigger = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        action();
-      };
-
-      btn.addEventListener('touchstart', trigger, { passive: false });
-      btn.addEventListener('click', trigger);
-    };
-
-    bindBtn('m-btn-left', moveLeft);
-    bindBtn('m-btn-right', moveRight);
-    bindBtn('m-btn-down', softDrop);
-    bindBtn('m-btn-rot-cw', () => rotatePiece(1));
-    bindBtn('m-btn-rot-ccw', () => rotatePiece(-1));
-    bindBtn('m-btn-hard-drop', hardDrop);
-    bindBtn('m-btn-hold', holdPiece);
-    bindBtn('m-btn-pause', togglePause);
-
-    // Touch Swipe Gestures on Canvas
-    if (canvas) {
-      let touchStartX = 0;
-      let touchStartY = 0;
-      let touchStartTime = 0;
-
-      canvas.addEventListener('touchstart', (e) => {
-        if (!state.isPlaying || state.isPaused) return;
-        const touch = e.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        touchStartTime = Date.now();
-      }, { passive: true });
-
-      canvas.addEventListener('touchend', (e) => {
-        if (!state.isPlaying || state.isPaused) return;
-        const touch = e.changedTouches[0];
-        const dx = touch.clientX - touchStartX;
-        const dy = touch.clientY - touchStartY;
-        const duration = Date.now() - touchStartTime;
-
-        const absDx = Math.abs(dx);
-        const absDy = Math.abs(dy);
-
-        if (absDx < 15 && absDy < 15 && duration < 250) {
-          rotatePiece(1);
-          return;
-        }
-
-        if (absDx > absDy && absDx > 25) {
-          if (dx > 0) moveRight();
-          else moveLeft();
-        } else if (absDy > absDx && absDy > 30) {
-          if (dy > 0) softDrop();
-          else hardDrop();
-        }
-      }, { passive: true });
-    }
-  }
-
   function setupButtons() {
     const startBtn = document.getElementById('btn-start-game');
     const pauseBtn = document.getElementById('btn-pause-game');
@@ -1348,10 +1413,38 @@
     if (playAgainBtn) playAgainBtn.addEventListener('click', startGame);
 
     if (changePlayerBtn) changePlayerBtn.addEventListener('click', promptChangePlayerName);
+    if (btnModalChangeTag) btnModalChangeTag.addEventListener('click', () => {
+      if (mobileLeaderboardModal) mobileLeaderboardModal.classList.remove('active');
+      promptChangePlayerName();
+    });
+
+    // Mobile Leaderboard Modal Toggles
+    if (btnOpenLeaderboardModal && mobileLeaderboardModal) {
+      btnOpenLeaderboardModal.addEventListener('click', () => {
+        fetchTop5Leaderboard();
+        mobileLeaderboardModal.classList.add('active');
+        haptic(15);
+      });
+    }
+
+    if (btnCloseLeaderboardModal && mobileLeaderboardModal) {
+      btnCloseLeaderboardModal.addEventListener('click', () => {
+        mobileLeaderboardModal.classList.remove('active');
+        haptic(10);
+      });
+    }
+
+    if (mobileLeaderboardModal) {
+      mobileLeaderboardModal.addEventListener('click', (e) => {
+        if (e.target === mobileLeaderboardModal) {
+          mobileLeaderboardModal.classList.remove('active');
+        }
+      });
+    }
 
     if (soundBtn) {
       const updateSoundIcon = () => {
-        soundBtn.textContent = soundMuted ? '🔇 Muted' : '🔊 Sound';
+        soundBtn.textContent = soundMuted ? '🔇' : '🔊';
         soundBtn.style.color = soundMuted ? '#94a3b8' : '#38bdf8';
       };
       updateSoundIcon();
@@ -1361,6 +1454,7 @@
         localStorage.setItem('pulari_tetris_muted', soundMuted ? 'true' : 'false');
         updateSoundIcon();
         if (!soundMuted) playSfx('rotate');
+        haptic(15);
       });
     }
   }
