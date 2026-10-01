@@ -4279,11 +4279,33 @@ body.public-page {
   flex-direction: column;
 }
 
+.finance-distribution-card {
+  padding: 1.4rem 1.5rem;
+}
+
 .chart-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.chart-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.chart-header-main-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chart-header-icon {
+  font-size: 1.2rem;
 }
 
 .chart-card-header h3 {
@@ -4297,10 +4319,270 @@ body.public-page {
   color: #64748b;
 }
 
+.chart-header-net-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.chart-header-net-pill .pill-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.chart-header-net-pill strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+/* Distribution 2-Column Layout */
+.distribution-card-body {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) 1fr;
+  gap: 2rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.distribution-chart-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .chart-wrapper {
   position: relative;
   height: 250px;
   width: 100%;
+}
+
+.distribution-chart-wrapper {
+  position: relative;
+  height: 270px;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chart-center-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -64%);
+  text-align: center;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+}
+
+.chart-center-lbl {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.chart-center-val {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+
+.chart-center-overlay .status-chip {
+  font-size: 0.68rem;
+  padding: 0.15rem 0.5rem;
+}
+
+/* Distribution Stats Column */
+.distribution-stats-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.dist-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+}
+
+.dist-stat-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.dist-stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+.dist-stat-income {
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+  border-color: #bbf7d0;
+}
+
+.dist-stat-expense {
+  background: linear-gradient(180deg, #fef2f2 0%, #ffffff 100%);
+  border-color: #fecaca;
+}
+
+.dist-stat-balance {
+  background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
+  border-color: #99f6e4;
+}
+
+.dist-stat-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.dist-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-income {
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.dot-expense {
+  background: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.dot-balance {
+  background: #0d9488;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+}
+
+.dist-stat-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.dist-stat-val {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.dist-stat-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+}
+
+.dist-pct-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  color: #334155;
+}
+
+.dist-sub-info {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Distribution Ratio Track */
+.dist-ratio-wrapper {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+.dist-ratio-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.dist-ratio-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.legend-color-income {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #10b981;
+  border-radius: 2px;
+}
+
+.legend-color-expense {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+  border-radius: 2px;
+}
+
+.dist-ratio-track {
+  display: flex;
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+  gap: 2px;
+}
+
+.dist-ratio-bar {
+  height: 100%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dist-ratio-income {
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 9999px 0 0 9999px;
+}
+
+.dist-ratio-expense {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  border-radius: 0 9999px 9999px 0;
 }
 
 /* Toolbar & Filters Bar */
@@ -5063,6 +5345,20 @@ body.public-page {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
+
+  .distribution-card-body {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .distribution-chart-wrapper {
+    height: 240px;
+    max-width: 280px;
+  }
+
+  .chart-center-val {
+    font-size: 1.2rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -5130,16 +5426,54 @@ body.public-page {
     border-radius: 8px;
   }
 
+  .finance-distribution-card {
+    padding: 0.85rem 0.85rem;
+  }
+
   .chart-card-header {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.6rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
   }
 
   .chart-card-header h3 {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .chart-card-header span {
     font-size: 0.7rem;
+  }
+
+  .chart-header-net-pill {
+    padding: 0.25rem 0.65rem;
+    font-size: 0.78rem;
+  }
+
+  .chart-header-net-pill strong {
+    font-size: 0.88rem;
+  }
+
+  .dist-stat-cards {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .dist-stat-item {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .dist-stat-val {
+    font-size: 1.15rem;
+  }
+
+  .distribution-chart-wrapper {
+    height: 220px;
+    max-width: 250px;
+  }
+
+  .chart-center-val {
+    font-size: 1.15rem;
   }
 
   .chart-wrapper {

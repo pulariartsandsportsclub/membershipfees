@@ -545,7 +545,7 @@
   }
 
   /**
-   * Render Income vs Expense Pie Chart
+   * Render Income vs Expense Doughnut Chart & Balance Breakdown
    */
   function renderIncomeExpensePieChart() {
     const canvas = document.getElementById('chart-income-expense-pie') || document.getElementById('chart-category-breakdown');
@@ -553,11 +553,87 @@
 
     const totalIncome = summaryData.totalIncome || 0;
     const totalExpense = summaryData.totalExpense || 0;
+    const netBalance = totalIncome - totalExpense;
     const totalSum = totalIncome + totalExpense;
 
     const incomePct = totalSum > 0 ? ((totalIncome / totalSum) * 100).toFixed(1) : 0;
     const expensePct = totalSum > 0 ? ((totalExpense / totalSum) * 100).toFixed(1) : 0;
+    const isSurplus = netBalance >= 0;
 
+    const formattedNet = (netBalance >= 0 ? '+ ' : '- ') + formatINR(Math.abs(netBalance));
+    const statusText = netBalance > 0 ? 'Surplus Fund' : (netBalance < 0 ? 'Deficit' : 'Balanced');
+    const statusChipClass = isSurplus ? 'status-chip chip-positive' : 'status-chip chip-negative';
+    const textThemeClass = isSurplus ? 'text-positive' : 'text-negative';
+
+    // Update Header Net Pill
+    const distNetBalanceEl = document.getElementById('dist-net-balance');
+    if (distNetBalanceEl) {
+      distNetBalanceEl.textContent = formattedNet;
+      distNetBalanceEl.className = textThemeClass;
+    }
+
+    // Update Doughnut Center Elements
+    const centerBalanceEl = document.getElementById('chart-center-balance');
+    const centerStatusEl = document.getElementById('chart-center-status');
+    if (centerBalanceEl) {
+      centerBalanceEl.textContent = (netBalance >= 0 ? '+' : '-') + formatINR(Math.abs(netBalance));
+      centerBalanceEl.className = 'chart-center-val ' + textThemeClass;
+    }
+    if (centerStatusEl) {
+      centerStatusEl.textContent = statusText;
+      centerStatusEl.className = statusChipClass;
+    }
+
+    // Update Mini Stat Cards Elements
+    const distTotalIncomeEl = document.getElementById('dist-total-income');
+    const distTotalExpenseEl = document.getElementById('dist-total-expense');
+    const distCardNetBalanceEl = document.getElementById('dist-card-net-balance');
+    const distIncomePctEl = document.getElementById('dist-income-pct');
+    const distExpensePctEl = document.getElementById('dist-expense-pct');
+    const distIncomeCountEl = document.getElementById('dist-income-count');
+    const distExpenseCountEl = document.getElementById('dist-expense-count');
+    const distCardStatusBadgeEl = document.getElementById('dist-card-status-badge');
+    const distNetRateEl = document.getElementById('dist-net-rate');
+
+    if (distTotalIncomeEl) distTotalIncomeEl.textContent = formatINR(totalIncome);
+    if (distTotalExpenseEl) distTotalExpenseEl.textContent = formatINR(totalExpense);
+    if (distCardNetBalanceEl) {
+      distCardNetBalanceEl.textContent = formattedNet;
+      distCardNetBalanceEl.className = 'dist-stat-val ' + textThemeClass;
+    }
+
+    if (distIncomePctEl) distIncomePctEl.textContent = `${incomePct}%`;
+    if (distExpensePctEl) distExpensePctEl.textContent = `${expensePct}%`;
+
+    const incomeCount = rawTransactions.filter(t => (t.Type || '').toLowerCase() === 'income').length;
+    const expenseCount = rawTransactions.filter(t => (t.Type || '').toLowerCase() === 'expense').length;
+    if (distIncomeCountEl) distIncomeCountEl.textContent = `${incomeCount} records`;
+    if (distExpenseCountEl) distExpenseCountEl.textContent = `${expenseCount} records`;
+
+    if (distCardStatusBadgeEl) {
+      distCardStatusBadgeEl.textContent = statusText;
+      distCardStatusBadgeEl.className = statusChipClass;
+    }
+
+    if (distNetRateEl) {
+      const netMargin = totalIncome > 0 ? ((Math.abs(netBalance) / totalIncome) * 100).toFixed(1) : 0;
+      distNetRateEl.textContent = totalIncome > 0 ? `${netMargin}% ${isSurplus ? 'surplus margin' : 'deficit'}` : '0% margin';
+    }
+
+    // Update Proportional Ratio Bar
+    const distRatioBarIncome = document.getElementById('dist-ratio-bar-income');
+    const distRatioBarExpense = document.getElementById('dist-ratio-bar-expense');
+    if (distRatioBarIncome && distRatioBarExpense) {
+      if (totalSum > 0) {
+        distRatioBarIncome.style.width = `${incomePct}%`;
+        distRatioBarExpense.style.width = `${expensePct}%`;
+      } else {
+        distRatioBarIncome.style.width = `50%`;
+        distRatioBarExpense.style.width = `50%`;
+      }
+    }
+
+    // Chart.js Labels & Dataset
     const labels = [
       `Income: ${formatINR(totalIncome)} (${incomePct}%)`,
       `Expenses: ${formatINR(totalExpense)} (${expensePct}%)`
@@ -573,32 +649,39 @@
 
     const ctx = canvas.getContext('2d');
     categoryChartInstance = new Chart(ctx, {
-      type: 'pie',
+      type: 'doughnut',
       data: {
         labels: labels,
         datasets: [{
           data: totalSum > 0 ? data : [1, 1],
           backgroundColor: backgroundColors,
           hoverBackgroundColor: hoverColors,
-          borderWidth: 2,
+          borderWidth: 3,
           borderColor: '#ffffff',
-          hoverOffset: 8
+          hoverOffset: 6,
+          borderRadius: 4
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        cutout: '70%',
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
               boxWidth: 12,
-              padding: 12,
-              font: { family: "'Segoe UI', system-ui, sans-serif", size: 11.5, weight: '700' },
+              padding: 14,
+              font: { family: "'Segoe UI', system-ui, -apple-system, sans-serif", size: 11.5, weight: '700' },
               color: '#1e293b'
             }
           },
           tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.94)',
+            padding: 10,
+            cornerRadius: 8,
+            titleFont: { size: 12, weight: '700' },
+            bodyFont: { size: 12, weight: '500' },
             callbacks: {
               label: (ctx) => {
                 const val = ctx.raw || 0;
@@ -606,6 +689,12 @@
                 const pct = isInc ? incomePct : expensePct;
                 const title = isInc ? 'Total Income' : 'Total Expenses';
                 return ` ${title}: ${formatINR(val)} (${pct}%)`;
+              },
+              afterBody: () => {
+                return [
+                  `───────────────────`,
+                  `Net Balance: ${formattedNet} (${statusText})`
+                ];
               }
             }
           }

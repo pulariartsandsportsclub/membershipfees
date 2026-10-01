@@ -120,14 +120,94 @@
 
     <!-- Visual Charts Row -->
     <section class="finance-charts-grid">
-      <!-- Income vs Expense Pie Chart -->
-      <div class="chart-card">
+      <!-- Income vs Expense Distribution & Net Balance Card -->
+      <div class="chart-card finance-distribution-card">
         <div class="chart-card-header">
-          <h3>Income vs Expense Distribution</h3>
-          <span>Total Income vs Total Expense Breakdown</span>
+          <div class="chart-header-titles">
+            <div class="chart-header-main-title">
+              <span class="chart-header-icon">📊</span>
+              <h3>Income vs Expense Distribution</h3>
+            </div>
+            <span>Total Income, Expenses &amp; Net Balance Breakdown</span>
+          </div>
+          <div class="chart-header-net-pill" id="dist-header-net-badge">
+            <span class="pill-label">Net Balance:</span>
+            <strong id="dist-net-balance" class="text-positive">₹0</strong>
+          </div>
         </div>
-        <div class="chart-wrapper">
-          <canvas id="chart-income-expense-pie"></canvas>
+
+        <div class="distribution-card-body">
+          <!-- Left: Doughnut Chart with Center Net Balance Overlay -->
+          <div class="distribution-chart-col">
+            <div class="chart-wrapper distribution-chart-wrapper">
+              <canvas id="chart-income-expense-pie"></canvas>
+              <!-- Center Overlay showing Net Balance -->
+              <div class="chart-center-overlay" id="chart-center-overlay">
+                <span class="chart-center-lbl">Net Balance</span>
+                <strong class="chart-center-val text-positive" id="chart-center-balance">₹0</strong>
+                <span class="status-chip chip-positive" id="chart-center-status">Surplus Fund</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Summary Metrics Breakdown & Flow Progress -->
+          <div class="distribution-stats-col">
+            <div class="dist-stat-cards">
+              <!-- Income Mini Card -->
+              <div class="dist-stat-item dist-stat-income">
+                <div class="dist-stat-header">
+                  <span class="dist-dot dot-income"></span>
+                  <span class="dist-stat-title">Total Income</span>
+                </div>
+                <div class="dist-stat-val text-positive" id="dist-total-income">₹0</div>
+                <div class="dist-stat-footer">
+                  <span id="dist-income-pct" class="dist-pct-tag">0%</span>
+                  <span class="dist-sub-info" id="dist-income-count">0 records</span>
+                </div>
+              </div>
+
+              <!-- Expense Mini Card -->
+              <div class="dist-stat-item dist-stat-expense">
+                <div class="dist-stat-header">
+                  <span class="dist-dot dot-expense"></span>
+                  <span class="dist-stat-title">Total Expenses</span>
+                </div>
+                <div class="dist-stat-val text-negative" id="dist-total-expense">₹0</div>
+                <div class="dist-stat-footer">
+                  <span id="dist-expense-pct" class="dist-pct-tag">0%</span>
+                  <span class="dist-sub-info" id="dist-expense-count">0 records</span>
+                </div>
+              </div>
+
+              <!-- Net Balance Mini Card -->
+              <div class="dist-stat-item dist-stat-balance">
+                <div class="dist-stat-header">
+                  <span class="dist-dot dot-balance"></span>
+                  <span class="dist-stat-title">Net Balance</span>
+                </div>
+                <div class="dist-stat-val text-positive" id="dist-card-net-balance">₹0</div>
+                <div class="dist-stat-footer">
+                  <span class="status-chip chip-positive" id="dist-card-status-badge">Surplus Fund</span>
+                  <span class="dist-sub-info" id="dist-net-rate">0% margin</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Proportional Ratio Comparison Bar -->
+            <div class="dist-ratio-wrapper">
+              <div class="dist-ratio-labels">
+                <span>Cash Flow Distribution Ratio</span>
+                <span class="dist-ratio-legend">
+                  <span class="legend-color-income"></span> Income
+                  <span class="legend-color-expense"></span> Expenses
+                </span>
+              </div>
+              <div class="dist-ratio-track">
+                <div class="dist-ratio-bar dist-ratio-income" id="dist-ratio-bar-income" style="width: 50%;"></div>
+                <div class="dist-ratio-bar dist-ratio-expense" id="dist-ratio-bar-expense" style="width: 50%;"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
