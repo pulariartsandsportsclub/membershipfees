@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BBBX3G8P1P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-BBBX3G8P1P');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Snake Arcade – Pulari Arts & Sports Club</title>
+  <meta name="description"
+    content="Retro Snake Mini-Game with glowing neon visuals, Web Audio SFX, Touch D-Pad, and live Supabase Top-5 Leaderboard for Pulari Arts & Sports Club.">
+  <link rel="icon" type="image/png" href="PULARI.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --snake-green: #10b981;
+      --snake-gold: #f59e0b;
+      --snake-red: #ef4444;
+      --snake-bg: #070d14;
+      --snake-card-bg: rgba(15, 23, 42, 0.85);
+      --snake-border: rgba(255, 255, 255, 0.08);
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body.snake-page {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(ellipse at 50% 0%, #064e3b 0%, #061e16 40%, #030a07 100%);
+      color: #f1f5f9;
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    /* Top Sticky Header */
+    .snake-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(3, 10, 7, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.6rem 1rem;
+    }
+
+    .snake-header-inner {
+      max-width: 1050px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .snake-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+    }
+
+    .snake-brand img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+    }
+
+    .snake-brand-title h1 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+      line-height: 1.15;
+      letter-spacing: -0.2px;
+    }
+
+    .snake-brand-title span {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #34d399;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .snake-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .snake-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.38rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .snake-nav-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .player-tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #a7f3d0;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-header-icon {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #34d399;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    /* Main Game Layout */
+    .snake-main {
+      flex: 1;
+      max-width: 1050px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Mobile Quick Stat Strip */
+    .mobile-stat-strip {
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.4rem;
+      background: var(--snake-card-bg);
+      border: 1px solid var(--snake-border);
+      border-radius: 12px;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .m-stat-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .m-stat-label {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .m-stat-val {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      color: #34d399;
+    }
+
+    /* Desktop 3-Column Layout */
+    .snake-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr 260px;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel-card {
+      background: var(--snake-card-bg);
+      border: 1px solid var(--snake-border);
+      border-radius: 16px;
+      padding: 1rem;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .panel-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-display-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .stat-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 0.6rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-box.highlight {
+      grid-column: span 2;
+      border-color: rgba(16, 185, 129, 0.3);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(0, 0, 0, 0.4));
+    }
+
+    .stat-box-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    .stat-box-val {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 0.2rem;
+    }
+
+    .stat-box.highlight .stat-box-val {
+      color: #34d399;
+      font-size: 1.5rem;
+    }
+
+    /* Center Board Area */
+    .snake-board-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      aspect-ratio: 1 / 1;
+      background: #050d09;
+      border: 2px solid rgba(16, 185, 129, 0.4);
+      border-radius: 18px;
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    #snake-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Canvas Overlays */
+    .board-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 10, 7, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      text-align: center;
+      z-index: 20;
+    }
+
+    .overlay-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin: 0 0 0.35rem;
+    }
+
+    .overlay-sub {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin: 0 0 1rem;
+      max-width: 280px;
+    }
+
+    .overlay-stat-row {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 0.6rem;
+      margin: 0.5rem 0 1rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.4rem;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .overlay-stat-label {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .overlay-stat-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .new-high-badge {
+      background: linear-gradient(135deg, #f59e0b, #eab308);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      margin-bottom: 0.35rem;
+    }
+
+    .overlay-player-input-wrap {
+      width: 100%;
+      max-width: 240px;
+      margin-bottom: 0.75rem;
+    }
+
+    .overlay-player-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.45rem 0.65rem;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+      text-align: center;
+    }
+
+    .btn-snake-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      border: none;
+      padding: 0.65rem 1.4rem;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-snake-primary:active {
+      transform: scale(0.96);
+    }
+
+    /* Virtual D-Pad Touch Controls */
+    .touch-dpad-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .dpad-row {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .dpad-btn {
+      width: 62px;
+      height: 52px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: #34d399;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .dpad-btn:active {
+      background: rgba(16, 185, 129, 0.35);
+      border-color: #10b981;
+      transform: scale(0.94);
+    }
+
+    /* Keybind List */
+    .keybind-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .keybind-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.74rem;
+    }
+
+    .keybind-row span.action {
+      color: #94a3b8;
+    }
+
+    .keybind-row kbd {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 0.1rem 0.3rem;
+      font-size: 0.68rem;
+      font-family: monospace;
+      color: #f1f5f9;
+    }
+
+    /* Leaderboard List */
+    .difficulty-picker-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      width: 100%;
+      max-width: 440px;
+      margin: 0.25rem 0 0.5rem;
+    }
+
+    .overlay-diff-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      margin-bottom: 0.75rem;
+      width: 100%;
+    }
+
+    .diff-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .diff-btn-group {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .diff-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .diff-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .diff-btn.active {
+      background: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.65rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      font-size: 0.78rem;
+    }
+
+    .leaderboard-item.top-1 {
+      border-color: rgba(245, 158, 11, 0.4);
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(0, 0, 0, 0.3));
+    }
+
+    .leaderboard-rank {
+      font-size: 0.9rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .leaderboard-name-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .leaderboard-name {
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .leaderboard-meta {
+      font-size: 0.66rem;
+      color: #94a3b8;
+    }
+
+    .leaderboard-score {
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: #34d399;
+      font-size: 0.88rem;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+    }
+
+    .badge.live {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    /* Mobile Modal for Leaderboard */
+    .mobile-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 10, 7, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .mobile-modal-overlay.active {
+      display: flex;
+    }
+
+    .mobile-modal-card {
+      background: var(--snake-card-bg);
+      border: 1px solid var(--snake-border);
+      border-radius: 20px;
+      padding: 1.25rem;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .mobile-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mobile-modal-header h3 {
+      font-family: var(--font-display);
+      margin: 0;
+      font-size: 1.15rem;
+      color: #ffffff;
+    }
+
+    .btn-modal-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #94a3b8;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .btn-mobile-only {
+      display: none;
+    }
+
+    @media (max-width: 820px) {
+      .snake-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .left-panel,
+      .right-panel {
+        display: none;
+      }
+
+      .mobile-stat-strip {
+        display: grid;
+      }
+
+      .touch-dpad-wrap {
+        display: flex;
+      }
+
+      .btn-mobile-only {
+        display: inline-flex;
+      }
+    }
+  </style>
+</head>
+
+<body class="snake-page">
+
+  <!-- Top Sticky Header -->
+  <header class="snake-header">
+    <div class="snake-header-inner">
+      <a href="games.html" class="snake-brand">
+        <img src="PULARI.png" alt="Pulari Club Logo">
+        <div class="snake-brand-title">
+          <h1>Snake Arcade</h1>
+          <span>Pulari Club</span>
+        </div>
+      </a>
+
+      <div class="snake-nav-links">
+        <div class="player-tag-pill" id="btn-change-player" title="Click to Change Player Gamer Tag">
+          👤 <span id="current-player-name">Player</span> ✏️
+        </div>
+        <button type="button" class="btn-header-icon btn-mobile-only" id="btn-open-leaderboard-modal"
+          title="Top 5 Leaderboard">
+          🏆
+        </button>
+        <button type="button" class="btn-header-icon" id="btn-sound-toggle" title="Toggle Sound">
+          🔊
+        </button>
+        <a href="games.html" class="snake-nav-btn" style="color: #c084fc;" title="All Club Games">
+          🎮 Games
+        </a>
+        <a href="dashboard.html" class="snake-nav-btn" title="Back to Dashboard">
+          ← Exit
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game Container -->
+  <main class="snake-main">
+
+    <!-- Mobile Quick Stats Strip -->
+    <div class="mobile-stat-strip">
+      <div class="m-stat-box">
+        <span class="m-stat-label">Score</span>
+        <span class="m-stat-val" id="m-snake-score">0</span>
+      </div>
+      <div class="m-stat-box">
+        <span class="m-stat-label">High Score</span>
+        <span class="m-stat-val" id="m-snake-highscore" style="color: #f59e0b;">0</span>
+      </div>
+      <div class="m-stat-box">
+        <span class="m-stat-label">Apples</span>
+        <span class="m-stat-val" id="m-snake-apples">0</span>
+      </div>
+      <div class="m-stat-box">
+        <span class="m-stat-label">Length</span>
+        <span class="m-stat-val" id="m-snake-length">3</span>
+      </div>
+    </div>
+
+    <!-- 3-Column Desktop Layout -->
+    <div class="snake-layout">
+
+      <!-- Left Column: Stats & Speed -->
+      <aside class="side-panel left-panel">
+        <div class="panel-card">
+          <div class="panel-title">Scoreboard</div>
+          <div class="stat-display-grid">
+            <div class="stat-box highlight">
+              <span class="stat-box-label">Current Score</span>
+              <span class="stat-box-val" id="snake-score">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-box-label">High Score</span>
+              <span class="stat-box-val" id="snake-highscore" style="color: #f59e0b;">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-box-label">Apples Eaten</span>
+              <span class="stat-box-val" id="snake-apples">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-box-label">Snake Length</span>
+              <span class="stat-box-val" id="snake-length">3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">Speed Difficulty</div>
+          <select id="snake-speed-select"
+            style="width: 100%; background: rgba(0,0,0,0.4); color: #f1f5f9; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 8px; font-family: inherit; font-weight: 600; outline: none;">
+            <option value="Casual">🟢 Casual (Relaxed)</option>
+            <option value="Normal" selected>🟡 Normal (Standard)</option>
+            <option value="Turbo">🔴 Turbo (Fast)</option>
+          </select>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">Controls</div>
+          <ul class="keybind-list">
+            <li class="keybind-row"><span class="action">Move</span> <kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd></li>
+            <li class="keybind-row"><span class="action">Pause / Resume</span> <kbd>Space</kbd> / <kbd>P</kbd></li>
+            <li class="keybind-row"><span class="action">Mobile Swipe</span> <span>Touch Gestures</span></li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Center Column: Canvas Board -->
+      <section class="snake-board-wrap">
+        <!-- Always-Visible Difficulty Picker (Mobile & Desktop) -->
+        <div class="difficulty-picker-wrap">
+          <span class="diff-label">Speed:</span>
+          <div class="diff-btn-group">
+            <button type="button" class="diff-btn" data-diff="Casual">🟢 Casual</button>
+            <button type="button" class="diff-btn active" data-diff="Normal">🟡 Normal</button>
+            <button type="button" class="diff-btn" data-diff="Turbo">🔴 Turbo</button>
+          </div>
+        </div>
+
+        <div class="canvas-container">
+          <canvas id="snake-canvas" width="400" height="400"></canvas>
+
+          <!-- 1. Start Game Overlay -->
+          <div class="board-overlay" id="snake-start-overlay">
+            <h2 class="overlay-title">🐍 Snake Arcade</h2>
+            <p class="overlay-sub">Collect food, grow your snake, and claim the Top 5 Global Leaderboard!</p>
+            <div class="overlay-player-input-wrap">
+              <input type="text" id="start-player-name" class="overlay-player-input" placeholder="Enter Gamer Tag"
+                maxlength="18">
+            </div>
+
+            <div class="overlay-diff-wrap">
+              <span class="diff-label">Choose Speed:</span>
+              <div class="diff-btn-group">
+                <button type="button" class="diff-btn" data-diff="Casual">🟢 Casual</button>
+                <button type="button" class="diff-btn active" data-diff="Normal">🟡 Normal</button>
+                <button type="button" class="diff-btn" data-diff="Turbo">🔴 Turbo</button>
+              </div>
+            </div>
+
+            <button type="button" class="btn-snake-primary" id="btn-start-game">
+              ▶ Start Game
+            </button>
+          </div>
+
+          <!-- 2. Pause Overlay -->
+          <div class="board-overlay" id="snake-pause-overlay" style="display: none;">
+            <h2 class="overlay-title">⏸ Game Paused</h2>
+            <p class="overlay-sub">Take a breath and jump back in when you're ready.</p>
+            <button type="button" class="btn-snake-primary" id="btn-resume-game">
+              ▶ Resume Game
+            </button>
+          </div>
+
+          <!-- 3. Game Over Overlay -->
+          <div class="board-overlay" id="snake-gameover-overlay" style="display: none;">
+            <span class="new-high-badge" id="go-new-record" style="display: none;">🏆 NEW HIGH SCORE!</span>
+            <h2 class="overlay-title" style="color: #ef4444;">Game Over!</h2>
+
+            <div class="overlay-stat-row">
+              <div>
+                <div class="overlay-stat-label">Score</div>
+                <div class="overlay-stat-val" id="go-final-score">0</div>
+              </div>
+              <div>
+                <div class="overlay-stat-label">Apples</div>
+                <div class="overlay-stat-val" id="go-final-apples">0</div>
+              </div>
+              <div>
+                <div class="overlay-stat-label">Length</div>
+                <div class="overlay-stat-val" id="go-final-length">3</div>
+              </div>
+            </div>
+
+            <div class="overlay-player-input-wrap">
+              <input type="text" id="gameover-player-name" class="overlay-player-input" placeholder="Gamer Tag"
+                maxlength="18">
+            </div>
+
+            <div class="overlay-diff-wrap">
+              <span class="diff-label">Speed:</span>
+              <div class="diff-btn-group">
+                <button type="button" class="diff-btn" data-diff="Casual">🟢 Casual</button>
+                <button type="button" class="diff-btn active" data-diff="Normal">🟡 Normal</button>
+                <button type="button" class="diff-btn" data-diff="Turbo">🔴 Turbo</button>
+              </div>
+            </div>
+
+            <button type="button" class="btn-snake-primary" id="btn-play-again">
+              🔄 Play Again
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Virtual D-Pad -->
+        <div class="touch-dpad-wrap">
+          <div class="dpad-row">
+            <button type="button" class="dpad-btn" id="snake-btn-up">▲</button>
+          </div>
+          <div class="dpad-row">
+            <button type="button" class="dpad-btn" id="snake-btn-left">◀</button>
+            <button type="button" class="dpad-btn" id="snake-btn-down">▼</button>
+            <button type="button" class="dpad-btn" id="snake-btn-right">▶</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Live Top 5 Leaderboard -->
+      <aside class="side-panel right-panel">
+        <div class="panel-card">
+          <div class="panel-title">
+            Top 5 Leaderboard
+            <span class="badge live" id="leaderboard-badge">🟢 Live</span>
+          </div>
+          <ul class="leaderboard-list" id="snake-leaderboard-list">
+            <!-- Dynamic Leaderboard Items -->
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- Mobile Top 5 Leaderboard Modal -->
+  <div class="mobile-modal-overlay" id="mobile-leaderboard-modal">
+    <div class="mobile-modal-card">
+      <div class="mobile-modal-header">
+        <h3>🏆 Snake Top 5</h3>
+        <button type="button" class="btn-modal-close" id="btn-close-leaderboard-modal">✕</button>
+      </div>
+      <ul class="leaderboard-list" id="modal-leaderboard-list">
+        <!-- Dynamic Rows -->
+      </ul>
+      <button type="button" class="btn-snake-primary" id="btn-modal-change-tag" style="justify-content: center;">
+        ✏️ Edit Gamer Tag
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/snake-game.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BBBX3G8P1P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-BBBX3G8P1P');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulari Arcade & Games – Pulari Arts & Sports Club</title>
+  <meta name="description"
+    content="Play interactive mini-games, compete on live Supabase leaderboards, and set high scores in Penalty Shootout and Tetris Arcade for Pulari Arts & Sports Club.">
+  <link rel="icon" type="image/png" href="PULARI.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --games-bg: #070a13;
+      --games-card-bg: rgba(15, 23, 42, 0.75);
+      --games-card-border: rgba(255, 255, 255, 0.08);
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body.games-hub-page {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% 0%, #172554 0%, #090e1a 45%, #05070d 100%);
+      color: #f1f5f9;
+      font-family: var(--font-body);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Ambient animated lighting */
+    .ambient-glow {
+      position: fixed;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, rgba(59, 130, 246, 0.12) 45%, transparent 70%);
+      filter: blur(70px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header Styling */
+    .games-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(7, 10, 19, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.75rem 1.25rem;
+    }
+
+    .games-header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .games-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .games-brand img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+    }
+
+    .games-brand-text h1 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+    }
+
+    .games-brand-text span {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #94a3b8;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .games-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .games-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 0.42rem 0.85rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .games-nav-link:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .player-tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(59, 130, 246, 0.15));
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      color: #e9d5ff;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .player-tag-chip:hover {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(59, 130, 246, 0.25));
+      border-color: rgba(168, 85, 247, 0.55);
+      transform: scale(1.02);
+    }
+
+    /* Main Container */
+    .games-main {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      max-width: 1180px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2.25rem 1.25rem 3.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    /* Hero Banner */
+    .games-hero {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(236, 72, 153, 0.12);
+      border: 1px solid rgba(236, 72, 153, 0.3);
+      color: #f472b6;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 2.85rem);
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      line-height: 1.15;
+      margin: 0;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-title-highlight {
+      background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 0.98rem;
+      color: #94a3b8;
+      max-width: 580px;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    /* Games Cards Grid */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.75rem;
+      align-items: stretch;
+    }
+
+    .game-card {
+      position: relative;
+      background: var(--games-card-bg);
+      border: 1px solid var(--games-card-border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Football Game Accent */
+    .game-card.penalty-card {
+      border-top: 3px solid #10b981;
+    }
+
+    .game-card.penalty-card:hover {
+      box-shadow: 0 20px 45px -10px rgba(16, 185, 129, 0.25);
+    }
+
+    /* Tetris Game Accent */
+    .game-card.tetris-card {
+      border-top: 3px solid #a855f7;
+    }
+
+    .game-card.tetris-card:hover {
+      box-shadow: 0 20px 45px -10px rgba(168, 85, 247, 0.25);
+    }
+
+    .card-banner {
+      height: 180px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .penalty-banner {
+      background: radial-gradient(circle at 50% 120%, #064e3b 0%, #022c22 60%, #050b14 100%);
+    }
+
+    .tetris-banner {
+      background: radial-gradient(circle at 50% 120%, #4c1d95 0%, #2e1065 60%, #050b14 100%);
+    }
+
+    .banner-graphic {
+      font-size: 5rem;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6));
+      animation: floatGraphic 3.6s ease-in-out infinite;
+    }
+
+    @keyframes floatGraphic {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-8px) scale(1.04);
+      }
+    }
+
+    .banner-badge {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 1.15rem;
+    }
+
+    .card-header-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 0.25rem;
+      line-height: 1.25;
+      letter-spacing: -0.3px;
+    }
+
+    .card-genre {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      line-height: 1.55;
+      margin: 0;
+      flex: 1;
+    }
+
+    /* Tag features */
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag-pill {
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    /* Highscore preview box inside card */
+    .card-record-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0.65rem 0.95rem;
+      border-radius: 12px;
+    }
+
+    .record-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .record-val {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #f59e0b;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .record-holder {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      font-weight: normal;
+    }
+
+    /* Play Action Buttons */
+    .btn-play-game {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      font-family: var(--font-display);
+      font-size: 0.98rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      padding: 0.85rem 1.25rem;
+      border-radius: 12px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-play-penalty {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-play-penalty:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+      background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+    }
+
+    .btn-play-tetris {
+      background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.35);
+    }
+
+    .btn-play-tetris:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(168, 85, 247, 0.5);
+      background: linear-gradient(135deg, #c084fc 0%, #7c3aed 100%);
+    }
+
+    /* Snake Game Accent */
+    .game-card.snake-card {
+      border-top: 3px solid #10b981;
+    }
+
+    .game-card.snake-card:hover {
+      box-shadow: 0 20px 45px -10px rgba(16, 185, 129, 0.25);
+    }
+
+    .snake-banner {
+      background: radial-gradient(circle at 50% 120%, #064e3b 0%, #061e16 60%, #030a07 100%);
+    }
+
+    .btn-play-snake {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-play-snake:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+      background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+    }
+
+    /* Balloon Pop Game Accent */
+    .game-card.balloon-card {
+      border-top: 3px solid #ec4899;
+    }
+
+    .game-card.balloon-card:hover {
+      box-shadow: 0 20px 45px -10px rgba(236, 72, 153, 0.25);
+    }
+
+    .balloon-banner {
+      background: radial-gradient(circle at 50% 120%, #831843 0%, #4c0519 60%, #0b0716 100%);
+    }
+
+    .btn-play-balloon {
+      background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(236, 72, 153, 0.35);
+    }
+
+    .btn-play-balloon:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(236, 72, 153, 0.5);
+      background: linear-gradient(135deg, #f472b6 0%, #db2777 100%);
+    }
+
+    /* 2048 Mini Puzzle Accent */
+    .game-card.puzzle-card {
+      border-top: 3px solid #f97316;
+    }
+
+    .game-card.puzzle-card:hover {
+      box-shadow: 0 20px 45px -10px rgba(249, 115, 22, 0.25);
+    }
+
+    .puzzle-banner {
+      background: radial-gradient(circle at 50% 120%, #7c2d12 0%, #431407 60%, #030712 100%);
+    }
+
+    .btn-play-2048 {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(249, 115, 22, 0.35);
+    }
+
+    .btn-play-2048:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(249, 115, 22, 0.5);
+      background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+    }
+
+    /* Leaderboards Preview Section */
+    .leaderboard-section {
+      background: var(--games-card-bg);
+      border: 1px solid var(--games-card-border);
+      border-radius: 20px;
+      padding: 1.75rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .section-title-wrap h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title-wrap p {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      margin: 0.2rem 0 0;
+    }
+
+    .leaderboard-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .lb-tab-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .lb-tab-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Leaderboard Table Display */
+    .lb-table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .lb-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    .lb-table th {
+      background: rgba(255, 255, 255, 0.04);
+      color: #94a3b8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .lb-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #e2e8f0;
+    }
+
+    .lb-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .lb-table tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .lb-table .col-rank {
+      width: 55px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .lb-table .col-player {
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .lb-table .col-score {
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: #38bdf8;
+      font-size: 1.05rem;
+    }
+
+    .lb-loading-state,
+    .lb-empty-state {
+      padding: 2.5rem 1rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.88rem;
+    }
+
+    /* Footer */
+    .games-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 640px) {
+      .games-main {
+        padding: 1.5rem 1rem 2.5rem;
+        gap: 1.75rem;
+      }
+
+      .games-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .leaderboard-section {
+        padding: 1.25rem 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body class="games-hub-page">
+
+  <div class="ambient-glow"></div>
+
+  <!-- Top Sticky Header -->
+  <header class="games-header">
+    <div class="games-header-inner">
+      <a href="dashboard.html" class="games-brand">
+        <img src="PULARI.png" alt="Pulari Club Logo">
+        <div class="games-brand-text">
+          <h1>Pulari Arcade</h1>
+          <span>Club Games Hub</span>
+        </div>
+      </a>
+
+      <div class="games-nav-actions">
+        <button type="button" class="player-tag-chip" id="btn-edit-gamer-tag" title="Click to Change Your Gamer Tag">
+          👤 <span id="chip-gamer-tag">Player</span> ✏️
+        </button>
+        <a href="dashboard.html" class="games-nav-link" title="Back to Member Dashboard">
+          👥 Member Dashboard
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="games-main">
+
+    <!-- Hero Section -->
+    <section class="games-hero">
+      <div class="hero-badge">
+        🕹️ Official Club Arcade
+      </div>
+      <h2 class="hero-title">
+        Play & Conquer the <span class="hero-title-highlight">Leaderboards</span>
+      </h2>
+      <p class="hero-subtitle">
+        Jump into classic mini-games customized for Pulari Arts & Sports Club. Rack up high scores and immortalize your
+        gamer tag in the Hall of Fame!
+      </p>
+    </section>
+
+    <!-- Games Grid Showcase -->
+    <section class="games-grid">
+
+      <!-- 1. Penalty Shootout Card -->
+      <article class="game-card penalty-card">
+        <div class="card-banner penalty-banner">
+          <span class="banner-badge">⚽ Football Action</span>
+          <div class="banner-graphic">⚽🧤</div>
+        </div>
+        <div class="card-body">
+          <div class="card-header-group">
+            <div>
+              <h3 class="card-title">Penalty Shootout</h3>
+              <span class="card-genre">Sports & Action • 5 Saves</span>
+            </div>
+          </div>
+
+          <div class="card-tags">
+            <span class="tag-pill">AI Goalkeeper</span>
+            <span class="tag-pill">Streak Bonus</span>
+            <span class="tag-pill">Web Audio SFX</span>
+            <span class="tag-pill">5-Save Limit</span>
+          </div>
+
+          <div class="card-record-strip">
+            <span class="record-label">All-Time High Score</span>
+            <div class="record-val">
+              <span id="penalty-highscore-val">🏆 0</span>
+              <span class="record-holder" id="penalty-highscore-holder"></span>
+            </div>
+          </div>
+
+          <a href="game.html" class="btn-play-game btn-play-penalty" id="btn-launch-penalty">
+            Play Penalty Shootout ⚽
+          </a>
+        </div>
+      </article>
+
+      <!-- 2. Tetris Arcade Card -->
+      <article class="game-card tetris-card">
+        <div class="card-banner tetris-banner">
+          <span class="banner-badge">🕹️ Classic Retro</span>
+          <div class="banner-graphic">🧱✨</div>
+        </div>
+        <div class="card-body">
+          <div class="card-header-group">
+            <div>
+              <h3 class="card-title">Tetris Arcade</h3>
+              <span class="card-genre">Retro Puzzle • SRS Rotation</span>
+            </div>
+          </div>
+
+          <div class="card-tags">
+            <span class="tag-pill">SRS Rotation</span>
+            <span class="tag-pill">7-Bag System</span>
+            <span class="tag-pill">Turbo DAS Touch</span>
+            <span class="tag-pill">Top 5 Live Board</span>
+          </div>
+
+          <div class="card-record-strip">
+            <span class="record-label">Top 1 High Score</span>
+            <div class="record-val">
+              <span id="tetris-highscore-val" style="color: #c084fc;">🏆 0</span>
+              <span class="record-holder" id="tetris-highscore-holder"></span>
+            </div>
+          </div>
+
+          <a href="tetris.html" class="btn-play-game btn-play-tetris" id="btn-launch-tetris">
+            Play Tetris Arcade 🕹️
+          </a>
+        </div>
+      </article>
+
+      <!-- 3. Snake Arcade Card -->
+      <article class="game-card snake-card">
+        <div class="card-banner snake-banner">
+          <span class="banner-badge">🐍 Retro Classic</span>
+          <div class="banner-graphic">🐍🍎</div>
+        </div>
+        <div class="card-body">
+          <div class="card-header-group">
+            <div>
+              <h3 class="card-title">Snake Arcade</h3>
+              <span class="card-genre">Retro Arcade • Speed & Reflex</span>
+            </div>
+          </div>
+
+          <div class="card-tags">
+            <span class="tag-pill">Golden Apples</span>
+            <span class="tag-pill">Speed Levels</span>
+            <span class="tag-pill">Touch D-Pad & Swipes</span>
+            <span class="tag-pill">Top 5 Live Board</span>
+          </div>
+
+          <div class="card-record-strip">
+            <span class="record-label">Top 1 High Score</span>
+            <div class="record-val">
+              <span id="snake-highscore-val" style="color: #10b981;">🏆 0</span>
+              <span class="record-holder" id="snake-highscore-holder"></span>
+            </div>
+          </div>
+
+          <a href="snake.html" class="btn-play-game btn-play-snake" id="btn-launch-snake">
+            Play Snake Arcade 🐍
+          </a>
+        </div>
+      </article>
+
+      <!-- 4. Balloon Pop Card -->
+      <article class="game-card balloon-card">
+        <div class="card-banner balloon-banner">
+          <span class="banner-badge">🎈 30s Reflex Blitz</span>
+          <div class="banner-graphic">🎈✨</div>
+        </div>
+        <div class="card-body">
+          <div class="card-header-group">
+            <div>
+              <h3 class="card-title">Balloon Pop</h3>
+              <span class="card-genre">Reflex Blitz • 30 Sec Timer</span>
+            </div>
+          </div>
+
+          <div class="card-tags">
+            <span class="tag-pill">30s Timer</span>
+            <span class="tag-pill">Golden Stars</span>
+            <span class="tag-pill">Bonus Time</span>
+            <span class="tag-pill">Top 5 Live Board</span>
+          </div>
+
+          <div class="card-record-strip">
+            <span class="record-label">Top 1 High Score</span>
+            <div class="record-val">
+              <span id="balloon-highscore-val" style="color: #ec4899;">🏆 0</span>
+              <span class="record-holder" id="balloon-highscore-holder"></span>
+            </div>
+          </div>
+
+          <a href="balloon.html" class="btn-play-game btn-play-balloon" id="btn-launch-balloon">
+            Play Balloon Pop 🎈
+          </a>
+        </div>
+      </article>
+
+      <!-- 5. 2048 Mini Puzzle Card -->
+      <article class="game-card puzzle-card">
+        <div class="card-banner puzzle-banner">
+          <span class="banner-badge">🧩 Number Merge</span>
+          <div class="banner-graphic">🧩✨</div>
+        </div>
+        <div class="card-body">
+          <div class="card-header-group">
+            <div>
+              <h3 class="card-title">2048 Mini</h3>
+              <span class="card-genre">Number Merge • Strategic Puzzle</span>
+            </div>
+          </div>
+
+          <div class="card-tags">
+            <span class="tag-pill">Tile Merging</span>
+            <span class="tag-pill">1-Step Undo</span>
+            <span class="tag-pill">Keyboard & Touch</span>
+            <span class="tag-pill">Top 5 Live Board</span>
+          </div>
+
+          <div class="card-record-strip">
+            <span class="record-label">Top 1 High Score</span>
+            <div class="record-val">
+              <span id="game2048-highscore-val" style="color: #fb923c;">🏆 0</span>
+              <span class="record-holder" id="game2048-highscore-holder"></span>
+            </div>
+          </div>
+
+          <a href="game2048.html" class="btn-play-game btn-play-2048" id="btn-launch-2048">
+            Play 2048 Mini 🧩
+          </a>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Live Club Leaderboards Preview -->
+    <section class="leaderboard-section">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>🏆 Live Club Leaderboards</h2>
+          <p>Real-time top rankings fetched directly from the database</p>
+        </div>
+
+        <div class="leaderboard-tabs">
+          <button type="button" class="lb-tab-btn active" id="tab-btn-penalty" data-target="penalty">
+            ⚽ Penalty Top 5
+          </button>
+          <button type="button" class="lb-tab-btn" id="tab-btn-snake" data-target="snake">
+            🐍 Snake Top 5
+          </button>
+          <button type="button" class="lb-tab-btn" id="tab-btn-balloon" data-target="balloon">
+            🎈 Balloon Top 5
+          </button>
+          <button type="button" class="lb-tab-btn" id="tab-btn-2048" data-target="2048">
+            🧩 2048 Top 5
+          </button>
+          <button type="button" class="lb-tab-btn" id="tab-btn-tetris" data-target="tetris">
+            🕹️ Tetris Top 5
+          </button>
+        </div>
+      </div>
+
+      <div class="lb-table-wrap">
+        <div id="lb-loading" class="lb-loading-state">
+          ⚡ Fetching live scores from database...
+        </div>
+
+        <table class="lb-table" id="lb-table" style="display: none;">
+          <thead>
+            <tr>
+              <th class="col-rank">Rank</th>
+              <th class="col-player">Player / Gamer Tag</th>
+              <th class="col-details">Details</th>
+              <th class="col-score">High Score</th>
+            </tr>
+          </thead>
+          <tbody id="lb-tbody">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+
+        <div id="lb-empty" class="lb-empty-state" style="display: none;">
+          No scores recorded yet. Be the first to play and set a club record!
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="games-footer">
+    <p>© 2026 Pulari Arts & Sports Club • Arcade Gaming Hub • All scores synced with live cloud database</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script>
+    (function () {
+      let activeTab = 'penalty';
+      const gamerTagChip = document.getElementById('chip-gamer-tag');
+      const btnEditTag = document.getElementById('btn-edit-gamer-tag');
+
+      // 1. Gamer Tag Management
+      function updateGamerTagDisplay() {
+        const name = localStorage.getItem('pulari_player_name') || 'Player';
+        if (gamerTagChip) gamerTagChip.textContent = name;
+      }
+
+      function promptEditGamerTag() {
+        const current = localStorage.getItem('pulari_player_name') || 'Player';
+        const newName = prompt('Enter your Gamer Tag for Club Leaderboards:', current);
+        if (newName && newName.trim()) {
+          localStorage.setItem('pulari_player_name', newName.trim().slice(0, 18));
+          updateGamerTagDisplay();
+          fetchBothLeaderboards();
+        }
+      }
+
+      if (btnEditTag) {
+        btnEditTag.addEventListener('click', promptEditGamerTag);
+      }
+
+      // 2. Fetch Leaderboards & High Scores
+      async function fetchBothLeaderboards() {
+        const lbLoading = document.getElementById('lb-loading');
+        const lbTable = document.getElementById('lb-table');
+        const lbTbody = document.getElementById('lb-tbody');
+        const lbEmpty = document.getElementById('lb-empty');
+
+        const penaltyHighVal = document.getElementById('penalty-highscore-val');
+        const penaltyHighHolder = document.getElementById('penalty-highscore-holder');
+        const tetrisHighVal = document.getElementById('tetris-highscore-val');
+        const tetrisHighHolder = document.getElementById('tetris-highscore-holder');
+        const snakeHighVal = document.getElementById('snake-highscore-val');
+        const snakeHighHolder = document.getElementById('snake-highscore-holder');
+        const balloonHighVal = document.getElementById('balloon-highscore-val');
+        const balloonHighHolder = document.getElementById('balloon-highscore-holder');
+        const game2048HighVal = document.getElementById('game2048-highscore-val');
+        const game2048HighHolder = document.getElementById('game2048-highscore-holder');
+
+        if (lbLoading) lbLoading.style.display = 'block';
+        if (lbTable) lbTable.style.display = 'none';
+        if (lbEmpty) lbEmpty.style.display = 'none';
+
+        try {
+          if (typeof supabaseRequest === 'function' && typeof isSupabaseConfigured === 'function' && isSupabaseConfigured()) {
+            // A. Fetch Tetris Top 5
+            const tetrisRows = await supabaseRequest('tetris_leaderboard?select=player_name,high_score,lines,level,created_at&order=high_score.desc&limit=5');
+            if (Array.isArray(tetrisRows) && tetrisRows.length > 0) {
+              const top1 = tetrisRows[0];
+              if (tetrisHighVal) tetrisHighVal.textContent = `🏆 ${Number(top1.high_score || 0).toLocaleString()}`;
+              if (tetrisHighHolder) tetrisHighHolder.textContent = top1.player_name ? `by ${top1.player_name}` : '';
+            } else {
+              if (tetrisHighVal) tetrisHighVal.textContent = '🏆 0';
+              if (tetrisHighHolder) tetrisHighHolder.textContent = '';
+            }
+
+            // B. Fetch Penalty Top 5
+            const penaltyRows = await supabaseRequest('goal_leaderboard?select=player_name,high_score,created_at&order=high_score.desc&limit=5');
+            if (Array.isArray(penaltyRows) && penaltyRows.length > 0) {
+              const top1 = penaltyRows[0];
+              if (penaltyHighVal) penaltyHighVal.textContent = `🏆 ${Number(top1.high_score || 0)}`;
+              if (penaltyHighHolder) penaltyHighHolder.textContent = top1.player_name ? `by ${top1.player_name}` : '';
+            } else {
+              if (penaltyHighVal) penaltyHighVal.textContent = '🏆 0';
+              if (penaltyHighHolder) penaltyHighHolder.textContent = '';
+            }
+
+            // C. Fetch Snake Top 5
+            const snakeRows = await supabaseRequest('snake_leaderboard?select=player_name,high_score,apples_eaten,length,speed_level,created_at&order=high_score.desc&limit=5');
+            if (Array.isArray(snakeRows) && snakeRows.length > 0) {
+              const top1 = snakeRows[0];
+              if (snakeHighVal) snakeHighVal.textContent = `🏆 ${Number(top1.high_score || 0).toLocaleString()}`;
+              if (snakeHighHolder) snakeHighHolder.textContent = top1.player_name ? `by ${top1.player_name}` : '';
+            } else {
+              if (snakeHighVal) snakeHighVal.textContent = '🏆 0';
+              if (snakeHighHolder) snakeHighHolder.textContent = '';
+            }
+
+            // D. Fetch Balloon Top 5
+            const balloonRows = await supabaseRequest('balloon_leaderboard?select=player_name,high_score,balloons_popped,accuracy,max_combo,created_at&order=high_score.desc&limit=5');
+            if (Array.isArray(balloonRows) && balloonRows.length > 0) {
+              const top1 = balloonRows[0];
+              if (balloonHighVal) balloonHighVal.textContent = `🏆 ${Number(top1.high_score || 0).toLocaleString()}`;
+              if (balloonHighHolder) balloonHighHolder.textContent = top1.player_name ? `by ${top1.player_name}` : '';
+            } else {
+              if (balloonHighVal) balloonHighVal.textContent = '🏆 0';
+              if (balloonHighHolder) balloonHighHolder.textContent = '';
+            }
+
+            // E. Fetch 2048 Top 5
+            const game2048Rows = await supabaseRequest('game2048_leaderboard?select=player_name,high_score,highest_tile,moves_count,created_at&order=high_score.desc&limit=5');
+            if (Array.isArray(game2048Rows) && game2048Rows.length > 0) {
+              const top1 = game2048Rows[0];
+              if (game2048HighVal) game2048HighVal.textContent = `🏆 ${Number(top1.high_score || 0).toLocaleString()}`;
+              if (game2048HighHolder) game2048HighHolder.textContent = top1.player_name ? `by ${top1.player_name}` : '';
+            } else {
+              if (game2048HighVal) game2048HighVal.textContent = '🏆 0';
+              if (game2048HighHolder) game2048HighHolder.textContent = '';
+            }
+
+            // Render active tab table
+            let currentRows = penaltyRows;
+            if (activeTab === 'snake') currentRows = snakeRows;
+            else if (activeTab === 'balloon') currentRows = balloonRows;
+            else if (activeTab === '2048') currentRows = game2048Rows;
+            else if (activeTab === 'tetris') currentRows = tetrisRows;
+
+            renderTableData(currentRows, activeTab);
+          } else {
+            if (lbLoading) lbLoading.style.display = 'none';
+            if (lbEmpty) {
+              lbEmpty.textContent = 'Database connection offline.';
+              lbEmpty.style.display = 'block';
+            }
+          }
+        } catch (err) {
+          console.warn('Leaderboard fetch error:', err);
+          if (lbLoading) lbLoading.style.display = 'none';
+          if (lbEmpty) {
+            lbEmpty.textContent = 'Could not load leaderboards.';
+            lbEmpty.style.display = 'block';
+          }
+        }
+      }
+
+      function renderTableData(rows, type) {
+        const lbLoading = document.getElementById('lb-loading');
+        const lbTable = document.getElementById('lb-table');
+        const lbTbody = document.getElementById('lb-tbody');
+        const lbEmpty = document.getElementById('lb-empty');
+
+        if (lbLoading) lbLoading.style.display = 'none';
+
+        if (!rows || rows.length === 0) {
+          if (lbTable) lbTable.style.display = 'none';
+          let name = 'Penalty';
+          if (type === 'tetris') name = 'Tetris';
+          else if (type === 'snake') name = 'Snake';
+          else if (type === 'balloon') name = 'Balloon Pop';
+          else if (type === '2048') name = '2048 Mini';
+
+          if (lbEmpty) {
+            lbEmpty.textContent = `No ${name} scores recorded yet. Play now to claim the top spot!`;
+            lbEmpty.style.display = 'block';
+          }
+          return;
+        }
+
+        if (lbEmpty) lbEmpty.style.display = 'none';
+        if (lbTable) lbTable.style.display = 'table';
+
+        const rankIcons = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+        const currentName = (localStorage.getItem('pulari_player_name') || '').trim().toLowerCase();
+
+        if (lbTbody) {
+          lbTbody.innerHTML = rows.map((item, idx) => {
+            const isYou = currentName && (item.player_name || '').trim().toLowerCase() === currentName;
+            const scoreFormatted = Number(item.high_score || 0).toLocaleString();
+            let metaDetails = 'Goals Scored';
+            if (type === 'tetris') {
+              metaDetails = `Level ${item.level || 1} • ${item.lines || 0} Lines`;
+            } else if (type === 'snake') {
+              metaDetails = `🍎 ${item.apples_eaten || 0} Apples • Len ${item.length || 3}`;
+            } else if (type === 'balloon') {
+              metaDetails = `🎈 ${item.balloons_popped || 0} Popped • ${item.accuracy || 100}% Acc`;
+            } else if (type === '2048') {
+              metaDetails = `Tile ${item.highest_tile || 2} • ${item.moves_count || 0} Moves`;
+            }
+
+            return `
+              <tr style="${isYou ? 'background: rgba(236, 72, 153, 0.12);' : ''}">
+                <td class="col-rank">${rankIcons[idx] || '#' + (idx + 1)}</td>
+                <td class="col-player">
+                  ${escapeHtml(item.player_name || 'Player')}
+                  ${isYou ? '<span style="font-size: 0.68rem; background: #ec4899; color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">YOU</span>' : ''}
+                </td>
+                <td style="color: #94a3b8; font-size: 0.82rem;">${metaDetails}</td>
+                <td class="col-score">${scoreFormatted}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+
+      function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      // 3. Tab Click Events
+      const tabPenalty = document.getElementById('tab-btn-penalty');
+      const tabSnake = document.getElementById('tab-btn-snake');
+      const tabBalloon = document.getElementById('tab-btn-balloon');
+      const tab2048 = document.getElementById('tab-btn-2048');
+      const tabTetris = document.getElementById('tab-btn-tetris');
+
+      function switchTab(newTab, activeBtn) {
+        activeTab = newTab;
+        [tabPenalty, tabSnake, tabBalloon, tab2048, tabTetris].forEach(btn => {
+          if (btn) btn.classList.remove('active');
+        });
+        if (activeBtn) activeBtn.classList.add('active');
+        fetchBothLeaderboards();
+      }
+
+      if (tabPenalty) {
+        tabPenalty.addEventListener('click', () => switchTab('penalty', tabPenalty));
+      }
+      if (tabSnake) {
+        tabSnake.addEventListener('click', () => switchTab('snake', tabSnake));
+      }
+      if (tabBalloon) {
+        tabBalloon.addEventListener('click', () => switchTab('balloon', tabBalloon));
+      }
+      if (tab2048) {
+        tab2048.addEventListener('click', () => switchTab('2048', tab2048));
+      }
+      if (tabTetris) {
+        tabTetris.addEventListener('click', () => switchTab('tetris', tabTetris));
+      }
+
+      // Initialize
+      updateGamerTagDisplay();
+      fetchBothLeaderboards();
+    })();
+  </script>
+</body>
+
+</html>

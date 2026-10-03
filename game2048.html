@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BBBX3G8P1P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-BBBX3G8P1P');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>2048 Mini Puzzle – Pulari Arts & Sports Club</title>
+  <meta name="description"
+    content="2048 Mini Number Merge Arcade Game with glowing neon tiles, Web Audio chimes, undo moves, and live Supabase Top-5 Leaderboard for Pulari Arts & Sports Club.">
+  <link rel="icon" type="image/png" href="PULARI.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --puz-amber: #f59e0b;
+      --puz-orange: #ea580c;
+      --puz-purple: #8b5cf6;
+      --puz-cyan: #06b6d4;
+      --puz-bg: #030712;
+      --puz-card-bg: rgba(17, 24, 39, 0.88);
+      --puz-border: rgba(255, 255, 255, 0.08);
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body.puzzle-page {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(ellipse at 50% 0%, #431407 0%, #1c1917 35%, #030712 100%);
+      color: #f1f5f9;
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    /* Top Sticky Header */
+    .puzzle-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(3, 7, 18, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.6rem 1rem;
+    }
+
+    .puzzle-header-inner {
+      max-width: 1050px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .puzzle-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+    }
+
+    .puzzle-brand img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+    }
+
+    .puzzle-brand-title h1 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+      line-height: 1.15;
+      letter-spacing: -0.2px;
+    }
+
+    .puzzle-brand-title span {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #fb923c;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .puzzle-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .puzzle-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.38rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .puzzle-nav-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .player-tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      color: #fdba74;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-header-icon {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fb923c;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    /* Main Puzzle Layout */
+    .puzzle-main {
+      flex: 1;
+      max-width: 1050px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Mobile Quick Stat Strip */
+    .mobile-stat-strip {
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.4rem;
+      background: var(--puz-card-bg);
+      border: 1px solid var(--puz-border);
+      border-radius: 12px;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .m-stat-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .m-stat-label {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .m-stat-val {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fb923c;
+    }
+
+    /* Desktop 3-Column Layout */
+    .puzzle-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr 260px;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel-card {
+      background: var(--puz-card-bg);
+      border: 1px solid var(--puz-border);
+      border-radius: 16px;
+      padding: 1rem;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .panel-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-display-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .stat-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 0.6rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-box.highlight {
+      grid-column: span 2;
+      border-color: rgba(249, 115, 22, 0.35);
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(0, 0, 0, 0.4));
+    }
+
+    .stat-box-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    .stat-box-val {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 0.2rem;
+    }
+
+    .stat-box.highlight .stat-box-val {
+      color: #fb923c;
+      font-size: 1.5rem;
+    }
+
+    /* Action Buttons in Left Panel */
+    .controls-action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      padding: 0.55rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+
+    .btn-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-action-danger {
+      background: rgba(239, 68, 68, 0.15) !important;
+      border-color: rgba(239, 68, 68, 0.35) !important;
+      color: #fca5a5 !important;
+    }
+
+    .btn-action-danger:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.28) !important;
+      border-color: rgba(239, 68, 68, 0.6) !important;
+      color: #ffffff !important;
+    }
+
+    .board-toolbar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 440px;
+      margin-top: 0.35rem;
+    }
+
+    /* Center Board Area */
+    .puzzle-board-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+    }
+
+    .board-container {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      aspect-ratio: 1 / 1;
+      background: #18181b;
+      border: 3px solid rgba(249, 115, 22, 0.4);
+      border-radius: 20px;
+      padding: 12px;
+      box-shadow: 0 0 35px rgba(249, 115, 22, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.9);
+      user-select: none;
+      touch-action: none;
+    }
+
+    .grid-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Tile Styles */
+    .tile {
+      border-radius: 12px;
+      font-family: var(--font-display);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.85rem;
+      transition: transform 0.1s ease-in-out;
+      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .tile-0 {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: none;
+    }
+
+    .tile-2 {
+      background: #e2e8f0;
+      color: #1e293b;
+      box-shadow: 0 3px 10px rgba(226, 232, 240, 0.25);
+    }
+
+    .tile-4 {
+      background: #fde68a;
+      color: #78350f;
+      box-shadow: 0 3px 10px rgba(253, 230, 138, 0.3);
+    }
+
+    .tile-8 {
+      background: #fdba74;
+      color: #7c2d12;
+      box-shadow: 0 3px 12px rgba(253, 186, 116, 0.4);
+    }
+
+    .tile-16 {
+      background: #fb923c;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(251, 146, 60, 0.45);
+    }
+
+    .tile-32 {
+      background: #f97316;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(249, 115, 22, 0.5);
+    }
+
+    .tile-64 {
+      background: #ea580c;
+      color: #ffffff;
+      box-shadow: 0 4px 18px rgba(234, 88, 12, 0.6);
+    }
+
+    .tile-128 {
+      background: linear-gradient(135deg, #fde047, #eab308);
+      color: #422006;
+      font-size: 1.6rem;
+      box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);
+    }
+
+    .tile-256 {
+      background: linear-gradient(135deg, #a3e635, #65a30d);
+      color: #14532d;
+      font-size: 1.6rem;
+      box-shadow: 0 0 22px rgba(101, 163, 13, 0.6);
+    }
+
+    .tile-512 {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #ffffff;
+      font-size: 1.6rem;
+      box-shadow: 0 0 24px rgba(2, 132, 199, 0.6);
+    }
+
+    .tile-1024 {
+      background: linear-gradient(135deg, #c084fc, #9333ea);
+      color: #ffffff;
+      font-size: 1.35rem;
+      box-shadow: 0 0 26px rgba(147, 51, 234, 0.7);
+    }
+
+    .tile-2048 {
+      background: linear-gradient(135deg, #f43f5e, #be123c, #fbbf24);
+      color: #ffffff;
+      font-size: 1.35rem;
+      animation: pulse-gold 1.5s infinite alternate;
+      box-shadow: 0 0 30px rgba(244, 63, 94, 0.85);
+    }
+
+    .tile-4096,
+    .tile-8192,
+    .tile-16384 {
+      background: linear-gradient(135deg, #06b6d4, #ec4899, #f59e0b);
+      color: #ffffff;
+      font-size: 1.25rem;
+      box-shadow: 0 0 35px rgba(6, 182, 212, 0.9);
+    }
+
+    @keyframes pulse-gold {
+      0% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+
+      100% {
+        transform: scale(1.03);
+        filter: brightness(1.2);
+      }
+    }
+
+    /* Board Overlays */
+    .board-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      text-align: center;
+      z-index: 20;
+      border-radius: 17px;
+    }
+
+    .overlay-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin: 0 0 0.35rem;
+    }
+
+    .overlay-sub {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin: 0 0 1rem;
+      max-width: 280px;
+      line-height: 1.45;
+    }
+
+    .overlay-stat-row {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 0.6rem;
+      margin: 0.5rem 0 1rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.4rem;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .overlay-stat-label {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .overlay-stat-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .new-high-badge {
+      background: linear-gradient(135deg, #f59e0b, #eab308);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      margin-bottom: 0.35rem;
+    }
+
+    .overlay-player-input-wrap {
+      width: 100%;
+      max-width: 240px;
+      margin-bottom: 0.75rem;
+    }
+
+    .overlay-player-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.45rem 0.65rem;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+      text-align: center;
+    }
+
+    .btn-puzzle-primary {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      color: #ffffff;
+      border: none;
+      padding: 0.65rem 1.4rem;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(249, 115, 22, 0.45);
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-puzzle-primary:active {
+      transform: scale(0.96);
+    }
+
+    /* Leaderboard List */
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.65rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      font-size: 0.78rem;
+    }
+
+    .leaderboard-item.top-1 {
+      border-color: rgba(245, 158, 11, 0.4);
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(0, 0, 0, 0.3));
+    }
+
+    .leaderboard-rank {
+      font-size: 0.9rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .leaderboard-name-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .leaderboard-name {
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .leaderboard-meta {
+      font-size: 0.66rem;
+      color: #94a3b8;
+    }
+
+    .leaderboard-score {
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: #fb923c;
+      font-size: 0.88rem;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+    }
+
+    .badge.live {
+      background: rgba(249, 115, 22, 0.2);
+      color: #fb923c;
+      border: 1px solid rgba(249, 115, 22, 0.4);
+    }
+
+    /* Mobile Modal for Leaderboard */
+    .mobile-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .mobile-modal-overlay.active {
+      display: flex;
+    }
+
+    .mobile-modal-card {
+      background: var(--puz-card-bg);
+      border: 1px solid var(--puz-border);
+      border-radius: 20px;
+      padding: 1.25rem;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .mobile-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mobile-modal-header h3 {
+      font-family: var(--font-display);
+      margin: 0;
+      font-size: 1.15rem;
+      color: #ffffff;
+    }
+
+    .btn-modal-close {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #94a3b8;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .btn-mobile-only {
+      display: none;
+    }
+
+    @media (max-width: 820px) {
+      .puzzle-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .left-panel,
+      .right-panel {
+        display: none;
+      }
+
+      .mobile-stat-strip {
+        display: grid;
+      }
+
+      .btn-mobile-only {
+        display: inline-flex;
+      }
+
+      .board-container {
+        max-width: 340px;
+        padding: 8px;
+        border-radius: 16px;
+      }
+
+      .grid-board {
+        gap: 6px;
+      }
+
+      .tile {
+        font-size: 1.45rem;
+        border-radius: 8px;
+      }
+
+      .tile-128,
+      .tile-256,
+      .tile-512 {
+        font-size: 1.25rem;
+      }
+
+      .tile-1024,
+      .tile-2048 {
+        font-size: 1.05rem;
+      }
+    }
+  </style>
+</head>
+
+<body class="puzzle-page">
+
+  <!-- Top Sticky Header -->
+  <header class="puzzle-header">
+    <div class="puzzle-header-inner">
+      <a href="games.html" class="puzzle-brand">
+        <img src="PULARI.png" alt="Pulari Club Logo">
+        <div class="puzzle-brand-title">
+          <h1>2048 Mini</h1>
+          <span>Pulari Club</span>
+        </div>
+      </a>
+
+      <div class="puzzle-nav-links">
+        <div class="player-tag-pill" id="btn-change-player" title="Click to Change Player Gamer Tag">
+          👤 <span id="current-player-name">Player</span> ✏️
+        </div>
+        <button type="button" class="btn-header-icon btn-mobile-only" id="btn-open-leaderboard-modal"
+          title="Top 5 Leaderboard">
+          🏆
+        </button>
+        <button type="button" class="btn-header-icon" id="btn-sound-toggle" title="Toggle Sound">
+          🔊
+        </button>
+        <a href="games.html" class="puzzle-nav-btn" style="color: #c084fc;" title="All Club Games">
+          🎮 Games
+        </a>
+        <a href="dashboard.html" class="puzzle-nav-btn" title="Back to Dashboard">
+          ← Exit
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game Container -->
+  <main class="puzzle-main">
+
+    <!-- Mobile Quick Stats Strip -->
+    <div class="mobile-stat-strip">
+      <div class="m-stat-box">
+        <span class="m-stat-label">Score</span>
+        <span class="m-stat-val" id="m-game-score">0</span>
+      </div>
+      <div class="m-stat-box">
+        <span class="m-stat-label">High Score</span>
+        <span class="m-stat-val" id="m-game-highscore" style="color: #fbbf24;">0</span>
+      </div>
+      <div class="m-stat-box">
+        <span class="m-stat-label">Best Tile</span>
+        <span class="m-stat-val" id="m-game-best-tile" style="color: #38bdf8;">2</span>
+      </div>
+      <div class="m-stat-box">
+        <span class="m-stat-label">Moves</span>
+        <span class="m-stat-val" id="m-game-moves">0</span>
+      </div>
+    </div>
+
+    <!-- 3-Column Desktop Layout -->
+    <div class="puzzle-layout">
+
+      <!-- Left Column: Stats & Actions -->
+      <aside class="side-panel left-panel">
+        <div class="panel-card">
+          <div class="panel-title">Scoreboard</div>
+          <div class="stat-display-grid">
+            <div class="stat-box highlight">
+              <span class="stat-box-label">Score</span>
+              <span class="stat-box-val" id="game-score">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-box-label">High Score</span>
+              <span class="stat-box-val" id="game-highscore" style="color: #fbbf24;">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-box-label">Best Tile</span>
+              <span class="stat-box-val" id="game-best-tile" style="color: #38bdf8;">2</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-box-label">Moves</span>
+              <span class="stat-box-val" id="game-moves">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">Game Controls</div>
+          <div class="controls-action-grid">
+            <button type="button" class="btn-action" id="btn-undo" disabled title="Undo Last Move">
+              ↩ Undo
+            </button>
+            <button type="button" class="btn-action" id="btn-restart" title="Restart Game">
+              🔄 Restart
+            </button>
+            <button type="button" class="btn-action btn-action-danger" id="btn-end-game" style="grid-column: span 2;" title="End Game & Save Score to Database">
+              🛑 End Game & Submit
+            </button>
+          </div>
+          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.75rem; line-height: 1.4;">
+            Use <strong>Arrow Keys</strong> or <strong>WASD</strong> to slide tiles. On touch devices, swipe directly on the board.
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center Column: 4x4 Puzzle Board -->
+      <section class="puzzle-board-wrap">
+        <div class="board-container" id="game-board">
+          <div class="grid-board" id="grid-container">
+            <!-- 16 Dynamic Grid Tiles rendered by JS -->
+          </div>
+
+          <!-- 1. Win Overlay (Reached 2048) -->
+          <div class="board-overlay" id="game-win-overlay" style="display: none;">
+            <span class="new-high-badge">🏆 VICTORY!</span>
+            <h2 class="overlay-title" style="color: #fbbf24;">You Reached 2048!</h2>
+            <p class="overlay-sub">Incredible combination mastery! You can keep playing to reach higher values or submit your score.</p>
+            <div class="overlay-player-input-wrap">
+              <input type="text" id="win-player-name" class="overlay-player-input" placeholder="Gamer Tag"
+                maxlength="18">
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="button" class="btn-puzzle-primary" id="btn-keep-going">
+                🚀 Keep Going
+              </button>
+              <button type="button" class="btn-action" id="btn-win-play-again">
+                🔄 New Game
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Game Over Overlay -->
+          <div class="board-overlay" id="game-gameover-overlay" style="display: none;">
+            <span class="new-high-badge" id="go-new-record" style="display: none;">🏆 NEW HIGH SCORE!</span>
+            <h2 class="overlay-title" id="go-title" style="color: #ef4444;">Game Over!</h2>
+
+            <div class="overlay-stat-row">
+              <div>
+                <div class="overlay-stat-label">Score</div>
+                <div class="overlay-stat-val" id="go-final-score">0</div>
+              </div>
+              <div>
+                <div class="overlay-stat-label">Best Tile</div>
+                <div class="overlay-stat-val" id="go-final-tile">0</div>
+              </div>
+              <div>
+                <div class="overlay-stat-label">Moves</div>
+                <div class="overlay-stat-val" id="go-final-moves">0</div>
+              </div>
+            </div>
+
+            <div class="overlay-player-input-wrap">
+              <input type="text" id="gameover-player-name" class="overlay-player-input" placeholder="Gamer Tag"
+                maxlength="18">
+            </div>
+
+            <div id="go-sync-status" style="font-size: 0.76rem; color: #10b981; margin-bottom: 0.65rem; font-weight: 700;">
+              🟢 Score Synced to Database!
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+              <button type="button" class="btn-puzzle-primary" id="btn-play-again">
+                🔄 Play Again
+              </button>
+              <button type="button" class="btn-action" id="btn-resubmit-score" title="Save Gamer Tag & Update Record">
+                💾 Save Tag
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Action Toolbar (Undo, End Game, Restart) -->
+        <div class="board-toolbar">
+          <button type="button" class="btn-action" id="m-btn-undo" disabled title="Undo Last Move">
+            ↩ Undo
+          </button>
+          <button type="button" class="btn-action btn-action-danger" id="m-btn-end-game" title="End Game & Save Score to Database">
+            🛑 End Game
+          </button>
+          <button type="button" class="btn-action" id="m-btn-restart" title="Restart Game">
+            🔄 Restart
+          </button>
+        </div>
+      </section>
+
+      <!-- Right Column: Live Top 5 Leaderboard -->
+      <aside class="side-panel right-panel">
+        <div class="panel-card">
+          <div class="panel-title">
+            Top 5 Leaderboard
+            <span class="badge live" id="leaderboard-badge">🟢 Live</span>
+          </div>
+          <ul class="leaderboard-list" id="game2048-leaderboard-list">
+            <!-- Dynamic Leaderboard Items -->
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- Mobile Top 5 Leaderboard Modal -->
+  <div class="mobile-modal-overlay" id="mobile-leaderboard-modal">
+    <div class="mobile-modal-card">
+      <div class="mobile-modal-header">
+        <h3>🏆 2048 Top 5</h3>
+        <button type="button" class="btn-modal-close" id="btn-close-leaderboard-modal">✕</button>
+      </div>
+      <ul class="leaderboard-list" id="modal-leaderboard-list">
+        <!-- Dynamic Rows -->
+      </ul>
+      <button type="button" class="btn-puzzle-primary" id="btn-modal-change-tag" style="justify-content: center;">
+        ✏️ Edit Gamer Tag
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/game2048.js"></script>
+</body>
+
+</html>
