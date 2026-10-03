@@ -537,6 +537,31 @@
       background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
     }
 
+    /* Dino Runner Arcade Accent */
+    .game-card.dino-card {
+      border-top: 3px solid #10b981;
+    }
+
+    .game-card.dino-card:hover {
+      box-shadow: 0 20px 45px -10px rgba(16, 185, 129, 0.25);
+    }
+
+    .dino-banner {
+      background: radial-gradient(circle at 50% 120%, #064e3b 0%, #061e16 60%, #030a07 100%);
+    }
+
+    .btn-play-dino {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-play-dino:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+      background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+    }
+
     /* Leaderboards Preview Section */
     .leaderboard-section {
       background: var(--games-card-bg);
@@ -583,6 +608,14 @@
       border-radius: 10px;
       padding: 3px;
       gap: 4px;
+      overflow-x: auto;
+      max-width: 100%;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .leaderboard-tabs::-webkit-scrollbar {
+      display: none;
     }
 
     .lb-tab-btn {
@@ -598,6 +631,8 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .lb-tab-btn.active {
@@ -612,6 +647,7 @@
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.06);
       background: rgba(0, 0, 0, 0.3);
+      -webkit-overflow-scrolling: touch;
     }
 
     .lb-table {
@@ -630,12 +666,14 @@
       letter-spacing: 0.5px;
       padding: 0.75rem 1rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      white-space: nowrap;
     }
 
     .lb-table td {
       padding: 0.85rem 1rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       color: #e2e8f0;
+      white-space: nowrap;
     }
 
     .lb-table tr:last-child td {
@@ -683,17 +721,60 @@
     }
 
     @media (max-width: 640px) {
+      .games-header {
+        padding: 0.6rem 0.85rem;
+      }
+
+      .games-brand-text h1 {
+        font-size: 0.95rem;
+      }
+
       .games-main {
-        padding: 1.5rem 1rem 2.5rem;
-        gap: 1.75rem;
+        padding: 1.25rem 0.85rem 2.5rem;
+        gap: 1.5rem;
+      }
+
+      .games-hero {
+        gap: 0.65rem;
+      }
+
+      .hero-title {
+        font-size: 1.85rem;
+      }
+
+      .hero-subtitle {
+        font-size: 0.88rem;
       }
 
       .games-grid {
         grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+      .card-banner {
+        height: 140px;
+      }
+
+      .banner-graphic {
+        font-size: 3.8rem;
+      }
+
+      .card-body {
+        padding: 1.15rem;
+        gap: 0.95rem;
       }
 
       .leaderboard-section {
-        padding: 1.25rem 1rem;
+        padding: 1.15rem 0.85rem;
+      }
+
+      .leaderboard-tabs {
+        width: 100%;
+      }
+
+      .lb-tab-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.78rem;
       }
     }
   </style>
@@ -920,6 +1001,41 @@
         </div>
       </article>
 
+      <!-- 6. Dino Runner Arcade Card -->
+      <article class="game-card dino-card">
+        <div class="card-banner dino-banner">
+          <span class="banner-badge">🦖 Endless Runner</span>
+          <div class="banner-graphic">🦖🌵</div>
+        </div>
+        <div class="card-body">
+          <div class="card-header-group">
+            <div>
+              <h3 class="card-title">Dino Runner</h3>
+              <span class="card-genre">Endless Runner • Jump & Duck</span>
+            </div>
+          </div>
+
+          <div class="card-tags">
+            <span class="tag-pill">Jump & Duck</span>
+            <span class="tag-pill">Cacti & Birds</span>
+            <span class="tag-pill">Day/Night Cycles</span>
+            <span class="tag-pill">Top 5 Live Board</span>
+          </div>
+
+          <div class="card-record-strip">
+            <span class="record-label">Top 1 High Score</span>
+            <div class="record-val">
+              <span id="dino-highscore-val" style="color: #34d399;">🏆 0</span>
+              <span class="record-holder" id="dino-highscore-holder"></span>
+            </div>
+          </div>
+
+          <a href="dino.html" class="btn-play-game btn-play-dino" id="btn-launch-dino">
+            Play Dino Runner 🦖
+          </a>
+        </div>
+      </article>
+
     </section>
 
     <!-- Live Club Leaderboards Preview -->
@@ -933,6 +1049,9 @@
         <div class="leaderboard-tabs">
           <button type="button" class="lb-tab-btn active" id="tab-btn-penalty" data-target="penalty">
             ⚽ Penalty Top 5
+          </button>
+          <button type="button" class="lb-tab-btn" id="tab-btn-dino" data-target="dino">
+            🦖 Dino Top 5
           </button>
           <button type="button" class="lb-tab-btn" id="tab-btn-snake" data-target="snake">
             🐍 Snake Top 5
@@ -1026,6 +1145,8 @@
         const balloonHighHolder = document.getElementById('balloon-highscore-holder');
         const game2048HighVal = document.getElementById('game2048-highscore-val');
         const game2048HighHolder = document.getElementById('game2048-highscore-holder');
+        const dinoHighVal = document.getElementById('dino-highscore-val');
+        const dinoHighHolder = document.getElementById('dino-highscore-holder');
 
         if (lbLoading) lbLoading.style.display = 'block';
         if (lbTable) lbTable.style.display = 'none';
@@ -1088,9 +1209,21 @@
               if (game2048HighHolder) game2048HighHolder.textContent = '';
             }
 
+            // F. Fetch Dino Top 5
+            const dinoRows = await supabaseRequest('dino_leaderboard?select=player_name,high_score,distance_meters,cacti_dodged,created_at&order=high_score.desc&limit=5');
+            if (Array.isArray(dinoRows) && dinoRows.length > 0) {
+              const top1 = dinoRows[0];
+              if (dinoHighVal) dinoHighVal.textContent = `🏆 ${Number(top1.high_score || 0).toLocaleString()}`;
+              if (dinoHighHolder) dinoHighHolder.textContent = top1.player_name ? `by ${top1.player_name}` : '';
+            } else {
+              if (dinoHighVal) dinoHighVal.textContent = '🏆 0';
+              if (dinoHighHolder) dinoHighHolder.textContent = '';
+            }
+
             // Render active tab table
             let currentRows = penaltyRows;
-            if (activeTab === 'snake') currentRows = snakeRows;
+            if (activeTab === 'dino') currentRows = dinoRows;
+            else if (activeTab === 'snake') currentRows = snakeRows;
             else if (activeTab === 'balloon') currentRows = balloonRows;
             else if (activeTab === '2048') currentRows = game2048Rows;
             else if (activeTab === 'tetris') currentRows = tetrisRows;
@@ -1125,6 +1258,7 @@
           if (lbTable) lbTable.style.display = 'none';
           let name = 'Penalty';
           if (type === 'tetris') name = 'Tetris';
+          else if (type === 'dino') name = 'Dino Runner';
           else if (type === 'snake') name = 'Snake';
           else if (type === 'balloon') name = 'Balloon Pop';
           else if (type === '2048') name = '2048 Mini';
@@ -1149,6 +1283,8 @@
             let metaDetails = 'Goals Scored';
             if (type === 'tetris') {
               metaDetails = `Level ${item.level || 1} • ${item.lines || 0} Lines`;
+            } else if (type === 'dino') {
+              metaDetails = `🌵 ${item.cacti_dodged || 0} Dodged • 🏃 ${item.distance_meters || 0}m`;
             } else if (type === 'snake') {
               metaDetails = `🍎 ${item.apples_eaten || 0} Apples • Len ${item.length || 3}`;
             } else if (type === 'balloon') {
@@ -1180,6 +1316,7 @@
 
       // 3. Tab Click Events
       const tabPenalty = document.getElementById('tab-btn-penalty');
+      const tabDino = document.getElementById('tab-btn-dino');
       const tabSnake = document.getElementById('tab-btn-snake');
       const tabBalloon = document.getElementById('tab-btn-balloon');
       const tab2048 = document.getElementById('tab-btn-2048');
@@ -1187,7 +1324,7 @@
 
       function switchTab(newTab, activeBtn) {
         activeTab = newTab;
-        [tabPenalty, tabSnake, tabBalloon, tab2048, tabTetris].forEach(btn => {
+        [tabPenalty, tabDino, tabSnake, tabBalloon, tab2048, tabTetris].forEach(btn => {
           if (btn) btn.classList.remove('active');
         });
         if (activeBtn) activeBtn.classList.add('active');
@@ -1196,6 +1333,9 @@
 
       if (tabPenalty) {
         tabPenalty.addEventListener('click', () => switchTab('penalty', tabPenalty));
+      }
+      if (tabDino) {
+        tabDino.addEventListener('click', () => switchTab('dino', tabDino));
       }
       if (tabSnake) {
         tabSnake.addEventListener('click', () => switchTab('snake', tabSnake));

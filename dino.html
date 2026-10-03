@@ -13,25 +13,26 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Snake Arcade – Pulari Arts & Sports Club</title>
+  <title>Dino Runner Arcade – Pulari Arts & Sports Club</title>
   <meta name="description"
-    content="Retro Snake Mini-Game with glowing neon visuals, Web Audio SFX, Touch D-Pad, and live Supabase Top-5 Leaderboard for Pulari Arts & Sports Club.">
+    content="Neon Chrome Dino Endless Runner Game with jump & duck physics, cacti dodging, pterodactyls, retro Web Audio chimes, and live Supabase Top-5 Leaderboard for Pulari Arts & Sports Club.">
   <link rel="icon" type="image/png" href="PULARI.png">
   <link rel="stylesheet" href="css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
 
   <style>
     :root {
-      --snake-green: #10b981;
-      --snake-gold: #f59e0b;
-      --snake-red: #ef4444;
-      --snake-bg: #070d14;
-      --snake-card-bg: rgba(15, 23, 42, 0.85);
-      --snake-border: rgba(255, 255, 255, 0.08);
+      --dino-emerald: #10b981;
+      --dino-mint: #34d399;
+      --dino-cyan: #38bdf8;
+      --dino-gold: #fbbf24;
+      --dino-bg: #030a07;
+      --dino-card-bg: rgba(6, 30, 22, 0.88);
+      --dino-border: rgba(255, 255, 255, 0.08);
       --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
@@ -41,7 +42,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    body.snake-page {
+    body.dino-page {
       margin: 0;
       padding: 0;
       background: radial-gradient(ellipse at 50% 0%, #064e3b 0%, #061e16 40%, #030a07 100%);
@@ -54,19 +55,19 @@
       touch-action: manipulation;
     }
 
-    /* Top Sticky Header */
-    .snake-header {
+    /* Header Styling */
+    .dino-header {
       position: sticky;
       top: 0;
       z-index: 40;
-      background: rgba(3, 10, 7, 0.88);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(3, 10, 7, 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       padding: 0.6rem 1rem;
     }
 
-    .snake-header-inner {
+    .dino-header-inner {
       max-width: 1050px;
       margin: 0 auto;
       display: flex;
@@ -75,21 +76,23 @@
       gap: 0.75rem;
     }
 
-    .snake-brand {
+    .dino-brand {
       display: flex;
       align-items: center;
-      gap: 0.65rem;
+      gap: 0.6rem;
       text-decoration: none;
+      min-width: 0;
     }
 
-    .snake-brand img {
+    .dino-brand img {
       width: 34px;
       height: 34px;
       object-fit: contain;
       filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+      flex-shrink: 0;
     }
 
-    .snake-brand-title h1 {
+    .dino-brand-title h1 {
       font-family: var(--font-display);
       font-size: 1.05rem;
       font-weight: 800;
@@ -97,10 +100,11 @@
       margin: 0;
       line-height: 1.15;
       letter-spacing: -0.2px;
+      white-space: nowrap;
     }
 
-    .snake-brand-title span {
-      font-size: 0.72rem;
+    .dino-brand-title span {
+      font-size: 0.68rem;
       font-weight: 600;
       color: #34d399;
       display: block;
@@ -108,13 +112,14 @@
       letter-spacing: 0.5px;
     }
 
-    .snake-nav-links {
+    .dino-header-actions {
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      flex-shrink: 0;
     }
 
-    .snake-nav-btn {
+    .dino-header-btn {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
@@ -122,81 +127,181 @@
       text-decoration: none;
       font-size: 0.82rem;
       font-weight: 600;
-      padding: 0.38rem 0.75rem;
+      padding: 0.4rem 0.8rem;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
-    .snake-nav-btn:hover {
+    .dino-header-btn.games-link {
+      color: #c084fc;
+      border-color: rgba(192, 132, 252, 0.3);
+      background: rgba(192, 132, 252, 0.1);
+    }
+
+    .dino-header-btn:hover {
       color: #ffffff;
-      background: rgba(255, 255, 255, 0.14);
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-
-    .player-tag-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #a7f3d0;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
     .btn-header-icon {
       background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       color: #34d399;
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-size: 0.95rem;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    /* Main Game Layout */
-    .snake-main {
+    .btn-header-icon:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Sub-Navigation Buttons Bar (Below Header) */
+    .dino-subnav-bar {
+      background: rgba(6, 30, 22, 0.72);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.18);
+      padding: 0.45rem 0.85rem;
+      position: sticky;
+      top: 55px;
+      z-index: 35;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .dino-subnav-inner {
+      max-width: 1050px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px 0;
+    }
+
+    .dino-subnav-inner::-webkit-scrollbar {
+      display: none;
+    }
+
+    .subnav-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.42rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+      border: 1px solid transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: inherit;
+    }
+
+    .subnav-pill-leaderboard {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(234, 179, 8, 0.26));
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fde68a;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+    }
+
+    .subnav-pill-leaderboard:hover {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.26), rgba(234, 179, 8, 0.4));
+      color: #ffffff;
+      border-color: rgba(245, 158, 11, 0.7);
+      transform: translateY(-1px);
+    }
+
+    .subnav-pill-player {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.38);
+      color: #a7f3d0;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .subnav-pill-player:hover {
+      background: rgba(16, 185, 129, 0.26);
+      border-color: rgba(16, 185, 129, 0.6);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .subnav-pill-link {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+    }
+
+    .subnav-pill-link:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .subnav-pill:active {
+      transform: scale(0.96);
+    }
+
+    /* Main Layout */
+    .dino-main {
       flex: 1;
       max-width: 1050px;
       width: 100%;
       margin: 0 auto;
-      padding: 1rem;
+      padding: 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.85rem;
     }
 
     /* Mobile Quick Stat Strip */
     .mobile-stat-strip {
       display: none;
       grid-template-columns: repeat(4, 1fr);
-      gap: 0.4rem;
-      background: var(--snake-card-bg);
-      border: 1px solid var(--snake-border);
-      border-radius: 12px;
-      padding: 0.5rem;
+      gap: 0.35rem;
+      background: rgba(6, 30, 22, 0.92);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 14px;
+      padding: 0.45rem 0.5rem;
       text-align: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
     .m-stat-box {
       display: flex;
       flex-direction: column;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 0.3rem 0.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
     }
 
     .m-stat-label {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       color: #94a3b8;
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.4px;
     }
 
     .m-stat-val {
@@ -204,10 +309,12 @@
       font-size: 1rem;
       font-weight: 800;
       color: #34d399;
+      margin-top: 0.1rem;
+      line-height: 1.1;
     }
 
-    /* Desktop 3-Column Layout */
-    .snake-layout {
+    /* 3-Column Desktop Layout */
+    .dino-layout {
       display: grid;
       grid-template-columns: 240px 1fr 260px;
       gap: 1.25rem;
@@ -221,8 +328,8 @@
     }
 
     .panel-card {
-      background: var(--snake-card-bg);
-      border: 1px solid var(--snake-border);
+      background: var(--dino-card-bg);
+      border: 1px solid var(--dino-border);
       border-radius: 16px;
       padding: 1rem;
       backdrop-filter: blur(10px);
@@ -259,8 +366,8 @@
 
     .stat-box.highlight {
       grid-column: span 2;
-      border-color: rgba(16, 185, 129, 0.3);
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(0, 0, 0, 0.4));
+      border-color: rgba(16, 185, 129, 0.35);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(0, 0, 0, 0.4));
     }
 
     .stat-box-label {
@@ -283,85 +390,184 @@
       font-size: 1.5rem;
     }
 
+    /* Action Buttons */
+    .controls-action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      padding: 0.55rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+      min-height: 40px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .btn-action:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+
+    .btn-action:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+
+    .btn-action-danger {
+      background: rgba(239, 68, 68, 0.18) !important;
+      border-color: rgba(239, 68, 68, 0.4) !important;
+      color: #fca5a5 !important;
+    }
+
+    .btn-action-danger:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.3) !important;
+      border-color: rgba(239, 68, 68, 0.6) !important;
+      color: #ffffff !important;
+    }
+
+    .board-toolbar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 520px;
+      margin-top: 0.25rem;
+    }
+
+    .board-toolbar .btn-action {
+      flex: 1;
+    }
+
+    /* Keybind List */
+    .keybind-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .keybind-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.74rem;
+    }
+
+    .keybind-row span.action {
+      color: #94a3b8;
+    }
+
+    .keybind-row kbd {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 0.1rem 0.3rem;
+      font-size: 0.68rem;
+      font-family: monospace;
+      color: #f1f5f9;
+    }
+
     /* Center Board Area */
-    .snake-board-wrap {
+    .dino-board-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.65rem;
+      width: 100%;
     }
 
     .canvas-container {
       position: relative;
       width: 100%;
-      max-width: 440px;
-      aspect-ratio: 1 / 1;
-      background: #050d09;
+      max-width: 580px;
+      height: 380px;
+      background: radial-gradient(ellipse at 50% 100%, #062f21 0%, #041d14 60%, #020c08 100%);
       border: 2px solid rgba(16, 185, 129, 0.4);
       border-radius: 18px;
-      box-shadow: 0 0 35px rgba(16, 185, 129, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 25px rgba(0, 0, 0, 0.85);
       overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
     }
 
-    #snake-canvas {
+    #dino-canvas {
       width: 100%;
       height: 100%;
       display: block;
     }
 
-    /* Canvas Overlays */
+    /* Overlays */
     .board-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(3, 10, 7, 0.88);
+      background: rgba(3, 10, 7, 0.92);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
+      padding: 1.25rem;
       text-align: center;
       z-index: 20;
     }
 
     .overlay-title {
       font-family: var(--font-display);
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 900;
       color: #ffffff;
       margin: 0 0 0.35rem;
     }
 
     .overlay-sub {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #94a3b8;
-      margin: 0 0 1rem;
-      max-width: 280px;
+      margin: 0 0 0.85rem;
+      max-width: 290px;
+      line-height: 1.4;
     }
 
     .overlay-stat-row {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 10px;
-      padding: 0.6rem;
-      margin: 0.5rem 0 1rem;
+      padding: 0.5rem;
+      margin: 0.4rem 0 0.85rem;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0.4rem;
+      gap: 0.35rem;
       width: 100%;
-      max-width: 280px;
+      max-width: 300px;
     }
 
     .overlay-stat-label {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       color: #94a3b8;
       text-transform: uppercase;
       font-weight: 700;
     }
 
     .overlay-stat-val {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 800;
       color: #ffffff;
     }
@@ -396,7 +602,7 @@
       text-align: center;
     }
 
-    .btn-snake-primary {
+    .btn-dino-primary {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: #ffffff;
       border: none;
@@ -410,144 +616,15 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    .btn-snake-primary:active {
+    .btn-dino-primary:active {
       transform: scale(0.96);
     }
 
-    /* Virtual D-Pad Touch Controls */
-    .touch-dpad-wrap {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      margin-top: 0.5rem;
-    }
-
-    .dpad-row {
-      display: flex;
-      gap: 0.4rem;
-    }
-
-    .dpad-btn {
-      width: 62px;
-      height: 52px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      color: #34d399;
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      user-select: none;
-      touch-action: manipulation;
-    }
-
-    .dpad-btn:active {
-      background: rgba(16, 185, 129, 0.35);
-      border-color: #10b981;
-      transform: scale(0.94);
-    }
-
-    /* Keybind List */
-    .keybind-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .keybind-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.74rem;
-    }
-
-    .keybind-row span.action {
-      color: #94a3b8;
-    }
-
-    .keybind-row kbd {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-      padding: 0.1rem 0.3rem;
-      font-size: 0.68rem;
-      font-family: monospace;
-      color: #f1f5f9;
-    }
-
     /* Leaderboard List */
-    .difficulty-picker-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.55rem;
-      width: 100%;
-      max-width: 440px;
-      margin: 0.25rem 0 0.5rem;
-    }
-
-    .overlay-diff-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.35rem;
-      margin-bottom: 0.75rem;
-      width: 100%;
-    }
-
-    .diff-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
-    .diff-btn-group {
-      display: inline-flex;
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
-      padding: 3px;
-      gap: 3px;
-    }
-
-    .diff-btn {
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-size: 0.76rem;
-      font-weight: 700;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-family: inherit;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .diff-btn:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .diff-btn.active {
-      background: rgba(16, 185, 129, 0.25);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.5);
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
-    }
-
     .leaderboard-list {
       display: flex;
       flex-direction: column;
@@ -625,9 +702,9 @@
     .mobile-modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(3, 10, 7, 0.85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(3, 10, 7, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       z-index: 100;
       display: none;
       align-items: center;
@@ -640,8 +717,8 @@
     }
 
     .mobile-modal-card {
-      background: var(--snake-card-bg);
-      border: 1px solid var(--snake-border);
+      background: var(--dino-card-bg);
+      border: 1px solid var(--dino-border);
       border-radius: 20px;
       padding: 1.25rem;
       width: 100%;
@@ -649,6 +726,7 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
     }
 
     .mobile-modal-header {
@@ -680,7 +758,12 @@
     }
 
     @media (max-width: 820px) {
-      .snake-layout {
+      .dino-main {
+        padding: 0.65rem 0.65rem 1.5rem;
+        gap: 0.65rem;
+      }
+
+      .dino-layout {
         grid-template-columns: 1fr;
       }
 
@@ -693,202 +776,175 @@
         display: grid;
       }
 
-      .touch-dpad-wrap {
-        display: flex;
-      }
-
-      .btn-mobile-only {
-        display: inline-flex;
+      .canvas-container {
+        height: 350px;
+        max-width: 100%;
       }
     }
 
     @media (max-width: 420px) {
-      .snake-header {
-        padding: 0.45rem 0.65rem;
+      .dino-header {
+        padding: 0.5rem 0.75rem;
       }
 
-      .snake-brand-title h1 {
-        font-size: 0.92rem;
+      .dino-brand-title h1 {
+        font-size: 0.95rem;
       }
 
-      .player-tag-pill {
-        max-width: 95px;
-        font-size: 0.72rem;
-        padding: 0.28rem 0.5rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+      .dino-brand-title span {
+        font-size: 0.62rem;
       }
 
-      .dpad-btn {
-        width: 54px;
-        height: 48px;
-        font-size: 1.15rem;
+      .dino-subnav-bar {
+        padding: 0.35rem 0.5rem;
       }
 
-      .diff-btn {
-        padding: 0.3rem 0.55rem;
-        font-size: 0.72rem;
+      .subnav-pill {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+      }
+
+      .subnav-pill-player {
+        max-width: 130px;
+      }
+
+      .canvas-container {
+        height: 320px;
       }
     }
   </style>
 </head>
 
-<body class="snake-page">
+<body class="dino-page">
 
   <!-- Top Sticky Header -->
-  <header class="snake-header">
-    <div class="snake-header-inner">
-      <a href="games.html" class="snake-brand">
+  <header class="dino-header">
+    <div class="dino-header-inner">
+      <a href="games.html" class="dino-brand">
         <img src="PULARI.png" alt="Pulari Club Logo">
-        <div class="snake-brand-title">
-          <h1>Snake Arcade</h1>
+        <div class="dino-brand-title">
+          <h1>Dino Runner</h1>
           <span>Pulari Club</span>
         </div>
       </a>
 
-      <div class="snake-nav-links">
-        <div class="player-tag-pill" id="btn-change-player" title="Click to Change Player Gamer Tag">
-          👤 <span id="current-player-name">Player</span> ✏️
-        </div>
-        <button type="button" class="btn-header-icon btn-mobile-only" id="btn-open-leaderboard-modal"
-          title="Top 5 Leaderboard">
-          🏆
-        </button>
+      <div class="dino-header-actions">
         <button type="button" class="btn-header-icon" id="btn-sound-toggle" title="Toggle Sound">
           🔊
         </button>
-        <a href="games.html" class="snake-nav-btn" style="color: #c084fc;" title="All Club Games">
+        <a href="games.html" class="dino-header-btn games-link" title="All Club Games">
           🎮 Games
-        </a>
-        <a href="dashboard.html" class="snake-nav-btn" title="Back to Dashboard">
-          ← Exit
         </a>
       </div>
     </div>
   </header>
 
+  <!-- Quick Actions & Navigation Sub-Bar (Below Header) -->
+  <nav class="dino-subnav-bar">
+    <div class="dino-subnav-inner">
+      <button type="button" class="subnav-pill subnav-pill-leaderboard" id="btn-open-leaderboard-modal"
+        title="View Dino Top 5 Leaderboard">
+        🏆 Leaderboard Top 5
+      </button>
+      <button type="button" class="subnav-pill subnav-pill-player" id="btn-change-player"
+        title="Click to Change Player Gamer Tag">
+        👤 <span id="current-player-name">Player</span> ✏️
+      </button>
+      <a href="dashboard.html" class="subnav-pill subnav-pill-link" title="Back to Dashboard">
+        👥 Dashboard
+      </a>
+    </div>
+  </nav>
+
   <!-- Main Game Container -->
-  <main class="snake-main">
+  <main class="dino-main">
 
     <!-- Mobile Quick Stats Strip -->
     <div class="mobile-stat-strip">
       <div class="m-stat-box">
         <span class="m-stat-label">Score</span>
-        <span class="m-stat-val" id="m-snake-score">0</span>
+        <span class="m-stat-val" id="m-dino-score">0</span>
       </div>
       <div class="m-stat-box">
         <span class="m-stat-label">High Score</span>
-        <span class="m-stat-val" id="m-snake-highscore" style="color: #f59e0b;">0</span>
+        <span class="m-stat-val" id="m-dino-highscore" style="color: #fbbf24;">0</span>
       </div>
       <div class="m-stat-box">
-        <span class="m-stat-label">Apples</span>
-        <span class="m-stat-val" id="m-snake-apples">0</span>
+        <span class="m-stat-label">Distance</span>
+        <span class="m-stat-val" id="m-dino-dist">0m</span>
       </div>
       <div class="m-stat-box">
-        <span class="m-stat-label">Length</span>
-        <span class="m-stat-val" id="m-snake-length">3</span>
+        <span class="m-stat-label">Dodged</span>
+        <span class="m-stat-val" id="m-dino-dodged">0</span>
       </div>
     </div>
 
     <!-- 3-Column Desktop Layout -->
-    <div class="snake-layout">
+    <div class="dino-layout">
 
-      <!-- Left Column: Stats & Speed -->
+      <!-- Left Column: Stats & Controls -->
       <aside class="side-panel left-panel">
         <div class="panel-card">
           <div class="panel-title">Scoreboard</div>
           <div class="stat-display-grid">
             <div class="stat-box highlight">
               <span class="stat-box-label">Current Score</span>
-              <span class="stat-box-val" id="snake-score">0</span>
+              <span class="stat-box-val" id="dino-score">0</span>
             </div>
             <div class="stat-box">
               <span class="stat-box-label">High Score</span>
-              <span class="stat-box-val" id="snake-highscore" style="color: #f59e0b;">0</span>
+              <span class="stat-box-val" id="dino-highscore" style="color: #fbbf24;">0</span>
             </div>
             <div class="stat-box">
-              <span class="stat-box-label">Apples Eaten</span>
-              <span class="stat-box-val" id="snake-apples">0</span>
+              <span class="stat-box-label">Distance</span>
+              <span class="stat-box-val" id="dino-dist">0m</span>
             </div>
             <div class="stat-box">
-              <span class="stat-box-label">Snake Length</span>
-              <span class="stat-box-val" id="snake-length">3</span>
+              <span class="stat-box-label">Cacti Dodged</span>
+              <span class="stat-box-val" id="dino-dodged">0</span>
             </div>
           </div>
         </div>
 
         <div class="panel-card">
-          <div class="panel-title">Speed Difficulty</div>
-          <select id="snake-speed-select"
-            style="width: 100%; background: rgba(0,0,0,0.4); color: #f1f5f9; border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem; border-radius: 8px; font-family: inherit; font-weight: 600; outline: none;">
-            <option value="Casual">🟢 Casual (Relaxed)</option>
-            <option value="Normal" selected>🟡 Normal (Standard)</option>
-            <option value="Turbo">🔴 Turbo (Fast)</option>
-          </select>
+          <div class="panel-title">Game Controls</div>
+          <button type="button" class="btn-action" id="btn-restart-game" style="width: 100%;" title="Restart Game">
+            🔄 Restart Game
+          </button>
         </div>
 
         <div class="panel-card">
-          <div class="panel-title">Controls</div>
+          <div class="panel-title">Keyboard Controls</div>
           <ul class="keybind-list">
-            <li class="keybind-row"><span class="action">Move</span> <kbd>W A S D</kbd> / <kbd>↑ ← ↓ →</kbd></li>
-            <li class="keybind-row"><span class="action">Pause / Resume</span> <kbd>Space</kbd> / <kbd>P</kbd></li>
-            <li class="keybind-row"><span class="action">Mobile Swipe</span> <span>Touch Gestures</span></li>
+            <li class="keybind-row"><span class="action">Jump</span> <kbd>Space</kbd> / <kbd>↑</kbd> / <kbd>W</kbd></li>
+            <li class="keybind-row"><span class="action">Duck / Fast-Drop</span> <kbd>↓</kbd> / <kbd>S</kbd></li>
+            <li class="keybind-row"><span class="action">Mobile</span> <span>Tap Screen or Jump / Duck Buttons</span></li>
           </ul>
         </div>
       </aside>
 
       <!-- Center Column: Canvas Board -->
-      <section class="snake-board-wrap">
-        <!-- Always-Visible Difficulty Picker (Mobile & Desktop) -->
-        <div class="difficulty-picker-wrap">
-          <span class="diff-label">Speed:</span>
-          <div class="diff-btn-group">
-            <button type="button" class="diff-btn" data-diff="Casual">🟢 Casual</button>
-            <button type="button" class="diff-btn active" data-diff="Normal">🟡 Normal</button>
-            <button type="button" class="diff-btn" data-diff="Turbo">🔴 Turbo</button>
-          </div>
-        </div>
-
+      <section class="dino-board-wrap">
         <div class="canvas-container">
-          <canvas id="snake-canvas" width="400" height="400"></canvas>
+          <canvas id="dino-canvas"></canvas>
 
           <!-- 1. Start Game Overlay -->
-          <div class="board-overlay" id="snake-start-overlay">
-            <h2 class="overlay-title">🐍 Snake Arcade</h2>
-            <p class="overlay-sub">Collect food, grow your snake, and claim the Top 5 Global Leaderboard!</p>
+          <div class="board-overlay" id="dino-start-overlay">
+            <h2 class="overlay-title">🦖 Dino Runner</h2>
+            <p class="overlay-sub">Jump and duck over obstacles in the retro neon desert! Dodge cacti and flying pterodactyls to rank in Top 5.</p>
             <div class="overlay-player-input-wrap">
               <input type="text" id="start-player-name" class="overlay-player-input" placeholder="Enter Gamer Tag"
                 maxlength="18">
             </div>
-
-            <div class="overlay-diff-wrap">
-              <span class="diff-label">Choose Speed:</span>
-              <div class="diff-btn-group">
-                <button type="button" class="diff-btn" data-diff="Casual">🟢 Casual</button>
-                <button type="button" class="diff-btn active" data-diff="Normal">🟡 Normal</button>
-                <button type="button" class="diff-btn" data-diff="Turbo">🔴 Turbo</button>
-              </div>
-            </div>
-
-            <button type="button" class="btn-snake-primary" id="btn-start-game">
-              ▶ Start Game
+            <button type="button" class="btn-dino-primary" id="btn-start-game">
+              ▶ Start Running
             </button>
           </div>
 
-          <!-- 2. Pause Overlay -->
-          <div class="board-overlay" id="snake-pause-overlay" style="display: none;">
-            <h2 class="overlay-title">⏸ Game Paused</h2>
-            <p class="overlay-sub">Take a breath and jump back in when you're ready.</p>
-            <button type="button" class="btn-snake-primary" id="btn-resume-game">
-              ▶ Resume Game
-            </button>
-          </div>
-
-          <!-- 3. Game Over Overlay -->
-          <div class="board-overlay" id="snake-gameover-overlay" style="display: none;">
+          <!-- 2. Game Over Overlay -->
+          <div class="board-overlay" id="dino-gameover-overlay" style="display: none;">
             <span class="new-high-badge" id="go-new-record" style="display: none;">🏆 NEW HIGH SCORE!</span>
-            <h2 class="overlay-title" style="color: #ef4444;">Game Over!</h2>
+            <h2 class="overlay-title" id="go-title" style="color: #ef4444;">Game Over!</h2>
 
             <div class="overlay-stat-row">
               <div>
@@ -896,12 +952,12 @@
                 <div class="overlay-stat-val" id="go-final-score">0</div>
               </div>
               <div>
-                <div class="overlay-stat-label">Apples</div>
-                <div class="overlay-stat-val" id="go-final-apples">0</div>
+                <div class="overlay-stat-label">Distance</div>
+                <div class="overlay-stat-val" id="go-final-dist">0m</div>
               </div>
               <div>
-                <div class="overlay-stat-label">Length</div>
-                <div class="overlay-stat-val" id="go-final-length">3</div>
+                <div class="overlay-stat-label">Dodged</div>
+                <div class="overlay-stat-val" id="go-final-dodged">0</div>
               </div>
             </div>
 
@@ -910,31 +966,26 @@
                 maxlength="18">
             </div>
 
-            <div class="overlay-diff-wrap">
-              <span class="diff-label">Speed:</span>
-              <div class="diff-btn-group">
-                <button type="button" class="diff-btn" data-diff="Casual">🟢 Casual</button>
-                <button type="button" class="diff-btn active" data-diff="Normal">🟡 Normal</button>
-                <button type="button" class="diff-btn" data-diff="Turbo">🔴 Turbo</button>
-              </div>
+            <div id="go-sync-status" style="font-size: 0.76rem; color: #10b981; margin-bottom: 0.65rem; font-weight: 700;">
+              🟢 Score Synced to Database!
             </div>
 
-            <button type="button" class="btn-snake-primary" id="btn-play-again">
-              🔄 Play Again
-            </button>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+              <button type="button" class="btn-dino-primary" id="btn-play-again">
+                🔄 Play Again
+              </button>
+              <button type="button" class="btn-action" id="btn-resubmit-score" title="Save Gamer Tag & Update Record">
+                💾 Save Tag
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Mobile Virtual D-Pad -->
-        <div class="touch-dpad-wrap">
-          <div class="dpad-row">
-            <button type="button" class="dpad-btn" id="snake-btn-up">▲</button>
-          </div>
-          <div class="dpad-row">
-            <button type="button" class="dpad-btn" id="snake-btn-left">◀</button>
-            <button type="button" class="dpad-btn" id="snake-btn-down">▼</button>
-            <button type="button" class="dpad-btn" id="snake-btn-right">▶</button>
-          </div>
+        <!-- Quick Action Toolbar for Mobile & Desktop -->
+        <div class="board-toolbar">
+          <button type="button" class="btn-action" id="m-btn-restart-game" title="Restart Game">
+            🔄 Restart Game
+          </button>
         </div>
       </section>
 
@@ -945,7 +996,7 @@
             Top 5 Leaderboard
             <span class="badge live" id="leaderboard-badge">🟢 Live</span>
           </div>
-          <ul class="leaderboard-list" id="snake-leaderboard-list">
+          <ul class="leaderboard-list" id="dino-leaderboard-list">
             <!-- Dynamic Leaderboard Items -->
           </ul>
         </div>
@@ -958,13 +1009,13 @@
   <div class="mobile-modal-overlay" id="mobile-leaderboard-modal">
     <div class="mobile-modal-card">
       <div class="mobile-modal-header">
-        <h3>🏆 Snake Top 5</h3>
+        <h3>🏆 Dino Top 5</h3>
         <button type="button" class="btn-modal-close" id="btn-close-leaderboard-modal">✕</button>
       </div>
       <ul class="leaderboard-list" id="modal-leaderboard-list">
         <!-- Dynamic Rows -->
       </ul>
-      <button type="button" class="btn-snake-primary" id="btn-modal-change-tag" style="justify-content: center;">
+      <button type="button" class="btn-dino-primary" id="btn-modal-change-tag" style="justify-content: center;">
         ✏️ Edit Gamer Tag
       </button>
     </div>
@@ -972,7 +1023,7 @@
 
   <!-- Scripts -->
   <script src="js/api.js"></script>
-  <script src="js/snake-game.js"></script>
+  <script src="js/dino-game.js"></script>
 </body>
 
 </html>
