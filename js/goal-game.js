@@ -17,7 +17,7 @@
     streak: 0,
     bestStreakInMatch: 0,
     globalHighScore: 0,
-    globalHighScorer: 'Loading...',
+    globalHighScorer: '',
     totalShots: 0
   };
 
@@ -133,6 +133,9 @@
   let confettiAnimId = null;
 
   function initGoalGame() {
+    try {
+      localStorage.removeItem('pulari_goal_highscore');
+    } catch (e) { }
     createGameModal();
     attachGlobalTriggers();
     fetchGlobalHighScore();
@@ -160,11 +163,16 @@
    */
   async function fetchGlobalHighScore() {
     try {
-      if (typeof supabaseRequest !== 'function' || typeof isSupabaseConfigured !== 'function' || !isSupabaseConfigured()) return;
+      if (typeof supabaseRequest !== 'function' || typeof isSupabaseConfigured !== 'function' || !isSupabaseConfigured()) {
+        GameState.globalHighScore = 0;
+        GameState.globalHighScorer = '';
+        updateScoreboardUI();
+        return;
+      }
 
       // Primary source: derive global high score from the leaderboard table (top 1)
       const leaderboardTop = await supabaseRequest('goal_leaderboard?select=player_name,high_score&order=high_score.desc&limit=1');
-      if (leaderboardTop && leaderboardTop.length > 0) {
+      if (leaderboardTop && leaderboardTop.length > 0 && leaderboardTop[0].high_score != null) {
         GameState.globalHighScore = Number(leaderboardTop[0].high_score || 0);
         GameState.globalHighScorer = leaderboardTop[0].player_name || 'Champion';
         updateScoreboardUI();
@@ -176,20 +184,17 @@
 
       // Fallback: read from legacy goal_highscore single-row table
       const rows = await supabaseRequest('goal_highscore?select=*&limit=1');
-      if (rows && rows.length > 0) {
+      if (rows && rows.length > 0 && rows[0].high_score != null) {
         GameState.globalHighScore = Number(rows[0].high_score || 0);
         GameState.globalHighScorer = rows[0].player_name || 'Champion';
         updateScoreboardUI();
-      } else {
-        // Initialize the highscore row if it doesn't exist
-        await supabaseRequest('goal_highscore', {
-          method: 'POST',
-          body: JSON.stringify([{ id: 1, player_name: 'Pulari Striker', high_score: 0 }])
-        });
-        GameState.globalHighScore = 0;
-        GameState.globalHighScorer = 'Pulari Striker';
-        updateScoreboardUI();
+        return;
       }
+
+      // If no records exist in DB
+      GameState.globalHighScore = 0;
+      GameState.globalHighScorer = '';
+      updateScoreboardUI();
     } catch (err) {
       console.warn('Highscore fetch notice:', err);
     }

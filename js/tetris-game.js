@@ -101,7 +101,7 @@
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       try {
         navigator.vibrate(ms);
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -243,7 +243,7 @@
           osc.stop(now + i * 0.14 + 0.25);
         });
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // --- Game State Object ---
@@ -260,7 +260,7 @@
     score: 0,
     lines: 0,
     level: 1,
-    highScore: parseInt(localStorage.getItem('pulari_tetris_highscore') || '0', 10),
+    highScore: 0,
     combo: -1,
     backToBack: false,
     isPlaying: false,
@@ -670,7 +670,6 @@
 
     if (state.score > state.highScore) {
       state.highScore = state.score;
-      localStorage.setItem('pulari_tetris_highscore', state.highScore.toString());
     }
 
     if (highScoreEl) highScoreEl.textContent = state.highScore.toLocaleString();
@@ -1077,31 +1076,33 @@
     if (typeof supabaseRequest === 'function' && typeof isSupabaseConfigured === 'function' && isSupabaseConfigured()) {
       try {
         const rows = await supabaseRequest('tetris_leaderboard?select=player_name,high_score,lines,level,created_at&order=high_score.desc&limit=5');
-        if (rows && rows.length > 0) {
+        if (Array.isArray(rows)) {
           if (leaderboardBadge) {
             leaderboardBadge.textContent = '🟢 Live';
             leaderboardBadge.className = 'badge live';
           }
-          if (rows[0] && rows[0].high_score) {
-            state.highScore = Math.max(state.highScore, Number(rows[0].high_score));
+          if (rows.length > 0 && rows[0] && rows[0].high_score != null) {
+            state.highScore = Number(rows[0].high_score);
             if (highScoreEl) highScoreEl.textContent = state.highScore.toLocaleString();
             if (mHighEl) mHighEl.textContent = state.highScore.toLocaleString();
+          } else {
+            state.highScore = 0;
+            if (highScoreEl) highScoreEl.textContent = '0';
+            if (mHighEl) mHighEl.textContent = '0';
           }
-          localStorage.setItem('pulari_tetris_hall', JSON.stringify(rows));
           renderLeaderboard(rows);
           return;
         }
       } catch (err) {
-        console.warn('[Tetris Supabase] Fallback:', err);
+        console.warn('[Tetris Supabase] Fetch error:', err);
       }
     }
 
     if (leaderboardBadge) {
-      leaderboardBadge.textContent = '🟡 Local';
+      leaderboardBadge.textContent = '⚪ Offline';
       leaderboardBadge.className = 'badge';
     }
-    const localScores = getLocalLeaderboard();
-    renderLeaderboard(localScores);
+    renderLeaderboard([]);
   }
 
   async function syncScoreToSupabase(score, lines, level) {
@@ -1113,7 +1114,6 @@
     }
 
     const playerName = state.playerName || 'Player';
-    saveLocalScore(playerName, score, lines, level);
 
     if (typeof supabaseRequest === 'function' && typeof isSupabaseConfigured === 'function' && isSupabaseConfigured()) {
       try {
@@ -1153,57 +1153,18 @@
     await fetchTop5Leaderboard();
   }
 
-  function getLocalLeaderboard() {
-    try {
-      const stored = JSON.parse(localStorage.getItem('pulari_tetris_hall') || '[]');
-      if (Array.isArray(stored) && stored.length > 0) return stored.slice(0, 5);
-    } catch (e) {}
-
-    return [
-      { player_name: 'Pulari Pro', high_score: 14500, lines: 38, level: 4 },
-      { player_name: 'Arun K', high_score: 11200, lines: 30, level: 4 },
-      { player_name: 'Rahul S', high_score: 8600, lines: 24, level: 3 },
-      { player_name: 'Faisal M', high_score: 6400, lines: 18, level: 2 },
-      { player_name: 'Anand B', high_score: 4200, lines: 12, level: 2 }
-    ];
-  }
-
-  function saveLocalScore(name, score, lines, level) {
-    const board = getLocalLeaderboard();
-    const existingIdx = board.findIndex(item => (item.player_name || '').toLowerCase() === name.toLowerCase());
-
-    if (existingIdx !== -1) {
-      if (score > (board[existingIdx].high_score || 0)) {
-        board[existingIdx].high_score = score;
-        board[existingIdx].lines = lines;
-        board[existingIdx].level = level;
-      }
-    } else {
-      board.push({
-        player_name: name,
-        high_score: score,
-        lines: lines,
-        level: level
-      });
-    }
-
-    board.sort((a, b) => (b.high_score || 0) - (a.high_score || 0));
-    const top5 = board.slice(0, 5);
-    localStorage.setItem('pulari_tetris_hall', JSON.stringify(top5));
-  }
-
   function renderLeaderboard(rows) {
     const htmlContent = (!rows || rows.length === 0)
       ? `<li style="color: #64748b; font-size: 0.75rem; text-align: center; padding: 0.5rem 0;">No top scores recorded yet!</li>`
       : rows.map((item, idx) => {
-          const rankIcons = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-          const currentName = (state.playerName || '').trim().toLowerCase();
-          const isYou = currentName && (item.player_name || '').trim().toLowerCase() === currentName;
-          const topClass = idx === 0 ? 'top-1' : idx === 1 ? 'top-2' : idx === 2 ? 'top-3' : '';
-          const youClass = isYou ? 'is-you' : '';
-          const score = Number(item.high_score || 0);
+        const rankIcons = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+        const currentName = (state.playerName || '').trim().toLowerCase();
+        const isYou = currentName && (item.player_name || '').trim().toLowerCase() === currentName;
+        const topClass = idx === 0 ? 'top-1' : idx === 1 ? 'top-2' : idx === 2 ? 'top-3' : '';
+        const youClass = isYou ? 'is-you' : '';
+        const score = Number(item.high_score || 0);
 
-          return `
+        return `
             <li class="leaderboard-item ${topClass} ${youClass}">
               <span class="leaderboard-rank">${rankIcons[idx] || '#' + (idx + 1)}</span>
               <div class="leaderboard-name-wrap">
@@ -1216,7 +1177,7 @@
               <span class="leaderboard-score">${score.toLocaleString()}</span>
             </li>
           `;
-        }).join('');
+      }).join('');
 
     if (leaderboardListEl) leaderboardListEl.innerHTML = htmlContent;
     if (modalLeaderboardListEl) modalLeaderboardListEl.innerHTML = htmlContent;
@@ -1461,6 +1422,10 @@
 
   // --- Initialization ---
   function init() {
+    try {
+      localStorage.removeItem('pulari_tetris_highscore');
+      localStorage.removeItem('pulari_tetris_hall');
+    } catch (e) { }
     setPlayerName(state.playerName);
     updateScoreUI();
     fetchTop5Leaderboard();
