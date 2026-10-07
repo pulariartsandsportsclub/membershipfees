@@ -63,15 +63,31 @@ function renderReportsPage() {
   const unpaidTbody = document.getElementById('report-unpaid-table-body');
   if (unpaidTbody) {
     if (unpaidList.length === 0) {
-      unpaidTbody.innerHTML = `<tr><td colspan="3" class="empty-state">All members have paid! 🎉</td></tr>`;
+      unpaidTbody.innerHTML = `<tr><td colspan="4" class="empty-state">All members have paid! 🎉</td></tr>`;
     } else {
-      unpaidTbody.innerHTML = unpaidList.map(m => `
-        <tr>
-          <td><strong>${m.memberId}</strong></td>
-          <td>${m.fullName}</td>
-          <td>${m.phone || '—'}</td>
-        </tr>
-      `).join('');
+      unpaidTbody.innerHTML = unpaidList.map(m => {
+        const phone = (m.phone || '').trim();
+        return `
+          <tr>
+            <td><strong>${escapeReportHtml(m.memberId)}</strong></td>
+            <td>${escapeReportHtml(m.fullName)}</td>
+            <td>${phone ? escapeReportHtml(phone) : '<span style="color:var(--text-light); font-style:italic;">No phone</span>'}</td>
+            <td style="text-align:center;">
+              <button 
+                class="btn btn-whatsapp btn-sm" 
+                onclick="sendWhatsAppReminder('${escapeReportHtml(m.memberId)}')" 
+                title="Send WhatsApp payment reminder to ${escapeReportHtml(m.fullName)}"
+                type="button"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align: middle; margin-right: 4px;">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                </svg>
+                WhatsApp
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
   }
 }
@@ -463,3 +479,143 @@ function fallbackPrintPDF(containerElement, targetYear) {
   `);
   printWindow.document.close();
 }
+
+/**
+ * Clean & format phone numbers to international standard for WhatsApp
+ */
+function formatWhatsAppPhone(phone) {
+  if (!phone) return null;
+  let digits = String(phone).replace(/\D/g, '');
+  if (!digits) return null;
+  // If 11 digits starting with 0 (e.g. 09876543210), replace leading 0 with 91
+  if (digits.length === 11 && digits.startsWith('0')) {
+    digits = '91' + digits.substring(1);
+  } else if (digits.length === 10) {
+    // 10-digit standard Indian mobile number
+    digits = '91' + digits;
+  }
+  return digits;
+}
+
+/**
+ * WhatsApp Reminder Message Generator & Direct Chat Opener
+ * Membership cycle strictly begins from September 2026 (ignores Jan-Aug 2026).
+ */
+function sendWhatsAppReminder(memberId) {
+  const member = (AppState.members || []).find(m => m.memberId === memberId);
+  if (!member) {
+    showToast('Member details not found.', 'error');
+    return;
+  }
+
+  const phone = formatWhatsAppPhone(member.phone);
+  if (!phone) {
+    showToast(`No valid phone number found for ${member.fullName}. Please add/edit their phone number first.`, 'warning');
+    return;
+  }
+
+  const { payments, selectedMonth, selectedYear, settings } = AppState;
+  const clubName = (settings && settings.club_name) || "Pulari Arts & Sports Club";
+  const currencySymbol = (settings && settings.currency) || "₹";
+  const monthlyFee = Number(member.monthlyFee || (settings && settings.monthly_fee) || 30);
+  const targetYear = Number(selectedYear) || new Date().getFullYear();
+
+  // Pulari Club membership strictly starts from September 2026 (Month 1)
+  const allCycleMonths = [
+    { name: "September", year: 2026 },
+    { name: "October", year: 2026 },
+    { name: "November", year: 2026 },
+    { name: "December", year: 2026 },
+    { name: "January", year: 2027 },
+    { name: "February", year: 2027 },
+    { name: "March", year: 2027 },
+    { name: "April", year: 2027 },
+    { name: "May", year: 2027 },
+    { name: "June", year: 2027 },
+    { name: "July", year: 2027 },
+    { name: "August", year: 2027 }
+  ];
+
+  // If selected month is before September 2026, no cycle month applies
+  const selIdx = allCycleMonths.findIndex(m => 
+    m.name.toLowerCase() === (selectedMonth || '').toLowerCase() && 
+    m.year === targetYear
+  );
+
+  let evaluatedMonths = [];
+  if (selIdx >= 0) {
+    // Only evaluate from September 2026 up to the currently selected cycle month
+    evaluatedMonths = allCycleMonths.slice(0, selIdx + 1);
+  } else {
+    // If viewing September 2026 or a month within 2026 starting from September
+    evaluatedMonths = allCycleMonths.filter(m => m.year <= targetYear);
+    if (evaluatedMonths.length === 0) {
+      evaluatedMonths = [{ name: "September", year: 2026 }];
+    }
+  }
+
+  // Check which of these months (from Sep 2026 onwards) remain unpaid for this member
+  const pendingMonths = evaluatedMonths.filter(cm => {
+    const isPaid = (payments || []).some(p =>
+      p.memberId === memberId &&
+      p.month && p.month.toLowerCase() === cm.name.toLowerCase() &&
+      Number(p.year) === cm.year &&
+      p.status === 'Paid'
+    );
+    return !isPaid;
+  });
+
+  let message = '';
+  if (pendingMonths.length === 0) {
+    message = 
+`*${clubName}*
+Dear ${member.fullName},
+
+Greetings from Pulari Arts & Sports Club.
+Your membership fee payments are currently up to date!
+
+Thank you!
+_${clubName}_`;
+  } else if (pendingMonths.length === 1) {
+    const item = pendingMonths[0];
+    message = 
+`*${clubName}*
+Dear ${member.fullName},
+
+This is a friendly reminder regarding your membership fee payment.
+
+📌 *Pending Month:* ${item.name} ${item.year}
+💰 *Due Amount:* ${currencySymbol}${monthlyFee}
+
+Kindly arrange the payment at your earliest convenience.
+
+Thank you!
+_${clubName}_`;
+  } else {
+    const totalDue = pendingMonths.length * monthlyFee;
+    const monthsText = pendingMonths.map(p => `${p.name} ${p.year}`).join(', ');
+    message = 
+`*${clubName}*
+Dear ${member.fullName},
+
+This is a friendly reminder regarding your pending membership fees.
+
+📌 *Pending Months:* ${monthsText} (${pendingMonths.length} Months)
+💰 *Monthly Fee:* ${currencySymbol}${monthlyFee}
+💵 *Total Amount Due:* ${currencySymbol}${totalDue}
+
+Kindly arrange to clear the pending dues at your earliest convenience.
+
+Thank you!
+_${clubName}_`;
+  }
+
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
+  showToast(`Opening WhatsApp chat for ${member.fullName}...`, 'info');
+}
+
+// Expose globally for payments view and onclick bindings
+window.formatWhatsAppPhone = formatWhatsAppPhone;
+window.sendWhatsAppReminder = sendWhatsAppReminder;
+

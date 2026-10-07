@@ -1133,6 +1133,18 @@ body.logged-in #login-screen {
   background-color: var(--danger-hover);
 }
 
+.btn-whatsapp {
+  background-color: #25d366;
+  color: #ffffff;
+  border-color: #22bf5b;
+}
+
+.btn-whatsapp:hover {
+  background-color: #20ba5a;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.35);
+}
+
 .btn-sm {
   padding: 0.35rem 0.65rem;
   font-size: 0.8rem;
