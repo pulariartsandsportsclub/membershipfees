@@ -1,0 +1,868 @@
+/* ==========================================================================
+   Pulari Arts & Sports Club - Light Kerala Heritage Theme
+   Soft Kasavu Ivory, Gentle Gold, Fresh Palm Green & Light Clean Aesthetics
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Light Kerala Palette */
+  --kl-green-primary: #15803d;
+  --kl-green-dark: #166534;
+  --kl-green-deep: #14532d;
+  --kl-green-light: #ecfdf5;
+  --kl-green-soft: #dcfce7;
+  --kl-green-border: #bbf7d0;
+
+  --kl-gold: #c59b27;
+  --kl-gold-bright: #d97706;
+  --kl-gold-light: #fef3c7;
+  --kl-gold-soft: #fffbeb;
+  --kl-gold-border: #fde68a;
+  --kl-gold-dark: #92400e;
+
+  --kl-bg: #faf9f5;
+  --kl-card-bg: #ffffff;
+  --kl-surface: #fdfcf9;
+  --kl-border: #e8e3d5;
+  --kl-border-light: #f0ece1;
+
+  --kl-text-title: #14532d;
+  --kl-text-body: #2d3748;
+  --kl-text-muted: #64748b;
+
+  --kl-radius-lg: 14px;
+  --kl-radius-md: 10px;
+  --kl-radius-sm: 6px;
+
+  --kl-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --kl-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(197, 155, 39, 0.04);
+  --kl-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.07), 0 3px 8px rgba(197, 155, 39, 0.06);
+}
+
+/* ==========================================================================
+   Page Base & Background
+   ========================================================================== */
+body.public-page {
+  background-color: var(--kl-bg);
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(212, 175, 55, 0.03) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(21, 128, 61, 0.03) 0%, transparent 45%),
+    linear-gradient(180deg, #faf9f5 0%, #f5f3ec 100%);
+  color: var(--kl-text-body);
+  font-family: 'Outfit', 'Noto Sans Malayalam', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   Vibrant Teal Gradient & Gold Header
+   ========================================================================== */
+.public-header {
+  background: linear-gradient(135deg, #032b28 0%, #0d5f5b 35%, #0f766e 70%, #149188 100%);
+  border-bottom: 2.5px solid var(--kl-gold);
+  box-shadow: 0 4px 20px rgba(3, 43, 40, 0.35);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Kasavu Gold Zari Ribbon under header */
+.public-header::after {
+  content: '';
+  display: block;
+  height: 3.5px;
+  width: 100%;
+  background: linear-gradient(90deg, #d4af37 0%, #fef08a 30%, #d4af37 60%, #fef08a 100%);
+}
+
+.public-header-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0.8rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.public-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.public-brand img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #ffffff;
+  padding: 2px;
+  border: 2px solid var(--kl-gold);
+  box-shadow: 0 0 14px rgba(20, 145, 136, 0.45), 0 0 8px rgba(212, 175, 55, 0.35);
+  transition: transform 0.25s ease;
+}
+
+.public-brand img:hover {
+  transform: scale(1.06);
+}
+
+.brand-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.kerala-club-title-mal {
+  font-family: 'Noto Sans Malayalam', 'Manjari', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #ffffff 0%, #fef08a 65%, #fde68a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  letter-spacing: 0.01em;
+}
+
+.kerala-tagline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  color: #99f6e4;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.public-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* Teal & Gold Header Action Buttons */
+.btn-pulari-finance {
+  background: linear-gradient(135deg, #f59e0b 0%, #d4af37 50%, #b45309 100%) !important;
+  color: #1c0a00 !important;
+  border: 1px solid #fef08a !important;
+  font-weight: 800 !important;
+  padding: 0.45rem 1rem !important;
+  border-radius: 999px !important;
+  font-size: 0.82rem !important;
+  box-shadow: 0 3px 12px rgba(212, 175, 55, 0.35) !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+}
+
+.btn-pulari-finance:hover {
+  background: linear-gradient(135deg, #fef08a 0%, #fde68a 100%) !important;
+  color: #1c0a00 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(212, 175, 55, 0.5) !important;
+}
+
+.btn-games-hub {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #fef08a !important;
+  border: 1px solid rgba(212, 175, 55, 0.6) !important;
+  font-weight: 700 !important;
+  padding: 0.45rem 1rem !important;
+  border-radius: 999px !important;
+  font-size: 0.82rem !important;
+  backdrop-filter: blur(4px) !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+}
+
+.btn-games-hub:hover {
+  background: rgba(212, 175, 55, 0.25) !important;
+  color: #ffffff !important;
+  border-color: #fef08a !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25) !important;
+}
+
+.current-month-badge {
+  background: rgba(0, 0, 0, 0.28) !important;
+  color: #fef08a !important;
+  border: 1px solid rgba(212, 175, 55, 0.65) !important;
+  padding: 0.42rem 0.9rem !important;
+  border-radius: 999px !important;
+  font-weight: 800 !important;
+  font-size: 0.8rem !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* ==========================================================================
+   Light Welcome Banner
+   ========================================================================== */
+.kerala-welcome-banner {
+  background: #ffffff;
+  border: 1px solid var(--kl-border);
+  border-left: 4px solid var(--kl-gold);
+  border-radius: var(--kl-radius-md);
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--kl-shadow-sm);
+  gap: 1rem;
+}
+
+.kerala-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.kerala-lamp-icon {
+  font-size: 1.4rem;
+  filter: drop-shadow(0 1px 3px rgba(212, 175, 55, 0.4));
+}
+
+.kerala-banner-heading {
+  font-family: 'Noto Sans Malayalam', 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--kl-text-title);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.kerala-banner-sub {
+  font-size: 0.78rem;
+  color: var(--kl-text-muted);
+  margin: 0.15rem 0 0;
+}
+
+/* ==========================================================================
+   Public Main Container
+   ========================================================================== */
+.public-main {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3.5rem;
+}
+
+/* Section Header */
+.section-header {
+  margin-bottom: 1.25rem;
+}
+
+.section-header h3 {
+  font-family: 'Noto Sans Malayalam', 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--kl-text-title);
+  letter-spacing: 0.01em;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.section-header h3::before {
+  content: '❖';
+  color: var(--kl-gold);
+  font-size: 0.95rem;
+}
+
+.section-subtitle {
+  color: var(--kl-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   Toolbar & Segmented Switcher
+   ========================================================================== */
+.public-toolbar-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.segmented-control {
+  background: #ede9de !important;
+  border: 1px solid var(--kl-border) !important;
+  padding: 4px !important;
+  border-radius: 12px !important;
+}
+
+.segmented-btn {
+  color: var(--kl-text-muted) !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  padding: 0.5rem 1.1rem !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.segmented-btn:hover {
+  color: var(--kl-text-title) !important;
+}
+
+.segmented-btn.active {
+  background: #ffffff !important;
+  color: var(--kl-green-primary) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid var(--kl-border) !important;
+}
+
+.segmented-btn.active svg {
+  fill: var(--kl-green-primary) !important;
+}
+
+/* Cache & Live Indicator */
+.cache-status-pill {
+  background: #ffffff !important;
+  border: 1px solid var(--kl-border) !important;
+  box-shadow: var(--kl-shadow-sm) !important;
+  padding: 0.4rem 0.85rem !important;
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  color: var(--kl-text-muted) !important;
+}
+
+.status-indicator-dot {
+  background: var(--kl-green-primary) !important;
+  box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.2) !important;
+}
+
+.status-indicator-dot.offline {
+  background: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25) !important;
+}
+
+.btn-refresh-data:hover {
+  color: var(--kl-gold-bright) !important;
+}
+
+/* ==========================================================================
+   Progress Card
+   ========================================================================== */
+.public-progress-card {
+  background: #ffffff !important;
+  border: 1px solid var(--kl-border) !important;
+  border-top: 3px solid var(--kl-gold) !important;
+  border-radius: var(--kl-radius-md) !important;
+  padding: 1.1rem 1.35rem !important;
+  box-shadow: var(--kl-shadow-sm) !important;
+  margin-bottom: 1.75rem !important;
+}
+
+.public-progress-meta span {
+  font-family: 'Noto Sans Malayalam', 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--kl-text-title);
+}
+
+.public-progress-meta strong {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--kl-green-primary);
+}
+
+.public-progress-track {
+  height: 10px !important;
+  background: #ede9de !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--kl-border-light) !important;
+}
+
+.public-progress-fill {
+  background: linear-gradient(90deg, #15803d 0%, #22c55e 70%, #eab308 100%) !important;
+  border-radius: 999px !important;
+}
+
+/* ==========================================================================
+   KPI Stats Cards Grid (Soft Light Kerala Plaque)
+   ========================================================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.15rem;
+  margin-bottom: 1.75rem;
+}
+
+.stat-card {
+  background: #ffffff !important;
+  border: 1px solid var(--kl-border) !important;
+  border-top: 3px solid var(--kl-gold) !important;
+  border-radius: var(--kl-radius-md) !important;
+  padding: 1.15rem 1.2rem !important;
+  box-shadow: var(--kl-shadow-sm) !important;
+  transition: all 0.22s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: var(--kl-shadow-md) !important;
+  border-color: var(--kl-gold) !important;
+}
+
+.yearly-stat-filter-card.active {
+  border-color: var(--kl-green-primary) !important;
+  border-top-color: var(--kl-green-primary) !important;
+  background: #fcfdfa !important;
+  box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.15), var(--kl-shadow-sm) !important;
+}
+
+.yearly-stat-filter-card.active::after {
+  content: '✓ തെരഞ്ഞെടുത്തു';
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--kl-green-dark);
+  background: var(--kl-green-light);
+  border: 1px solid var(--kl-green-border);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.stat-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  font-size: 1.3rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.stat-icon.icon-blue {
+  background: #eff6ff !important;
+  border: 1px solid #bfdbfe !important;
+}
+
+.stat-icon.icon-green {
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+}
+
+.stat-icon.icon-amber {
+  background: #fffbeb !important;
+  border: 1px solid #fde68a !important;
+}
+
+.stat-icon.icon-red {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+}
+
+.stat-label {
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  color: var(--kl-text-muted) !important;
+}
+
+.stat-value {
+  font-size: 1.75rem !important;
+  font-weight: 800 !important;
+  color: var(--kl-text-title) !important;
+  letter-spacing: -0.02em !important;
+  margin: 0.15rem 0 !important;
+}
+
+.stat-sub {
+  font-size: 0.75rem !important;
+  color: var(--kl-text-muted) !important;
+}
+
+/* ==========================================================================
+   Toolbar & Filters
+   ========================================================================== */
+.yearly-toolbar-row {
+  margin-top: 1.5rem;
+  margin-bottom: 1.15rem;
+  gap: 1rem;
+}
+
+.search-input-wrapper input {
+  background: #ffffff !important;
+  border: 1.5px solid var(--kl-border) !important;
+  color: var(--kl-text-body) !important;
+  border-radius: var(--kl-radius-sm) !important;
+  padding: 0.55rem 0.85rem 0.55rem 2.3rem !important;
+  font-size: 0.86rem !important;
+  box-shadow: var(--kl-shadow-sm) !important;
+  transition: all 0.2s ease !important;
+}
+
+.search-input-wrapper input:focus {
+  border-color: var(--kl-green-primary) !important;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15) !important;
+  outline: none !important;
+}
+
+.search-input-wrapper svg {
+  fill: var(--kl-text-muted) !important;
+}
+
+.yearly-filter-tabset {
+  background: #ede9de !important;
+  border: 1px solid var(--kl-border) !important;
+  padding: 3px !important;
+  border-radius: 10px !important;
+}
+
+.yearly-filter-tab {
+  font-family: 'Noto Sans Malayalam', 'Outfit', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  padding: 0.45rem 0.85rem !important;
+  border-radius: 7px !important;
+  color: var(--kl-text-muted) !important;
+  transition: all 0.18s ease !important;
+}
+
+.yearly-filter-tab:hover {
+  background: #ffffff !important;
+  color: var(--kl-text-title) !important;
+}
+
+.yearly-filter-tab.active {
+  background: var(--kl-green-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25) !important;
+}
+
+.yearly-legend-bar {
+  background: #ffffff !important;
+  border: 1px solid var(--kl-border) !important;
+  border-left: 3px solid var(--kl-green-primary) !important;
+  border-radius: var(--kl-radius-sm) !important;
+  padding: 0.6rem 0.95rem !important;
+  font-size: 0.8rem !important;
+  color: var(--kl-text-body) !important;
+  font-weight: 600 !important;
+}
+
+.legend-pill.pill-paid {
+  background: var(--kl-green-soft) !important;
+  color: var(--kl-green-dark) !important;
+  border: 1px solid var(--kl-green-border) !important;
+}
+
+.legend-pill.pill-unpaid {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* ==========================================================================
+   Light Styled Member Data Table
+   ========================================================================== */
+.card-box {
+  background: #ffffff !important;
+  border: 1px solid var(--kl-border) !important;
+  border-radius: var(--kl-radius-md) !important;
+  box-shadow: var(--kl-shadow-sm) !important;
+  overflow: hidden !important;
+}
+
+.table-responsive {
+  border-radius: var(--kl-radius-md);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Light Table Header */
+.data-table thead th {
+  background: #f7f5ed !important;
+  color: var(--kl-text-title) !important;
+  font-family: 'Noto Sans Malayalam', 'Outfit', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 0.82rem !important;
+  padding: 0.85rem 1rem !important;
+  border-bottom: 2px solid var(--kl-border) !important;
+  border-top: none !important;
+}
+
+.data-table thead th:hover {
+  background: #efeade !important;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid var(--kl-border-light) !important;
+  transition: background-color 0.15s ease;
+}
+
+.data-table tbody tr:nth-child(even) {
+  background-color: #fcfbf9;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f7f4ea !important;
+}
+
+.data-table td {
+  padding: 0.8rem 1rem !important;
+  vertical-align: middle;
+  font-size: 0.86rem;
+  color: var(--kl-text-body);
+}
+
+/* Member ID Badge */
+.data-table td strong {
+  display: inline-block;
+  background: var(--kl-gold-soft);
+  color: var(--kl-gold-dark);
+  border: 1px solid var(--kl-gold-border);
+  padding: 0.18rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Progress micro bar in table */
+.months-micro-track {
+  height: 6px !important;
+  background: #ede9de !important;
+  border-radius: 999px !important;
+  margin-top: 4px;
+}
+
+.months-micro-fill {
+  background: var(--kl-green-primary) !important;
+  border-radius: 999px !important;
+}
+
+/* Month Pills inside table */
+.months-pill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 5px;
+}
+
+.month-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  padding: 2px 5px !important;
+  border-radius: 4px !important;
+  transition: transform 0.15s ease;
+}
+
+.month-pill:hover {
+  transform: scale(1.08);
+}
+
+.month-pill.paid {
+  background: var(--kl-green-soft) !important;
+  color: var(--kl-green-dark) !important;
+  border: 1px solid var(--kl-green-border) !important;
+}
+
+.month-pill.unpaid {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* Summary Completion Pills */
+.yearly-completion-pill {
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  padding: 2px 7px !important;
+  border-radius: 5px !important;
+  display: inline-block !important;
+  margin-bottom: 3px !important;
+}
+
+.yearly-completion-pill.all-paid {
+  background: var(--kl-gold-light) !important;
+  color: var(--kl-gold-dark) !important;
+  border: 1px solid var(--kl-gold-border) !important;
+}
+
+.yearly-completion-pill.partial {
+  background: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+
+.yearly-completion-pill.zero {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+}
+
+/* Badges */
+.badge.badge-paid {
+  background: var(--kl-green-soft) !important;
+  color: var(--kl-green-dark) !important;
+  border: 1px solid var(--kl-green-border) !important;
+  font-weight: 700 !important;
+}
+
+.badge.badge-unpaid {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fca5a5 !important;
+  font-weight: 600 !important;
+}
+
+/* Monthly view month strip chips */
+.public-month-chip {
+  background: #ffffff !important;
+  border: 1.5px solid var(--kl-border) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.public-month-chip:hover {
+  border-color: var(--kl-green-primary) !important;
+  transform: translateY(-1px);
+}
+
+.public-month-chip.active {
+  border-color: var(--kl-green-primary) !important;
+  background: var(--kl-green-light) !important;
+}
+
+.public-month-chip.active .chip-month {
+  color: var(--kl-green-dark) !important;
+}
+
+.public-month-chip.active .chip-count {
+  color: var(--kl-green-primary) !important;
+}
+
+/* Form selects & buttons */
+.form-select, .form-control {
+  background-color: #ffffff !important;
+  border: 1.5px solid var(--kl-border) !important;
+  color: var(--kl-text-body) !important;
+  border-radius: var(--kl-radius-sm) !important;
+  padding: 0.45rem 0.8rem !important;
+}
+
+.form-select:focus, .form-control:focus {
+  border-color: var(--kl-green-primary) !important;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15) !important;
+  outline: none !important;
+}
+
+.btn-outline {
+  border-color: var(--kl-border) !important;
+  color: var(--kl-text-body) !important;
+  background: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.btn-outline:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: var(--kl-text-title) !important;
+}
+
+.btn-primary {
+  background: var(--kl-green-primary) !important;
+  border-color: var(--kl-green-primary) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.btn-primary:hover {
+  background: var(--kl-green-dark) !important;
+}
+
+/* ==========================================================================
+   Light Footer
+   ========================================================================== */
+.kerala-footer {
+  margin-top: 3rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+  border-top: 1px solid var(--kl-border);
+}
+
+.kerala-footer::before {
+  content: '✦  ❖  ✦';
+  display: block;
+  font-size: 0.9rem;
+  color: var(--kl-gold);
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.25em;
+}
+
+.kerala-footer-club-name {
+  font-family: 'Noto Sans Malayalam', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--kl-text-title);
+  margin-bottom: 0.2rem;
+}
+
+.kerala-footer-tagline {
+  font-size: 0.78rem;
+  color: var(--kl-text-muted);
+}
+
+.kerala-footer-chips {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.kerala-footer-chip {
+  background: #ffffff;
+  border: 1px solid var(--kl-border);
+  color: var(--kl-green-dark);
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .public-header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .public-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

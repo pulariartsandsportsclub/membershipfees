@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 
 <head>
   <!-- Google tag (gtag.js) -->
@@ -13,28 +13,35 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Member Dashboard – Pulari Arts & Sports Club</title>
+  <title>മെമ്പർഷിപ്പ് മാസവരി ഡാഷ്‌ബോർഡ് – പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബ്</title>
   <meta name="description"
-    content="Public membership dashboard for Pulari Arts & Sports Club. View paid and unpaid members and monthly collection details.">
+    content="പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബ് മെമ്പർഷിപ്പ് മാസവരി വിവരങ്ങൾ. അംഗങ്ങളുടെ അടവ് നിലയും വാർഷിക കണക്കുകളും.">
   <link rel="icon" type="image/png" href="PULARI.png">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/kerala-dashboard.css">
 </head>
 
 <body class="public-page">
 
+  <!-- Kerala Style Royal Header -->
   <header class="public-header">
     <div class="public-header-inner">
       <div class="public-brand">
-        <img src="PULARI.png" alt="Pulari Arts & Sports Club Logo">
-        <div>
-          <h1>Pulari Arts and Sports Club</h1>
-          <span>Monthly Payment Dashboard</span>
+        <img src="PULARI.png" alt="പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബ് ലോഗോ" title="പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബ്">
+        <div class="brand-text-block">
+          <div class="kerala-club-title-mal">പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ്</div>
+          <div class="kerala-tagline-badge">
+            <span>🌴 മാസവരി വിവരങ്ങൾ</span>
+          </div>
         </div>
       </div>
       <div class="public-header-actions">
-        <a href="finance.html" class="btn-pulari-finance" id="btn-pularifinance" title="Pulari Finance Dashboard">💰
-          Pulari Finance</a>
-        <a href="games.html" class="btn-games-hub" id="btn-open-games" title="Club Arcade & Games">🎮 Games</a>
+        <a href="finance.html" class="btn-pulari-finance" id="btn-pularifinance" title="പുലരി ഫിനാൻസ്">
+          <span>💰</span> പുലരി ഫിനാൻസ്
+        </a>
+        <a href="games.html" class="btn-games-hub" id="btn-open-games" title="ക്ലബ്ബ് ഗെയിംസ്">
+          <span>🎮</span> ഗെയിംസ്
+        </a>
         <span class="current-month-badge" id="public-month-badge"></span>
         <div class="loading-spinner" id="public-spinner" style="display:none;"></div>
       </div>
@@ -43,28 +50,32 @@
 
   <main class="public-main">
 
+    <!-- Kerala Welcome & Cultural Accent Banner -->
+    <div class="kerala-welcome-banner">
+      <div class="kerala-banner-content">
+        <span class="kerala-lamp-icon" aria-hidden="true">🪔</span>
+        <div>
+          <h2 class="kerala-banner-heading">പുലരി മെമ്പർഷിപ്പ് മാസവരി വിവരങ്ങൾ</h2>
+          <p class="kerala-banner-sub">സുതാര്യമായ അംഗത്വ വിവരങ്ങളും വാർഷിക അടവ് നിലയും</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Top View Switcher & Live Connection Status -->
     <div class="public-toolbar-bar">
-      <div class="segmented-control" role="tablist" aria-label="Dashboard View Selection">
-        <!-- <button class="segmented-btn" id="view-tab-monthly" type="button" data-view="monthly">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
-          </svg>
-          Monthly View
-        </button> -->
+      <div class="segmented-control" role="tablist" aria-label="ഡാഷ്‌ബോർഡ് കാഴ്ച്ച">
         <button class="segmented-btn active" id="view-tab-yearly" type="button" data-view="yearly">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
             <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
           </svg>
-          Yearly Overview
+          വാർഷിക വിവരങ്ങൾ
         </button>
       </div>
 
-      <div class="cache-status-pill" id="public-cache-badge" title="Data connection state">
+      <div class="cache-status-pill" id="public-cache-badge" title="കണക്ഷൻ നില">
         <span class="status-indicator-dot"></span>
-        <span id="public-cache-text">Checking data...</span>
-        <button class="btn-refresh-data" id="btn-force-refresh" title="Force reload latest data from Supabase DB"
+        <span id="public-cache-text">Online</span>
+        <button class="btn-refresh-data" id="btn-force-refresh" title="വിവരങ്ങൾ വീണ്ടും ലോഡ് ചെയ്യുക"
           type="button">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <path
@@ -78,20 +89,19 @@
     <div id="view-section-monthly" style="display:none;">
       <div class="section-header">
         <div>
-          <h3>Monthly Payment Status</h3>
-          <p class="section-subtitle">Anyone can view how many members have paid, who is pending, and this month’s
-            collection.</p>
+          <h3>പ്രതിമാസ അടവ് നില</h3>
+          <p class="section-subtitle">ഓരോ മാസത്തെയും അടവ് നിലയും ബാക്കി വിവരങ്ങളും ഇവിടെ കാണാം.</p>
         </div>
         <div class="controls-bar">
           <select id="public-month-select" class="form-select" style="width:auto;"></select>
           <select id="public-year-select" class="form-select" style="width:auto;"></select>
-          <button class="btn btn-outline" id="btn-public-current-month" type="button">This Month</button>
+          <button class="btn btn-outline" id="btn-public-current-month" type="button">ഈ മാസം</button>
         </div>
       </div>
 
       <div class="public-progress-card">
         <div class="public-progress-meta">
-          <span>Collection rate</span>
+          <span>മാസവരി പിരിവ് ശതമാനം</span>
           <strong id="public-collection-rate">0%</strong>
         </div>
         <div class="public-progress-track" aria-hidden="true">
@@ -103,33 +113,33 @@
         <div class="stat-card">
           <div class="stat-icon icon-blue">👥</div>
           <div class="stat-info">
-            <div class="stat-label">Active Members</div>
+            <div class="stat-label">സജീവ അംഗങ്ങൾ</div>
             <div class="stat-value" id="public-total-members">0</div>
-            <div class="stat-sub">Eligible for this month</div>
+            <div class="stat-sub">ഈ മാസത്തേക്ക് ഉള്ളവർ</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon icon-green">✅</div>
           <div class="stat-info">
-            <div class="stat-label">Paid</div>
+            <div class="stat-label">അടച്ചവർ</div>
             <div class="stat-value" id="public-paid-count">0</div>
-            <div class="stat-sub">Fees received</div>
+            <div class="stat-sub">തുക ലഭിച്ചത്</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon icon-red">⏳</div>
           <div class="stat-info">
-            <div class="stat-label">Unpaid</div>
+            <div class="stat-label">ബാക്കി ഉള്ളവർ</div>
             <div class="stat-value" id="public-unpaid-count">0</div>
-            <div class="stat-sub">Pending members</div>
+            <div class="stat-sub">അടക്കാൻ ബാക്കിയുള്ളവർ</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon icon-amber">💰</div>
           <div class="stat-info">
-            <div class="stat-label">Collected</div>
+            <div class="stat-label">പിരിഞ്ഞ തുക</div>
             <div class="stat-value" id="public-collected-amount">₹0</div>
-            <div class="stat-sub">Selected month total</div>
+            <div class="stat-sub">ഈ മാസം ആകെ</div>
           </div>
         </div>
       </div>
@@ -138,8 +148,8 @@
 
       <div class="section-header">
         <div>
-          <h3>Member List</h3>
-          <p class="section-subtitle">Paid and unpaid status for the selected month.</p>
+          <h3>അംഗങ്ങളുടെ പട്ടിക</h3>
+          <p class="section-subtitle">തിരഞ്ഞെടുത്ത മാസത്തെ അടവ് നില.</p>
         </div>
         <div class="controls-bar">
           <div class="search-input-wrapper">
@@ -147,12 +157,12 @@
               <path
                 d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
             </svg>
-            <input type="text" id="public-search" class="form-control" placeholder="Search by name or ID...">
+            <input type="text" id="public-search" class="form-control" placeholder="പേര് നൽകി തിരയുക...">
           </div>
           <div style="display:flex; gap:0.25rem;">
-            <button class="btn btn-primary btn-sm public-filter-btn" data-filter="All" type="button">All</button>
-            <button class="btn btn-outline btn-sm public-filter-btn" data-filter="Paid" type="button">Paid</button>
-            <button class="btn btn-outline btn-sm public-filter-btn" data-filter="Unpaid" type="button">Unpaid</button>
+            <button class="btn btn-primary btn-sm public-filter-btn" data-filter="All" type="button">എല്ലാം</button>
+            <button class="btn btn-outline btn-sm public-filter-btn" data-filter="Paid" type="button">അടച്ചവർ</button>
+            <button class="btn btn-outline btn-sm public-filter-btn" data-filter="Unpaid" type="button">ബാക്കി</button>
           </div>
         </div>
       </div>
@@ -162,11 +172,10 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Member ID</th>
-                <th>Name</th>
-                <th>Monthly Fee</th>
-                <th>Status</th>
-                <th>Payment Date</th>
+                <th>പേര്</th>
+                <th>മാസവരി</th>
+                <th>നില</th>
+                <th>അടച്ച തീയതി</th>
               </tr>
             </thead>
             <tbody id="public-members-table-body"></tbody>
@@ -182,15 +191,13 @@
 
       <div class="section-header">
         <div>
-          <h3>Yearly Payment Overview</h3>
-          <p class="section-subtitle">Annual payment history for each member. Easily see all months paid at a glance.
-          </p>
+          <h3>വാർഷിക അടവ് വിവരങ്ങൾ</h3>
+          <p class="section-subtitle">ഓരോ അംഗത്തിന്റെയും 12 മാസത്തെ അടവ് വിവരങ്ങൾ ഒറ്റനോട്ടത്തിൽ.</p>
         </div>
         <div class="controls-bar">
-          <label for="yearly-year-select" style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Select
-            Year:</label>
-          <select id="yearly-year-select" class="form-select" style="width:auto; font-weight:600;"></select>
-          <button class="btn btn-outline" id="btn-yearly-current-year" type="button">This Year</button>
+          <label for="yearly-year-select" style="font-size:0.85rem; color:var(--kl-text-dark); font-weight:700;">വർഷം:</label>
+          <select id="yearly-year-select" class="form-select" style="width:auto; font-weight:700;"></select>
+          <button class="btn btn-outline" id="btn-yearly-current-year" type="button">ഈ വർഷം</button>
         </div>
       </div>
 
@@ -198,7 +205,7 @@
       <div class="public-progress-card">
         <div class="public-progress-meta">
           <div>
-            <span>Yearly Collection Progress (<span id="yearly-progress-year-label">2026</span>)</span>
+            <span>വാർഷിക പിരിവ് പുരോഗതി (<span id="yearly-progress-year-label">2026</span>)</span>
             <span class="text-muted" style="font-size:0.8rem; margin-left:0.5rem;" id="yearly-progress-sublabel"></span>
           </div>
           <strong id="yearly-collection-rate">0%</strong>
@@ -211,38 +218,38 @@
       <!-- Yearly Stats Cards Grid (Clickable Filter Boxes) -->
       <div class="stats-grid">
         <div class="stat-card yearly-stat-filter-card active" data-filter="All" role="button" tabindex="0"
-          title="Filter: Show All Members">
+          title="ഫിൽട്ടർ: എല്ലാ അംഗങ്ങളും">
           <div class="stat-icon icon-blue">👥</div>
           <div class="stat-info">
-            <div class="stat-label">Active Members</div>
+            <div class="stat-label">സജീവ അംഗങ്ങൾ</div>
             <div class="stat-value" id="yearly-total-members">0</div>
-            <div class="stat-sub">Show all members</div>
+            <div class="stat-sub">എല്ലാ അംഗങ്ങളെയും കാണിക്കുക</div>
           </div>
         </div>
         <div class="stat-card yearly-stat-filter-card" data-filter="Full" role="button" tabindex="0"
-          title="Filter: All 12 Months Paid">
+          title="ഫിൽട്ടർ: 12 മാസവും അടച്ചവർ">
           <div class="stat-icon icon-green">🏆</div>
           <div class="stat-info">
-            <div class="stat-label">All 12 Months Paid</div>
+            <div class="stat-label">12 മാസവും അടച്ചവർ</div>
             <div class="stat-value" id="yearly-full-paid-count">0</div>
-            <div class="stat-sub" id="yearly-full-paid-sub">Fully cleared for year</div>
+            <div class="stat-sub" id="yearly-full-paid-sub">മുഴുവൻ അടവ് പൂർത്തിയായി</div>
           </div>
         </div>
         <div class="stat-card yearly-stat-filter-card" data-filter="Partial" role="button" tabindex="0"
-          title="Filter: Partially Paid">
+          title="ഫിൽട്ടർ: ഭാഗികമായി അടച്ചവർ">
           <div class="stat-icon icon-amber">⏳</div>
           <div class="stat-info">
-            <div class="stat-label">Partially Paid</div>
+            <div class="stat-label">ഭാഗികമായി അടച്ചവർ</div>
             <div class="stat-value" id="yearly-partial-paid-count">0</div>
-            <div class="stat-sub">1 to 11 months paid</div>
+            <div class="stat-sub" id="yearly-partial-paid-sub">1 മുതൽ 11 മാസം വരെ അടച്ചവർ</div>
           </div>
         </div>
-        <div class="stat-card" style="cursor:default;" title="Total Annual Collections">
+        <div class="stat-card" style="cursor:default;" title="ഈ വർഷത്തെ ആകെ പിരിവ്">
           <div class="stat-icon icon-amber">💰</div>
           <div class="stat-info">
-            <div class="stat-label">Yearly Collection</div>
+            <div class="stat-label">ആകെ പിരിഞ്ഞ തുക</div>
             <div class="stat-value" id="yearly-total-collected">₹0</div>
-            <div class="stat-sub" id="yearly-collected-sub">Fees received this year</div>
+            <div class="stat-sub" id="yearly-collected-sub">ഈ വർഷത്തെ ആകെ തുക</div>
           </div>
         </div>
       </div>
@@ -254,22 +261,14 @@
             <path
               d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
           </svg>
-          <input type="text" id="yearly-search" class="form-control" placeholder="Search by name or ID...">
+          <input type="text" id="yearly-search" class="form-control" placeholder="പേര് നൽകി തിരയുക...">
         </div>
-        <div class="yearly-filter-tabset" role="tablist" aria-label="Member Payment Filter">
-          <button class="yearly-filter-tab active" data-filter="All" type="button">All</button>
-          <button class="yearly-filter-tab" data-filter="Full" type="button">All 12 Months Paid</button>
-          <button class="yearly-filter-tab" data-filter="Partial" type="button">Partially Paid</button>
-          <button class="yearly-filter-tab" data-filter="Unpaid" type="button">No Payments</button>
+        <div class="yearly-filter-tabset" role="tablist" aria-label="അംഗങ്ങളുടെ ഫിൽട്ടർ">
+          <button class="yearly-filter-tab active" data-filter="All" type="button">എല്ലാം</button>
+          <button class="yearly-filter-tab" data-filter="Full" type="button">🏆 12 മാസവും പൂർണ്ണം</button>
+          <button class="yearly-filter-tab" data-filter="Partial" type="button">⏳ ഭാഗികം</button>
+          <button class="yearly-filter-tab" data-filter="Unpaid" type="button">❌ അടക്കാത്തവർ</button>
         </div>
-      </div>
-
-      <!-- Legend for Month Indicators -->
-      <div class="yearly-legend-bar">
-        <div class="legend-item"><span class="legend-pill pill-paid">✓ JAN</span> Paid Month</div>
-        <div class="legend-item"><span class="legend-pill pill-unpaid">JAN</span> Unpaid / Pending</div>
-        <div class="legend-item"><span class="badge badge-paid" style="font-size:0.75rem;">12/12 Paid</span> Completed
-          Year</div>
       </div>
 
       <!-- Yearly Members Table -->
@@ -278,15 +277,13 @@
           <table class="data-table yearly-data-table">
             <thead>
               <tr>
-                <th style="min-width:100px; cursor:pointer;" id="th-sort-id" title="Click to sort by ID">Member ID ⇕
-                </th>
                 <th style="min-width:160px; cursor:pointer;" id="th-sort-name"
-                  title="Click to sort alphabetically by Name">Member Name ⇕</th>
-                <th style="min-width:140px; cursor:pointer;" id="th-sort-paid" title="Click to sort by Months Paid">
-                  Months Paid ⇕</th>
-                <th style="min-width:340px;">Paid Months Status (Sep – Aug)</th>
-                <th style="min-width:110px;">Total Paid</th>
-                <th style="min-width:110px;">Status</th>
+                  title="പേര് ക്രമത്തിൽ അടുക്കുക">അംഗത്തിന്റെ പേര് ⇕</th>
+                <th style="min-width:140px; cursor:pointer;" id="th-sort-paid" title="അടച്ച മാസങ്ങളുടെ ക്രമത്തിൽ അടുക്കുക">
+                  അടച്ച മാസങ്ങൾ ⇕</th>
+                <th style="min-width:340px;">പ്രതിമാസ നില (സെപ്റ്റംബർ – ഓഗസ്റ്റ്)</th>
+                <th style="min-width:110px;">ആകെ അടച്ചത്</th>
+                <th style="min-width:110px;">നില</th>
               </tr>
             </thead>
             <tbody id="yearly-members-table-body"></tbody>
@@ -296,6 +293,12 @@
 
     </div>
     <!-- ================= END YEARLY VIEW CONTAINER ================= -->
+
+    <!-- Kerala Heritage Footer -->
+    <footer class="kerala-footer">
+      <div class="kerala-footer-club-name">പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ്</div>
+      <div class="kerala-footer-tagline">മെമ്പർഷിപ്പ് മാസവരി വിവരങ്ങൾ</div>
+    </footer>
 
   </main>
 

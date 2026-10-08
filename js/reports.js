@@ -20,9 +20,9 @@ function renderReportsPage() {
   const totalActive = activeMembers.length;
 
   // Paid members for month/year
-  const paidPayments = payments.filter(p => 
-    p.month === selectedMonth && 
-    Number(p.year) === Number(selectedYear) && 
+  const paidPayments = payments.filter(p =>
+    p.month === selectedMonth &&
+    Number(p.year) === Number(selectedYear) &&
     p.status === 'Paid'
   );
 
@@ -166,10 +166,10 @@ function exportReportToCSV() {
   ];
 
   activeMembers.forEach(m => {
-    const pay = payments.find(p => 
-      p.memberId === m.memberId && 
-      p.month === selectedMonth && 
-      Number(p.year) === Number(selectedYear) && 
+    const pay = payments.find(p =>
+      p.memberId === m.memberId &&
+      p.month === selectedMonth &&
+      Number(p.year) === Number(selectedYear) &&
       p.status === 'Paid'
     );
 
@@ -328,7 +328,7 @@ async function exportYearlyReportToPDF() {
 
     totalYearlyCollected += memberTotalPaid;
 
-    const monthsStr = monthsPaidCount > 0 
+    const monthsStr = monthsPaidCount > 0
       ? `${monthsPaidCount} Month${monthsPaidCount > 1 ? 's' : ''} (${paidMonthsList.join(', ')})`
       : `0 Months`;
 
@@ -432,11 +432,11 @@ async function exportYearlyReportToPDF() {
   if (typeof html2pdf !== 'undefined') {
     showToast('Generating PDF report...', 'info');
     const opt = {
-      margin:       [8, 8, 8, 8],
-      filename:     `Pulari_Club_Yearly_Collection_Report_${targetYear}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, logging: false, useCORS: true },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      margin: [8, 8, 8, 8],
+      filename: `Pulari_Club_Yearly_Collection_Report_${targetYear}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, logging: false, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(reportWrapper).save().then(() => {
@@ -510,15 +510,30 @@ function sendWhatsAppReminder(memberId) {
 
   const phone = formatWhatsAppPhone(member.phone);
   if (!phone) {
-    showToast(`No valid phone number found for ${member.fullName}. Please add/edit their phone number first.`, 'warning');
+    showToast(`${member.fullName}ന്റെ ഫോൺ നമ്പർ ലഭ്യമല്ല. ദയവായി ഫോൺ നമ്പർ ചേർക്കുക.`, 'warning');
     return;
   }
 
   const { payments, selectedMonth, selectedYear, settings } = AppState;
-  const clubName = (settings && settings.club_name) || "Pulari Arts & Sports Club";
+  const clubName = (settings && settings.club_name) || "പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബ്";
   const currencySymbol = (settings && settings.currency) || "₹";
   const monthlyFee = Number(member.monthlyFee || (settings && settings.monthly_fee) || 30);
   const targetYear = Number(selectedYear) || new Date().getFullYear();
+
+  const malMonthNames = {
+    "September": "സെപ്റ്റംബർ",
+    "October": "ഒക്ടോബർ",
+    "November": "നവംബർ",
+    "December": "ഡിസംബർ",
+    "January": "ജനുവരി",
+    "February": "ഫെബ്രുവരി",
+    "March": "മാർച്ച്",
+    "April": "ഏപ്രിൽ",
+    "May": "മേയ്",
+    "June": "ജൂൺ",
+    "July": "ജൂലൈ",
+    "August": "ഓഗസ്റ്റ്"
+  };
 
   // Pulari Club membership strictly starts from September 2026 (Month 1)
   const allCycleMonths = [
@@ -537,8 +552,8 @@ function sendWhatsAppReminder(memberId) {
   ];
 
   // If selected month is before September 2026, no cycle month applies
-  const selIdx = allCycleMonths.findIndex(m => 
-    m.name.toLowerCase() === (selectedMonth || '').toLowerCase() && 
+  const selIdx = allCycleMonths.findIndex(m =>
+    m.name.toLowerCase() === (selectedMonth || '').toLowerCase() &&
     m.year === targetYear
   );
 
@@ -567,52 +582,55 @@ function sendWhatsAppReminder(memberId) {
 
   let message = '';
   if (pendingMonths.length === 0) {
-    message = 
-`*${clubName}*
-Dear ${member.fullName},
+    message =
+      `
+\nപ്രിയപ്പെട്ട *${member.fullName}*,
 
-Greetings from Pulari Arts & Sports Club.
-Your membership fee payments are currently up to date!
+പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബിൽ നിന്നുള്ള സ്നേഹാശംസകൾ.
+താങ്കളുടെ ക്ലബ്ബ് മാസവരി അടവുകൾ നിലവിൽ പൂർണ്ണമായി അടച്ചുതീർത്തിട്ടുണ്ട്.
 
-Thank you!
+നിങ്ങളുടെ സഹകരണത്തിന് നന്ദി. 🙏
 _${clubName}_`;
   } else if (pendingMonths.length === 1) {
     const item = pendingMonths[0];
-    message = 
-`*${clubName}*
-Dear ${member.fullName},
+    const malMonth = malMonthNames[item.name] || item.name;
+    message =
+      `
+\nപ്രിയപ്പെട്ട *${member.fullName}*,
 
-This is a friendly reminder regarding your membership fee payment.
+പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബിൽ നിന്നുള്ള അറിയിപ്പ്.
+താങ്കളുടെ ക്ലബ്ബ് മാസവരി കുടിശ്ശിക താഴെ നൽകുന്നു:
 
-📌 *Pending Month:* ${item.name} ${item.year}
-💰 *Due Amount:* ${currencySymbol}${monthlyFee}
+📌 *കുടിശ്ശികയുള്ള മാസം:* ${malMonth} ${item.year}
+💰 *അടയ്ക്കാനുള്ള തുക:* ${currencySymbol}${monthlyFee}
 
-Kindly arrange the payment at your earliest convenience.
+ക്ലബ്ബിന്റെ സുഗമമായ പ്രവർത്തനത്തിനായി, മാസവരി എത്രയും വേഗം അടച്ച് തീർക്കണമെന്ന് സ്നേഹപൂർവ്വം അഭ്യർത്ഥിക്കുന്നു.
 
-Thank you!
+നിങ്ങളുടെ സഹകരണത്തിന് നന്ദി. 🙏
 _${clubName}_`;
   } else {
     const totalDue = pendingMonths.length * monthlyFee;
-    const monthsText = pendingMonths.map(p => `${p.name} ${p.year}`).join(', ');
-    message = 
-`*${clubName}*
-Dear ${member.fullName},
+    const monthsText = pendingMonths.map(p => `${malMonthNames[p.name] || p.name} ${p.year}`).join(', ');
+    message =
+      `
+\nപ്രിയപ്പെട്ട *${member.fullName}*,
 
-This is a friendly reminder regarding your pending membership fees.
+പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബിൽ നിന്നുള്ള അറിയിപ്പ്.
+താങ്കളുടെ ക്ലബ്ബ് മാസവരി കുടിശ്ശിക വിവരങ്ങൾ താഴെ നൽകുന്നു:
 
-📌 *Pending Months:* ${monthsText} (${pendingMonths.length} Months)
-💰 *Monthly Fee:* ${currencySymbol}${monthlyFee}
-💵 *Total Amount Due:* ${currencySymbol}${totalDue}
+📌 *കുടിശ്ശികയുള്ള മാസങ്ങൾ:* ${monthsText} (${pendingMonths.length} മാസം)
+💰 *പ്രതിമാസ വരിസംഖ്യ:* ${currencySymbol}${monthlyFee}
+💵 *ആകെ അടയ്ക്കാനുള്ള തുക:* ${currencySymbol}${totalDue}
 
-Kindly arrange to clear the pending dues at your earliest convenience.
+ക്ലബ്ബിന്റെ സുഗമമായ പ്രവർത്തനത്തിനായി, മാസവരി എത്രയും വേഗം അടച്ച് തീർക്കണമെന്ന് സ്നേഹപൂർവ്വം അഭ്യർത്ഥിക്കുന്നു.
 
-Thank you!
+നിങ്ങളുടെ സഹകരണത്തിന് നന്ദി. 🙏
 _${clubName}_`;
   }
 
   const whatsappUrl = `https://api.whatsapp.com/send?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, '_blank');
-  showToast(`Opening WhatsApp chat for ${member.fullName}...`, 'info');
+  showToast(`${member.fullName}ന്റെ വാട്ട്‌സ്ആപ്പ് ചാറ്റ് തുറക്കുന്നു...`, 'info');
 }
 
 // Expose globally for payments view and onclick bindings
