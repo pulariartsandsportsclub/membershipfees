@@ -72,13 +72,13 @@ function initNavigation() {
   const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach(item => {
     item.addEventListener('click', (e) => {
-      e.preventDefault();
       const targetTab = item.getAttribute('data-tab');
       if (targetTab) {
+        e.preventDefault();
         switchTab(targetTab);
-        // Close mobile drawer if open
-        document.querySelector('.sidebar').classList.remove('mobile-open');
       }
+      // Close mobile drawer if open
+      document.querySelector('.sidebar')?.classList.remove('mobile-open');
     });
   });
 
@@ -105,6 +105,7 @@ function switchTab(tabName) {
     members: 'Members Directory',
     payments: 'Monthly Fee Payments',
     reports: 'Collection Reports',
+    certificates: 'Official Club Certification',
     settings: 'System Settings'
   };
   const headerTitle = document.getElementById('page-header-title');
@@ -131,6 +132,9 @@ function renderCurrentTab() {
       break;
     case 'reports':
       if (window.renderReportsPage) renderReportsPage();
+      break;
+    case 'certificates':
+      if (window.renderCertificatesPage) renderCertificatesPage();
       break;
     case 'settings':
       if (window.renderSettingsPage) renderSettingsPage();
