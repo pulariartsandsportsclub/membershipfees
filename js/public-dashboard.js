@@ -58,6 +58,7 @@ const PublicState = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  initHeaderScrollEffect();
   fillMonthYearSelects();
   bindPublicControls();
   bindViewSwitcher();
@@ -756,4 +757,37 @@ function showPublicToast(message, type = 'info') {
   toast.innerHTML = `<span class="toast-message">${escapeHtml(message)}</span>`;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
+}
+
+/**
+ * Auto minimize/compact header when scrolling down on mobile/desktop
+ */
+function initHeaderScrollEffect() {
+  const header = document.querySelector('.public-header');
+  if (!header) return;
+
+  let ticking = false;
+
+  const onScroll = () => {
+    const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    
+    // Minimize header when scrolled down past 25px
+    if (currentScrollY > 25) {
+      header.classList.add('header-minimized');
+    } else {
+      header.classList.remove('header-minimized');
+    }
+
+    ticking = false;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(onScroll);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // Initial check on load
+  onScroll();
 }
