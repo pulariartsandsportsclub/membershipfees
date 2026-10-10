@@ -160,18 +160,27 @@ function renderMonthlyBarChart() {
 
   // 2. Compute Summary Statistics for the banner
   const totalPeriodAmount = chartData.reduce((acc, d) => acc + d.amount, 0);
-  const avgPeriodAmount = Math.round(totalPeriodAmount / (chartData.length || 1));
+  
+  // Calculate total for the active / selected month
+  const selectedMonthPayments = payments.filter(p => 
+    p.month === selectedMonth && 
+    Number(p.year) === Number(selectedYear) && 
+    p.status === 'Paid'
+  );
+  const selectedMonthTotal = selectedMonthPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
   
   let peakItem = chartData.reduce((max, d) => (d.amount > max.amount ? d : max), { amount: 0, fullLabel: '—' });
 
   const totalEl = document.getElementById('tstat-total');
-  const avgEl = document.getElementById('tstat-avg');
+  const monthTotalEl = document.getElementById('tstat-month-total') || document.getElementById('tstat-avg');
+  const monthLabelEl = document.getElementById('tstat-month-label');
   const peakEl = document.getElementById('tstat-peak');
   const selEl = document.getElementById('tstat-selected');
   const subtitleEl = document.getElementById('trends-subtitle');
 
   if (totalEl) totalEl.textContent = formatCurrency(totalPeriodAmount);
-  if (avgEl) avgEl.textContent = formatCurrency(avgPeriodAmount);
+  if (monthLabelEl) monthLabelEl.textContent = `Monthly Total (${selectedMonth})`;
+  if (monthTotalEl) monthTotalEl.textContent = formatCurrency(selectedMonthTotal);
   if (peakEl) peakEl.textContent = peakItem.amount > 0 ? `${peakItem.shortLabel} (${formatCurrency(peakItem.amount)})` : 'None';
   if (selEl) selEl.textContent = `${selectedMonth.substring(0, 3)} ${selectedYear}`;
   

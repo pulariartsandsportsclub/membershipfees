@@ -487,13 +487,32 @@ function formatWhatsAppPhone(phone) {
   if (!phone) return null;
   let digits = String(phone).replace(/\D/g, '');
   if (!digits) return null;
-  // If 11 digits starting with 0 (e.g. 09876543210), replace leading 0 with 91
-  if (digits.length === 11 && digits.startsWith('0')) {
-    digits = '91' + digits.substring(1);
-  } else if (digits.length === 10) {
-    // 10-digit standard Indian mobile number
-    digits = '91' + digits;
+
+  // Already has UAE country code (e.g. 971501234567)
+  if (digits.startsWith('971') && digits.length >= 11) {
+    return digits;
   }
+  // Already has India country code (e.g. 919876543210)
+  if (digits.startsWith('91') && digits.length === 12) {
+    return digits;
+  }
+  // UAE local format starting with 05 (e.g. 0547528521 -> 971547528521)
+  if (digits.startsWith('05') && digits.length === 10) {
+    return '971' + digits.substring(1);
+  }
+  // UAE local format starting with 5 without leading 0 (e.g. 547528521 -> 971547528521)
+  if (digits.startsWith('5') && digits.length === 9) {
+    return '971' + digits;
+  }
+  // Indian 11-digit starting with 0 (e.g. 09876543210 -> 919876543210)
+  if (digits.length === 11 && digits.startsWith('0')) {
+    return '91' + digits.substring(1);
+  }
+  // Indian standard 10-digit mobile number (starts with 6, 7, 8, or 9)
+  if (digits.length === 10 && /^[6-9]/.test(digits)) {
+    return '91' + digits;
+  }
+
   return digits;
 }
 
@@ -633,7 +652,220 @@ _${clubName}_`;
   showToast(`${member.fullName}ന്റെ വാട്ട്‌സ്ആപ്പ് ചാറ്റ് തുറക്കുന്നു...`, 'info');
 }
 
+/**
+ * Generate Formatted Bilingual Payment Receipt Voucher Message
+ */
+function formatWhatsAppReceiptVoucher(member, paymentInfo = {}) {
+  const { settings, selectedMonth, selectedYear } = AppState;
+  const clubName = (settings && settings.club_name) || "പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബ്";
+  const currencySymbol = (settings && settings.currency) || "₹";
+  const amount = paymentInfo.amount || member.monthlyFee || (settings && settings.monthly_fee) || 30;
+  const payMonth = paymentInfo.month || selectedMonth;
+  const payYear = paymentInfo.year || selectedYear;
+  const paymentDate = paymentInfo.paymentDate || new Date().toISOString().split('T')[0];
+  const receiptNo = paymentInfo.paymentId || `PAY-${payYear}${String(MONTHS_LIST.indexOf(payMonth) + 1).padStart(2, '0')}-${String(member.memberId).replace(/\D/g, '') || '01'}`;
+
+  const malMonthNames = {
+    "September": "സെപ്റ്റംബർ",
+    "October": "ഒക്ടോബർ",
+    "November": "നവംബർ",
+    "December": "ഡിസംബർ",
+    "January": "ജനുവരി",
+    "February": "ഫെബ്രുവരി",
+    "March": "മാർച്ച്",
+    "April": "ഏപ്രിൽ",
+    "May": "മേയ്",
+    "June": "ജൂൺ",
+    "July": "ജൂലൈ",
+    "August": "ഓഗസ്റ്റ്"
+  };
+
+  const malMonth = malMonthNames[payMonth] || payMonth;
+
+  return `
+🧾 *${clubName}*
+*മാസവരി രസീത് / PAYMENT RECEIPT*
+━━━━━━━━━━━━━━━━━━━━
+👤 *അംഗത്തിന്റെ പേര് / Name:* ${member.fullName}
+🆔 *മെമ്പർ ഐഡി / ID:* ${member.memberId}
+📅 *അടച്ച മാസം / Period:* ${malMonth} ${payYear} (${payMonth})
+💰 *അടച്ച തുക / Amount:* ${currencySymbol}${amount}
+💳 *രീതി / Method:* ${paymentInfo.paymentMethod || 'Cash'}
+📆 *തീയതി / Date:* ${paymentDate}
+🔢 *രസീത് നമ്പർ / Receipt No:* ${receiptNo}
+━━━━━━━━━━━━━━━━━━━━
+✅ താങ്കളുടെ ഈ മാസത്തെ ക്ലബ്ബ് മാസവരി വിജയകരമായി ലഭിച്ചിരിക്കുന്നു. ക്ലബ്ബിന്റെ പ്രവർത്തനങ്ങളിലുള്ള താങ്കളുടെ വിലയേറിയ സഹകരണത്തിന് നന്ദി! 🙏
+
+_${clubName} ഭരണസമിതി_`;
+}
+
+/**
+ * Dispatch WhatsApp Voucher:
+ * 1. If Free Gateway (Evolution API / WPPConnect) is configured: Sends 100% silently in background.
+ * 2. Fallback: Opens WhatsApp Web (wa.me) pre-filled.
+ */
+async function sendWhatsAppVoucher(options = {}) {
+  const { member, paymentInfo = {}, background = true, silent = false } = options;
+  if (!member) return { success: false, message: 'Member not found' };
+
+  const phone = formatWhatsAppPhone(member.phone);
+  if (!phone) {
+    if (!silent) showToast(`${member.fullName}ന് ഫോൺ നമ്പർ ലഭ്യമല്ല. ദയവായി ചേർക്കുക.`, 'warning');
+    return { success: false, message: 'No phone number' };
+  }
+
+  const message = formatWhatsAppReceiptVoucher(member, paymentInfo);
+  const provider = localStorage.getItem('pulari_wa_provider') || 'evolution';
+  const url = (localStorage.getItem('pulari_wa_url') || '').trim().replace(/\/+$/, '');
+  const instance = (localStorage.getItem('pulari_wa_instance') || 'pulari-club').trim();
+  const token = (localStorage.getItem('pulari_wa_token') || '').trim();
+
+  // Try background dispatch via Free Gateway if configured
+  if (provider !== 'disabled' && url && background) {
+    try {
+      let endpoint = '';
+      let fetchOpts = {};
+
+      if (provider === 'evolution') {
+        endpoint = `${url}/message/sendText/${instance}`;
+        fetchOpts = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'apikey': token } : {})
+          },
+          body: JSON.stringify({
+            number: phone,
+            text: message
+          })
+        };
+      } else if (provider === 'wppconnect') {
+        endpoint = `${url}/api/${instance}/send-message`;
+        fetchOpts = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
+            phone: phone,
+            message: message
+          })
+        };
+      } else {
+        // Generic Webhook
+        endpoint = url;
+        fetchOpts = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
+            to: phone,
+            message: message
+          })
+        };
+      }
+
+      const res = await fetch(endpoint, fetchOpts);
+      if (res.ok) {
+        if (!silent) showToast(`WhatsApp voucher sent to ${member.fullName} in background! 🚀`, 'success');
+        return { success: true, method: 'gateway' };
+      }
+
+      const errData = await res.json().catch(() => ({}));
+      let errMsg = res.statusText || `HTTP ${res.status}`;
+      if (errData?.response?.message?.[0]?.exists === false) {
+        errMsg = `Phone number ${phone} is not on WhatsApp!`;
+      } else if (errData?.message) {
+        errMsg = typeof errData.message === 'string' ? errData.message : JSON.stringify(errData.message);
+      }
+      console.warn('WhatsApp gateway response error:', res.status, errMsg);
+      if (!silent) showToast(`WhatsApp delivery: ${errMsg}`, 'warning');
+    } catch (err) {
+      console.warn('WhatsApp gateway background fetch failed:', err);
+      if (!silent) showToast('Could not reach WhatsApp gateway server. Check connection.', 'warning');
+    }
+  }
+
+  // Fallback to WhatsApp Web click-to-chat
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
+  if (!silent) showToast(`${member.fullName}ന്റെ വാട്ട്‌സ്ആപ്പ് വൗച്ചർ ചാറ്റ് തുറക്കുന്നു...`, 'info');
+  return { success: true, method: 'web' };
+}
+
+/**
+ * Bulk Dispatch Payment Vouchers to all Paid members for current month
+ */
+async function sendBulkVouchersForMonth(month, year) {
+  const targetMonth = month || AppState.selectedMonth;
+  const targetYear = Number(year || AppState.selectedYear);
+  const { members, payments } = AppState;
+
+  const paidPayments = payments.filter(p =>
+    p.month === targetMonth &&
+    Number(p.year) === targetYear &&
+    p.status === 'Paid'
+  );
+
+  if (paidPayments.length === 0) {
+    showToast(`No paid member records found for ${targetMonth} ${targetYear}.`, 'info');
+    return;
+  }
+
+  const eligible = [];
+  for (const pay of paidPayments) {
+    const mem = members.find(m => m.memberId === pay.memberId);
+    if (mem && formatWhatsAppPhone(mem.phone)) {
+      eligible.push({ member: mem, payment: pay });
+    }
+  }
+
+  if (eligible.length === 0) {
+    showToast('Paid members found, but none have valid WhatsApp phone numbers saved.', 'warning');
+    return;
+  }
+
+  const provider = localStorage.getItem('pulari_wa_provider') || 'evolution';
+  const url = (localStorage.getItem('pulari_wa_url') || '').trim();
+
+  if (provider === 'disabled' || !url) {
+    if (!confirm(`${eligible.length} paid members with WhatsApp numbers found for ${targetMonth} ${targetYear}.\n\nNote: WhatsApp Gateway server is not configured in Settings, so vouchers will open one-by-one in WhatsApp Web tabs.\n\nDo you want to proceed?`)) {
+      return;
+    }
+  } else {
+    if (!confirm(`Send automated WhatsApp receipt vouchers to ${eligible.length} paid members in the background for ${targetMonth} ${targetYear}?`)) {
+      return;
+    }
+  }
+
+  showToast(`Sending WhatsApp vouchers to ${eligible.length} members...`, 'info');
+
+  let sentCount = 0;
+  for (let i = 0; i < eligible.length; i++) {
+    const item = eligible[i];
+    await sendWhatsAppVoucher({
+      member: item.member,
+      paymentInfo: item.payment,
+      background: true,
+      silent: true
+    });
+    sentCount++;
+    // Small delay between sends to prevent server rate limiting
+    if (i < eligible.length - 1) {
+      await new Promise(r => setTimeout(r, 600));
+    }
+  }
+
+  showToast(`Successfully dispatched WhatsApp vouchers to ${sentCount} members! 🎉`, 'success');
+}
+
 // Expose globally for payments view and onclick bindings
 window.formatWhatsAppPhone = formatWhatsAppPhone;
 window.sendWhatsAppReminder = sendWhatsAppReminder;
+window.formatWhatsAppReceiptVoucher = formatWhatsAppReceiptVoucher;
+window.sendWhatsAppVoucher = sendWhatsAppVoucher;
+window.sendBulkVouchersForMonth = sendBulkVouchersForMonth;
 
