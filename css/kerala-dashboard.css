@@ -992,3 +992,190 @@ body.public-page {
   }
 }
 
+/* ==========================================================================
+   Public Dashboard Preloader (2-Second Delay Intro Animation)
+   ========================================================================== */
+.pulari-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #053b37 0%, #032b28 65%, #011816 100%);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform, filter;
+  overflow: hidden;
+}
+
+.pulari-preloader.preloader-fade-out {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.03);
+  filter: blur(3px);
+  pointer-events: none;
+}
+
+.pulari-preloader .preloader-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.25rem 2rem;
+  max-width: 380px;
+  width: 90%;
+  animation: preloaderCardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes preloaderCardEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.pulari-preloader .preloader-logo-ring {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.pulari-preloader .preloader-aura {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #d4af37, #10b981, #fde047, #0d9488, #d4af37);
+  filter: blur(10px);
+  opacity: 0.75;
+  animation: preloaderAuraSpin 4s linear infinite;
+}
+
+@keyframes preloaderAuraSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.pulari-preloader .preloader-logo {
+  position: relative;
+  z-index: 2;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  background: #ffffff;
+  border: 3px solid #d4af37;
+  border-radius: 50%;
+  padding: 6px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.35);
+  animation: preloaderLogoPulse 2s ease-in-out infinite;
+}
+
+@keyframes preloaderLogoPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 18px rgba(212, 175, 55, 0.35);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 0 28px rgba(212, 175, 55, 0.6);
+  }
+}
+
+.pulari-preloader .preloader-welcome-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(16, 185, 129, 0.18) 100%);
+  border: 1px solid rgba(254, 240, 138, 0.45);
+  color: #fef08a;
+  padding: 0.25rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.65rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), 0 0 14px rgba(212, 175, 55, 0.25);
+  backdrop-filter: blur(8px);
+  animation: preloaderWelcomeFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes preloaderWelcomeFade {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.pulari-preloader .preloader-brand-title {
+  font-family: 'Noto Sans Malayalam', 'Outfit', system-ui, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 0%, #fef08a 60%, #eab308 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.3px;
+  margin-bottom: 0.45rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.pulari-preloader .preloader-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: #fef08a;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.pulari-preloader .preloader-progress-track {
+  width: 175px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.pulari-preloader .preloader-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #d4af37 0%, #34d399 50%, #fef08a 100%);
+  border-radius: 999px;
+  animation: preloaderFill 2s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
+}
+
+@keyframes preloaderFill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+

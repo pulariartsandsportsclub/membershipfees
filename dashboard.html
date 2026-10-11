@@ -6,7 +6,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-BBBX3G8P1P"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'G-BBBX3G8P1P');
@@ -17,11 +17,61 @@
   <meta name="description"
     content="പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബ് മെമ്പർഷിപ്പ് മാസവരി വിവരങ്ങൾ. അംഗങ്ങളുടെ അടവ് നിലയും വാർഷിക കണക്കുകളും.">
   <link rel="icon" type="image/png" href="PULARI.png">
+  <link rel="preload" as="image" href="PULARI.png">
+
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/kerala-dashboard.css">
+  <style>
+    /* Critical inline rule to eliminate FOUC */
+    #pulari-preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      background: radial-gradient(circle at center, #053b37 0%, #032b28 65%, #011816 100%);
+    }
+  </style>
 </head>
 
 <body class="public-page">
+
+  <!-- ================= PRELOADER SPLASH SCREEN (2s DELAY) ================= -->
+  <div id="pulari-preloader" class="pulari-preloader" role="status" aria-label="ഡാഷ്‌ബോർഡ് ലോഡ് ചെയ്യുന്നു...">
+    <div class="preloader-card">
+      <div class="preloader-logo-ring">
+        <div class="preloader-aura"></div>
+        <img src="PULARI.png" alt="പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ് ലോഗോ" class="preloader-logo" width="96"
+          height="96">
+      </div>
+      <div class="preloader-welcome-tag">
+        <span>✨ സ്വാഗതം • Welcome ✨</span>
+      </div>
+      <div class="preloader-brand-title">പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ്</div>
+      <div class="preloader-badge">
+        <span>Official club Ledger and Members Portal</span>
+      </div>
+      <div class="preloader-progress-track" aria-hidden="true">
+        <div class="preloader-progress-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Public Dashboard Preloader with 2-Second Delay
+    (function () {
+      const preloader = document.getElementById('pulari-preloader');
+      if (!preloader) return;
+
+      const PRELOADER_DELAY_MS = 2000;
+      setTimeout(() => {
+        preloader.classList.add('preloader-fade-out');
+        setTimeout(() => {
+          if (preloader && preloader.parentNode) {
+            preloader.remove();
+          }
+        }, 600);
+      }, PRELOADER_DELAY_MS);
+    })();
+  </script>
 
   <!-- Kerala Style Royal Header -->
   <header class="public-header">
@@ -75,8 +125,7 @@
       <div class="cache-status-pill" id="public-cache-badge" title="കണക്ഷൻ നില">
         <span class="status-indicator-dot"></span>
         <span id="public-cache-text">Online</span>
-        <button class="btn-refresh-data" id="btn-force-refresh" title="വിവരങ്ങൾ വീണ്ടും ലോഡ് ചെയ്യുക"
-          type="button">
+        <button class="btn-refresh-data" id="btn-force-refresh" title="വിവരങ്ങൾ വീണ്ടും ലോഡ് ചെയ്യുക" type="button">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <path
               d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
@@ -195,7 +244,8 @@
           <p class="section-subtitle">ഓരോ അംഗത്തിന്റെയും 12 മാസത്തെ അടവ് വിവരങ്ങൾ ഒറ്റനോട്ടത്തിൽ.</p>
         </div>
         <div class="controls-bar">
-          <label for="yearly-year-select" style="font-size:0.85rem; color:var(--kl-text-dark); font-weight:700;">വർഷം:</label>
+          <label for="yearly-year-select"
+            style="font-size:0.85rem; color:var(--kl-text-dark); font-weight:700;">വർഷം:</label>
           <select id="yearly-year-select" class="form-select" style="width:auto; font-weight:700;"></select>
           <button class="btn btn-outline" id="btn-yearly-current-year" type="button">ഈ വർഷം</button>
         </div>
@@ -277,9 +327,10 @@
           <table class="data-table yearly-data-table">
             <thead>
               <tr>
-                <th style="min-width:160px; cursor:pointer;" id="th-sort-name"
-                  title="പേര് ക്രമത്തിൽ അടുക്കുക">അംഗത്തിന്റെ പേര് ⇕</th>
-                <th style="min-width:140px; cursor:pointer;" id="th-sort-paid" title="അടച്ച മാസങ്ങളുടെ ക്രമത്തിൽ അടുക്കുക">
+                <th style="min-width:160px; cursor:pointer;" id="th-sort-name" title="പേര് ക്രമത്തിൽ അടുക്കുക">
+                  അംഗത്തിന്റെ പേര് ⇕</th>
+                <th style="min-width:140px; cursor:pointer;" id="th-sort-paid"
+                  title="അടച്ച മാസങ്ങളുടെ ക്രമത്തിൽ അടുക്കുക">
                   അടച്ച മാസങ്ങൾ ⇕</th>
                 <th style="min-width:340px;">പ്രതിമാസ നില (സെപ്റ്റംബർ – ഓഗസ്റ്റ്)</th>
                 <th style="min-width:110px;">ആകെ അടച്ചത്</th>
