@@ -587,6 +587,32 @@ function renderYearlyDashboard() {
     ? Math.round((totalYearlyCollected / totalYearlyExpected) * 100)
     : 0;
 
+  // Current Month Stats Calculation (Active members who paid for the current month)
+  const now = new Date();
+  const currentMonthName = MONTHS_LIST[now.getMonth()];
+  const currentYearNum = now.getFullYear();
+  const currentMonthMal = MALAYALAM_MONTHS[currentMonthName] || currentMonthName;
+
+  const activeMembers = (PublicState.members || []).filter(m => m.status === 'Active');
+  const defaultFee = Number(PublicState.settings.monthly_fee || 30);
+
+  let currentMonthPaidCount = 0;
+  let currentMonthTotalCollected = 0;
+
+  activeMembers.forEach(member => {
+    const payment = (PublicState.payments || []).find(p =>
+      p.memberId === member.memberId &&
+      p.month && p.month.toLowerCase() === currentMonthName.toLowerCase() &&
+      Number(p.year) === currentYearNum &&
+      p.status === 'Paid'
+    );
+    if (payment) {
+      currentMonthPaidCount++;
+      const fee = Number(member.monthlyFee || defaultFee);
+      currentMonthTotalCollected += Number(payment.amount || fee);
+    }
+  });
+
   // Update Stats Elements
   const nextYear = selectedYear + 1;
   const cycleLabel = `സെപ്റ്റംബർ ${selectedYear} – ഓഗസ്റ്റ് ${nextYear}`;
@@ -595,13 +621,14 @@ function renderYearlyDashboard() {
     setText('public-month-badge', cycleLabel);
   }
   setText('yearly-total-members', totalMembers);
-  setText('yearly-full-paid-count', fullPaidCount);
-  setText('yearly-partial-paid-count', partialPaidCount);
+  setText('yearly-current-month-paid-count', currentMonthPaidCount);
+  setText('yearly-current-month-paid-sub', `${currentMonthMal} ${currentYearNum}-ൽ അടച്ചവർ`);
+  setText('yearly-current-month-collected', formatPublicCurrency(currentMonthTotalCollected));
+  setText('yearly-current-month-collected-sub', `${currentMonthMal} ${currentYearNum}-ലെ ആകെ തുക`);
   setText('yearly-total-collected', formatPublicCurrency(totalYearlyCollected));
   setText('yearly-collection-rate', `${collectionRate}%`);
   setText('yearly-progress-year-label', cycleLabel);
   setText('yearly-progress-sublabel', `പ്രതീക്ഷിക്കുന്ന ${formatPublicCurrency(totalYearlyExpected)}-ൽ ${formatPublicCurrency(totalYearlyCollected)} പിരിഞ്ഞു`);
-  setText('yearly-full-paid-sub', `ആകെ ${totalMembers}-ൽ ${fullPaidCount} പേർ 12 മാസവും അടച്ചു`);
   setText('yearly-collected-sub', `${cycleLabel} കാലയളവിലെ ആകെ തുക`);
 
   const fill = document.getElementById('yearly-progress-fill');
