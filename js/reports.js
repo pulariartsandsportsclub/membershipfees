@@ -933,14 +933,8 @@ function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PUL
             <span class="vcard-lbl">അടച്ച മാസം</span>
             <span class="vcard-val vcard-period">${malMonth} ${payYear}</span>
           </div>
-          <div class="vcard-field">
-            <span class="vcard-lbl">പേയ്‌മെന്റ് രീതി</span>
-            <span class="vcard-val">${escapeHtml(payMethodMal)}</span>
-          </div>
-          <div class="vcard-field">
-            <span class="vcard-lbl">നില</span>
-            <span class="vcard-val"><span class="vcard-status-pill">പൂർണ്ണമായും അടച്ചു ✓</span></span>
-          </div>
+         
+          
         </div>
 
         <table class="vcard-table">
