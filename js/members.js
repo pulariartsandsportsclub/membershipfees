@@ -243,8 +243,8 @@ function viewMemberDetails(memberId) {
           <td>${p.paymentDate}</td>
           <td>${p.paymentMethod || 'Cash'}</td>
           <td>
-            <button type="button" class="btn btn-outline btn-xs" onclick="openMembershipVoucherModal('${memberId}', { month: '${p.month}', year: ${p.year}, amount: ${p.amount}, paymentDate: '${p.paymentDate}', paymentMethod: '${p.paymentMethod || 'Cash'}' })" title="View & Send Voucher / PDF" style="display:inline-flex; align-items:center; gap:0.25rem; padding:0.2rem 0.5rem; font-size:0.75rem;">
-              📄 Voucher
+            <button type="button" class="btn btn-outline btn-xs" onclick="openMembershipVoucherModal('${memberId}', { paymentId: '${p.paymentId || ''}', month: '${p.month}', year: ${p.year}, amount: ${p.amount}, paymentDate: '${p.paymentDate}', paymentMethod: '${p.paymentMethod || 'Cash'}' })" title="രസീത് കാണുക / PDF ഡൗൺലോഡ്" style="display:inline-flex; align-items:center; gap:0.25rem; padding:0.2rem 0.5rem; font-size:0.75rem;">
+              📄 രസീത്
             </button>
           </td>
         </tr>

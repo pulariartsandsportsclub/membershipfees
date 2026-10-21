@@ -287,6 +287,35 @@ function getLogoBase64() {
 }
 
 /**
+ * Helper to convert local Shijas signature image to base64 Data URL for html2canvas rendering
+ */
+let cachedSignBase64 = null;
+function getSignBase64() {
+  if (cachedSignBase64) return Promise.resolve(cachedSignBase64);
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = function () {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        cachedSignBase64 = canvas.toDataURL('image/png');
+        resolve(cachedSignBase64);
+      } catch (e) {
+        resolve('shijas.png');
+      }
+    };
+    img.onerror = function () {
+      resolve('shijas.png');
+    };
+    img.src = 'shijas.png';
+  });
+}
+
+/**
  * Client-side PDF Generation for Yearly Collection Report
  * Features:
  * - Proper Header with Club Logo and Theme Styling
@@ -666,30 +695,132 @@ function escapeHtml(str) {
 }
 
 /**
- * Convert Indian Rupee numbers to English Words (e.g. 30 -> Thirty Rupees Only)
+ * Format Payment Method into Malayalam (Zero English)
  */
-function convertNumberToWordsINR(amount) {
-  const num = Math.floor(Math.abs(Number(amount) || 0));
-  if (num === 0) return "Zero Rupees Only";
-
-  const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
-    'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-  const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-
-  function numToWords(n) {
-    if (n < 20) return a[n];
-    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
-    if (n < 1000) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + numToWords(n % 100) : '');
-    if (n < 100000) return numToWords(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 !== 0 ? ' ' + numToWords(n % 1000) : '');
-    if (n < 10000000) return numToWords(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 !== 0 ? ' ' + numToWords(n % 100000) : '');
-    return numToWords(Math.floor(n / 10000000)) + ' Crore' + (n % 10000000 !== 0 ? ' ' + numToWords(n % 10000000) : '');
-  }
-
-  return (numToWords(num).trim() + ' Rupees Only').replace(/\s+/g, ' ');
+function formatPaymentMethodMalayalam(method) {
+  if (!method) return 'പണം';
+  const m = String(method).trim().toLowerCase();
+  if (m === 'cash') return 'പണം';
+  if (m === 'upi' || m === 'gpay' || m === 'phonepe' || m === 'paytm' || m === 'online') return 'യു.പി.ഐ / ഓൺലൈൻ';
+  if (m === 'bank' || m.includes('transfer')) return 'ബാങ്ക് ട്രാൻസ്ഫർ';
+  if (m === 'cheque') return 'ചെക്ക്';
+  return 'പണം';
 }
 
 /**
- * Generate Formatted Bilingual Payment Receipt Voucher Message
+ * Convert any month representation into Malayalam
+ */
+function getMalayalamMonth(monthStr) {
+  if (!monthStr) return '';
+  const monthMap = {
+    "january": "ജനുവരി", "jan": "ജനുവരി", "1": "ജനുവരി", "01": "ജനുവരി",
+    "february": "ഫെബ്രുവരി", "feb": "ഫെബ്രുവരി", "2": "ഫെബ്രുവരി", "02": "ഫെബ്രുവരി",
+    "march": "മാർച്ച്", "mar": "മാർച്ച്", "3": "മാർച്ച്", "03": "മാർച്ച്",
+    "april": "ഏപ്രിൽ", "apr": "ഏപ്രിൽ", "4": "ഏപ്രിൽ", "04": "ഏപ്രിൽ",
+    "may": "മേയ്", "5": "മേയ്", "05": "മേയ്",
+    "june": "ജൂൺ", "jun": "ജൂൺ", "6": "ജൂൺ", "06": "ജൂൺ",
+    "july": "ജൂലൈ", "jul": "ജൂലൈ", "7": "ജൂലൈ", "07": "ജൂലൈ",
+    "august": "ഓഗസ്റ്റ്", "aug": "ഓഗസ്റ്റ്", "8": "ഓഗസ്റ്റ്", "08": "ഓഗസ്റ്റ്",
+    "september": "സെപ്റ്റംബർ", "sep": "സെപ്റ്റംബർ", "9": "സെപ്റ്റംബർ", "09": "സെപ്റ്റംബർ",
+    "october": "ഒക്ടോബർ", "oct": "ഒക്ടോബർ", "10": "ഒക്ടോബർ",
+    "november": "നവംബർ", "nov": "നവംബർ", "11": "നവംബർ",
+    "december": "ഡിസംബർ", "dec": "ഡിസംബർ", "12": "ഡിസംബർ"
+  };
+  return monthMap[String(monthStr).toLowerCase().trim()] || monthStr;
+}
+
+/**
+ * Format date into Indian numeric standard DD/MM/YYYY
+ */
+function formatVoucherDate(dateStr) {
+  if (!dateStr) return '';
+  const parts = String(dateStr).split('T')[0].split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return dateStr;
+}
+
+/**
+ * Convert Indian Rupee numbers to Malayalam Words (e.g. 30 -> മുപ്പത് രൂപ മാത്രം)
+ */
+function convertNumberToWordsMalayalam(amount) {
+  const num = Math.floor(Math.abs(Number(amount) || 0));
+  if (num === 0) return "പൂജ്യം രൂപ മാത്രം";
+
+  const ones = [
+    '', 'ഒന്ന്', 'രണ്ട്', 'മൂന്ന്', 'നാല്', 'അഞ്ച്', 'ആറ്', 'ഏഴ്', 'എട്ട്', 'ഒൻപത്',
+    'പത്ത്', 'പതിനൊന്ന്', 'പന്ത്രണ്ട്', 'പതിമൂന്ന്', 'പതിനാല്', 'പതിനഞ്ച്', 'പതിനാറ്', 'പതിനേഴ്', 'പതിനെട്ട്', 'പത്തൊൻപത്'
+  ];
+
+  const tens = ['', '', 'ഇരുപത്', 'മുപ്പത്', 'നാൽപ്പത്', 'അൻപത്', 'അറുപത്', 'എഴുപത്', 'എൺപത്', 'തൊണ്ണൂറ്'];
+  const tensPrefix = ['', '', 'ഇരുപത്തി', 'മുപ്പത്തി', 'നാൽപ്പത്തി', 'അൻപത്തി', 'അറുപത്തി', 'എഴുപത്തി', 'എൺപത്തി', 'തൊണ്ണൂറ്റി'];
+
+  const hundredsExact = ['', 'നൂറ്', 'ഇരുനൂറ്', 'മുന്നൂറ്', 'നാനൂറ്', 'അഞ്ഞൂറ്', 'അറുന്നൂറ്', 'എഴുന്നൂറ്', 'എണ്ണൂറ്', 'തൊള്ളായിരം'];
+  const hundredsPrefix = ['', 'നൂറ്റി', 'ഇരുനൂറ്റി', 'മുന്നൂറ്റി', 'നാനൂറ്റി', 'അഞ്ഞൂറ്റി', 'അറുന്നൂറ്റി', 'എഴുന്നൂറ്റി', 'എണ്ണൂറ്റി', 'തൊള്ളായിരത്തി'];
+
+  function convertBelowThousand(n) {
+    if (n === 0) return '';
+    let result = '';
+    const h = Math.floor(n / 100);
+    const rem = n % 100;
+    if (h > 0) {
+      if (rem === 0) {
+        return hundredsExact[h];
+      } else {
+        result += hundredsPrefix[h] + ' ';
+      }
+    }
+    if (rem < 20) {
+      result += ones[rem];
+    } else {
+      const t = Math.floor(rem / 10);
+      const o = rem % 10;
+      if (o === 0) {
+        result += tens[t];
+      } else {
+        result += tensPrefix[t] + ones[o];
+      }
+    }
+    return result.trim();
+  }
+
+  function convertNumber(n) {
+    if (n < 1000) return convertBelowThousand(n);
+    if (n < 100000) {
+      const thousands = Math.floor(n / 1000);
+      const rem = n % 1000;
+      let thStr = (thousands === 1) ? 'ആയിരം' : convertBelowThousand(thousands) + ' ആയിരം';
+      if (rem > 0) {
+        thStr = ((thousands === 1) ? 'ആയിരത്തി' : convertBelowThousand(thousands) + ' ആയിരത്തി') + ' ' + convertBelowThousand(rem);
+      }
+      return thStr.trim();
+    }
+    if (n < 10000000) {
+      const lakhs = Math.floor(n / 100000);
+      const rem = n % 100000;
+      let lkStr = convertBelowThousand(lakhs) + ' ലക്ഷം';
+      if (rem > 0) {
+        lkStr += ' ' + convertNumber(rem);
+      }
+      return lkStr.trim();
+    }
+    return n.toString();
+  }
+
+  const malWords = convertNumber(num);
+  return `${malWords} രൂപ മാത്രം`;
+}
+
+/**
+ * Convert Indian Rupee numbers to English Words (fallback)
+ */
+function convertNumberToWordsINR(amount) {
+  return convertNumberToWordsMalayalam(amount);
+}
+
+/**
+ * Generate Formatted Pure Malayalam Payment Receipt Voucher Message
  */
 function formatWhatsAppReceiptVoucher(member, paymentInfo = {}) {
   const { settings, selectedMonth, selectedYear } = AppState;
@@ -699,36 +830,25 @@ function formatWhatsAppReceiptVoucher(member, paymentInfo = {}) {
   const payMonth = paymentInfo.month || selectedMonth;
   const payYear = paymentInfo.year || selectedYear;
   const paymentDate = paymentInfo.paymentDate || new Date().toISOString().split('T')[0];
-  const receiptNo = paymentInfo.paymentId || `PAY-${payYear}${String((MONTHS_LIST.indexOf(payMonth) >= 0 ? MONTHS_LIST.indexOf(payMonth) + 1 : 1)).padStart(2, '0')}-${String(member.memberId).replace(/\D/g, '') || '01'}`;
+  const formattedDate = formatVoucherDate(paymentDate);
 
-  const malMonthNames = {
-    "September": "സെപ്റ്റംബർ",
-    "October": "ഒക്ടോബർ",
-    "November": "നവംബർ",
-    "December": "ഡിസംബർ",
-    "January": "ജനുവരി",
-    "February": "ഫെബ്രുവരി",
-    "March": "മാർച്ച്",
-    "April": "ഏപ്രിൽ",
-    "May": "മേയ്",
-    "June": "ജൂൺ",
-    "July": "ജൂലൈ",
-    "August": "ഓഗസ്റ്റ്"
-  };
+  const rawReceiptId = String(paymentInfo.paymentId || `${payYear}${String((MONTHS_LIST.indexOf(payMonth) >= 0 ? MONTHS_LIST.indexOf(payMonth) + 1 : 1)).padStart(2, '0')}-${String(member.memberId || '01').replace(/\D/g, '') || '01'}`);
+  const cleanReceiptNo = rawReceiptId.replace(/^PAY[-]?/i, '');
 
-  const malMonth = malMonthNames[payMonth] || payMonth;
+  const malMonth = getMalayalamMonth(payMonth);
+  const payMethodMal = formatPaymentMethodMalayalam(paymentInfo.paymentMethod);
 
   return `
 🧾 *${clubName}*
-*മാസവരി രസീത് / PAYMENT RECEIPT*
+*മാസവരി രസീത്*
 ━━━━━━━━━━━━━━━━━━━━
-👤 *അംഗത്തിന്റെ പേര് / Name:* ${member.fullName}
-🆔 *മെമ്പർ ഐഡി / ID:* ${member.memberId}
-📅 *അടച്ച മാസം / Period:* ${malMonth} ${payYear} (${payMonth})
-💰 *അടച്ച തുക / Amount:* ${currencySymbol}${amount}
-💳 *രീതി / Method:* ${paymentInfo.paymentMethod || 'Cash'}
-📆 *തീയതി / Date:* ${paymentDate}
-🔢 *രസീത് നമ്പർ / Receipt No:* ${receiptNo}
+👤 *അംഗത്തിന്റെ പേര്:* ${member.fullName}
+🆔 *മെമ്പർ ഐഡി:* ${member.memberId}
+📅 *അടച്ച മാസം:* ${malMonth} ${payYear}
+💰 *അടച്ച തുക:* ${currencySymbol}${amount}
+💳 *രീതി:* ${payMethodMal}
+📆 *തീയതി:* ${formattedDate}
+🔢 *രസീത് നമ്പർ:* #${cleanReceiptNo}
 ━━━━━━━━━━━━━━━━━━━━
 ✅ താങ്കളുടെ ഈ മാസത്തെ ക്ലബ്ബ് മാസവരി വിജയകരമായി ലഭിച്ചിരിക്കുന്നു. ക്ലബ്ബിന്റെ പ്രവർത്തനങ്ങളിലുള്ള താങ്കളുടെ വിലയേറിയ സഹകരണത്തിന് നന്ദി! 🙏
 
@@ -736,9 +856,9 @@ _${clubName} ഭരണസമിതി_`;
 }
 
 /**
- * Render High-Resolution Official Membership Voucher Card HTML
+ * Render High-Resolution Official Membership Voucher Card HTML (100% Pure Malayalam - ZERO English)
  */
-function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PULARI.png') {
+function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PULARI.png', signBase64 = 'shijas.png') {
   const { settings, selectedMonth, selectedYear } = AppState;
   const clubName = (settings && settings.club_name) || "പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബ്";
   const currencySymbol = (settings && settings.currency) || "₹";
@@ -746,25 +866,27 @@ function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PUL
   const payMonth = paymentInfo.month || selectedMonth;
   const payYear = paymentInfo.year || selectedYear;
   const paymentDate = paymentInfo.paymentDate || new Date().toISOString().split('T')[0];
-  const receiptNo = paymentInfo.paymentId || `PAY-${payYear}${String((MONTHS_LIST.indexOf(payMonth) >= 0 ? MONTHS_LIST.indexOf(payMonth) + 1 : 1)).padStart(2, '0')}-${String(member.memberId || '01').replace(/\D/g, '') || '01'}`;
+  const formattedDate = formatVoucherDate(paymentDate);
 
-  const malMonthNames = {
-    "September": "സെപ്റ്റംബർ",
-    "October": "ഒക്ടോബർ",
-    "November": "നവംബർ",
-    "December": "ഡിസംബർ",
-    "January": "ജനുവരി",
-    "February": "ഫെബ്രുവരി",
-    "March": "മാർച്ച്",
-    "April": "ഏപ്രിൽ",
-    "May": "മേയ്",
-    "June": "ജൂൺ",
-    "July": "ജൂലൈ",
-    "August": "ഓഗസ്റ്റ്"
-  };
+  const rawReceiptId = String(paymentInfo.paymentId || `${payYear}${String((MONTHS_LIST.indexOf(payMonth) >= 0 ? MONTHS_LIST.indexOf(payMonth) + 1 : 1)).padStart(2, '0')}-${String(member.memberId || '01').replace(/\D/g, '') || '01'}`);
+  const cleanReceiptNo = rawReceiptId.replace(/^PAY[-]?/i, '');
 
-  const malMonth = malMonthNames[payMonth] || payMonth;
-  const words = convertNumberToWordsINR(amount);
+  const malMonth = getMalayalamMonth(payMonth);
+  const malWords = convertNumberToWordsMalayalam(amount);
+  const payMethodMal = formatPaymentMethodMalayalam(paymentInfo.paymentMethod);
+
+  let handledByText = String(paymentInfo.handledBy || 'പ്രസിഡന്റ്').trim();
+  const lowerHandled = handledByText.toLowerCase();
+  if (!handledByText || ['admin', 'administrator', 'shijas'].includes(lowerHandled)) {
+    handledByText = 'പ്രസിഡന്റ്';
+  } else if (['treasurer', 'secretary', 'cashier'].includes(lowerHandled)) {
+    const roleMap = {
+      'treasurer': 'ഖജാൻജി',
+      'secretary': 'സെക്രട്ടറി',
+      'cashier': 'ക്യാഷിയർ'
+    };
+    handledByText = roleMap[lowerHandled] || handledByText;
+  }
 
   return `
     <div class="membership-voucher-card" id="membership-voucher-card">
@@ -773,22 +895,21 @@ function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PUL
 
         <div class="vcard-header">
           <div class="vcard-brand">
-            <img src="${logoBase64}" alt="Pulari Club Logo" class="vcard-logo">
+            <img src="${logoBase64}" alt="പുലരി ക്ലബ്ബ് ലോഗോ" class="vcard-logo">
             <div class="vcard-titles">
-              <h2 class="vcard-club-en">PULARI ARTS &amp; SPORTS CLUB</h2>
-              <h3 class="vcard-club-ml">പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ്</h3>
-              <p class="vcard-club-sub">Reg. No: MPM/CA/355/2017 • Porur, Malappuram • Estd. 1985</p>
+              <h2 class="vcard-club-ml-main">പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ്</h2>
+              <p class="vcard-club-sub">രജി. നമ്പർ: MPM/CA/355/2017 • പോരൂർ, മലപ്പുറം • സ്ഥാപിതം: 1985</p>
             </div>
           </div>
           <div class="vcard-receipt-meta">
-            <div class="vcard-badge">PAYMENT RECEIPT / രസീത്</div>
+            <div class="vcard-badge">മാസവരി രസീത്</div>
             <div class="vcard-meta-line">
-              <span class="vcard-meta-label">Receipt No:</span>
-              <span class="vcard-meta-val vcard-receipt-no">${escapeHtml(receiptNo)}</span>
+              <span class="vcard-meta-label">രസീത് നമ്പർ:</span>
+              <span class="vcard-meta-val vcard-receipt-no">#${escapeHtml(cleanReceiptNo)}</span>
             </div>
             <div class="vcard-meta-line">
-              <span class="vcard-meta-label">Date:</span>
-              <span class="vcard-meta-val">${escapeHtml(paymentDate)}</span>
+              <span class="vcard-meta-label">തീയതി:</span>
+              <span class="vcard-meta-val">${escapeHtml(formattedDate)}</span>
             </div>
           </div>
         </div>
@@ -797,59 +918,58 @@ function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PUL
 
         <div class="vcard-member-grid">
           <div class="vcard-field">
-            <span class="vcard-lbl">അംഗത്തിന്റെ പേര് / Member Name</span>
+            <span class="vcard-lbl">അംഗത്തിന്റെ പേര്</span>
             <span class="vcard-val vcard-name">${escapeHtml(member.fullName)}</span>
           </div>
           <div class="vcard-field">
-            <span class="vcard-lbl">മെമ്പർ ഐഡി / Member ID</span>
+            <span class="vcard-lbl">മെമ്പർ ഐഡി</span>
             <span class="vcard-val"><span class="vcard-id-pill">${escapeHtml(member.memberId)}</span></span>
           </div>
           <div class="vcard-field">
-            <span class="vcard-lbl">ഫോൺ നമ്പർ / WhatsApp</span>
-            <span class="vcard-val">${escapeHtml(member.phone || 'N/A')}</span>
+            <span class="vcard-lbl">ഫോൺ നമ്പർ</span>
+            <span class="vcard-val">${escapeHtml(member.phone || 'ലഭ്യമല്ല')}</span>
           </div>
           <div class="vcard-field">
-            <span class="vcard-lbl">അടച്ച മാസം / Period</span>
-            <span class="vcard-val vcard-period">${malMonth} ${payYear} <small>(${payMonth})</small></span>
+            <span class="vcard-lbl">അടച്ച മാസം</span>
+            <span class="vcard-val vcard-period">${malMonth} ${payYear}</span>
           </div>
           <div class="vcard-field">
-            <span class="vcard-lbl">പേയ്‌മെന്റ് രീതി / Method</span>
-            <span class="vcard-val">${escapeHtml(paymentInfo.paymentMethod || 'Cash')}</span>
+            <span class="vcard-lbl">പേയ്‌മെന്റ് രീതി</span>
+            <span class="vcard-val">${escapeHtml(payMethodMal)}</span>
           </div>
           <div class="vcard-field">
-            <span class="vcard-lbl">സ്റ്റാറ്റസ് / Status</span>
-            <span class="vcard-val"><span class="vcard-status-pill">PAID • അടച്ചു ✓</span></span>
+            <span class="vcard-lbl">നില</span>
+            <span class="vcard-val"><span class="vcard-status-pill">പൂർണ്ണമായും അടച്ചു ✓</span></span>
           </div>
         </div>
 
         <table class="vcard-table">
           <thead>
             <tr>
-              <th style="width: 40px;">#</th>
-              <th>വിവരണം / Description</th>
-              <th>കാലയളവ് / Period</th>
-              <th class="text-right">തുക / Amount</th>
+              <th style="width: 45px;">നം.</th>
+              <th>വിവരണം</th>
+              <th>കാലയളവ്</th>
+              <th class="text-right">തുക</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>1</td>
               <td>
-                <strong>പ്രതിമാസ മെമ്പർഷിപ്പ് മാസവരി</strong><br>
-                <span style="font-size:0.75rem; color:#64748b;">Monthly Membership Subscription Fee</span>
+                <strong>പ്രതിമാസ മെമ്പർഷിപ്പ് മാസവരി</strong>
               </td>
-              <td>${payMonth} ${payYear}</td>
+              <td>${malMonth} ${payYear}</td>
               <td class="text-right"><strong>${currencySymbol}${amount.toFixed(2)}</strong></td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
               <td colspan="3" class="vcard-words-cell">
-                <span style="font-size:0.72rem; color:#64748b; text-transform:uppercase; font-weight:700;">തുക അക്ഷരത്തിൽ / In Words:</span><br>
-                <em>${escapeHtml(words)}</em>
+                <span style="font-size:0.72rem; color:#64748b; font-weight:700;">തുക അക്ഷരത്തിൽ:</span><br>
+                <em>${escapeHtml(malWords)}</em>
               </td>
               <td class="text-right vcard-total-cell">
-                <span style="font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:700;">ആകെ തുക / Total</span>
+                <span style="font-size:0.7rem; color:#64748b; font-weight:700;">ആകെ തുക</span>
                 <div class="vcard-total-amt">${currencySymbol}${amount.toFixed(2)}</div>
               </td>
             </tr>
@@ -858,9 +978,12 @@ function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PUL
 
         <div class="vcard-footer-auth">
           <div class="vcard-auth-col">
+            <div class="vcard-sign-wrap">
+              <img src="${signBase64}" alt="പ്രസിഡന്റ് ഒപ്പ്" class="vcard-sign-img">
+            </div>
             <div class="vcard-sign-line"></div>
-            <span class="vcard-sign-title">തുക സ്വീകരിച്ചത് / Handled By</span>
-            <span class="vcard-sign-name">${escapeHtml(paymentInfo.handledBy || 'Authorized Official')}</span>
+            <span class="vcard-sign-title">തുക സ്വീകരിച്ചത്</span>
+            <span class="vcard-sign-name">${escapeHtml(handledByText)}</span>
           </div>
 
           <div class="vcard-stamp-col">
@@ -870,23 +993,24 @@ function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PUL
                 <circle cx="50" cy="50" r="41" fill="none" stroke="#059669" stroke-width="1.2"/>
                 <path id="seal-curve-top" d="M 18,50 A 32,32 0 1,1 82,50" fill="none"/>
                 <path id="seal-curve-bottom" d="M 82,50 A 32,32 0 1,1 18,50" fill="none"/>
-                <text font-size="7" font-weight="bold" fill="#059669" letter-spacing="1.2">
-                  <textPath href="#seal-curve-top" startOffset="50%" text-anchor="middle">PULARI ARTS &amp; SPORTS</textPath>
+                <text font-size="6.5" font-weight="bold" fill="#059669" letter-spacing="0.5">
+                  <textPath href="#seal-curve-top" startOffset="50%" text-anchor="middle">പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ്</textPath>
                 </text>
-                <text font-size="6.5" font-weight="bold" fill="#059669" letter-spacing="1">
-                  <textPath href="#seal-curve-bottom" startOffset="50%" text-anchor="middle">OFFICIAL RECEIPT • ESTD 1985</textPath>
+                <text font-size="6" font-weight="bold" fill="#059669" letter-spacing="0.4">
+                  <textPath href="#seal-curve-bottom" startOffset="50%" text-anchor="middle">ഔദ്യോഗിക രസീത് • സ്ഥാപിതം 1985</textPath>
                 </text>
                 <circle cx="50" cy="50" r="18" fill="#ecfdf5" stroke="#059669" stroke-width="1"/>
-                <text x="50" y="47" font-size="7.5" font-weight="900" fill="#065f46" text-anchor="middle">PAID</text>
-                <text x="50" y="56" font-size="6" font-weight="bold" fill="#059669" text-anchor="middle">✓ VERIFIED</text>
+                <text x="50" y="47" font-size="7" font-weight="900" fill="#065f46" text-anchor="middle">അടച്ചു</text>
+                <text x="50" y="56" font-size="5.5" font-weight="bold" fill="#059669" text-anchor="middle">✓ അംഗീകൃതം</text>
               </svg>
             </div>
           </div>
 
           <div class="vcard-auth-col">
+            <div class="vcard-sign-wrap"></div>
             <div class="vcard-sign-line"></div>
             <span class="vcard-sign-title">ഖജാൻജി / സെക്രട്ടറി</span>
-            <span class="vcard-sign-name">Treasurer / Secretary</span>
+            <span class="vcard-sign-name">പുലരി ഭരണസമിതി</span>
           </div>
         </div>
 
@@ -896,7 +1020,7 @@ function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PUL
           </p>
           <div class="vcard-security-bar">
             <span>പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ് • ഔദ്യോഗിക ഡിജിറ്റൽ രസീത്</span>
-            <span>Computer Generated Official Receipt • Reg: MPM/CA/355/2017</span>
+            <span>കമ്പ്യൂട്ടർ നിർമ്മിത ഔദ്യോഗിക രസീത് • രജി. നമ്പർ: MPM/CA/355/2017</span>
           </div>
         </div>
       </div>
@@ -922,29 +1046,19 @@ async function generateMembershipVoucherPDF(member, paymentInfo = {}, options = 
   const filename = options.filename || `Pulari_Voucher_${member.memberId || 'ID'}_${payMonth}_${payYear}_${safeName}.pdf`;
 
   const logoBase64 = await getLogoBase64().catch(() => 'PULARI.png');
+  const signBase64 = await getSignBase64().catch(() => 'shijas.png');
 
-  // Check if live preview container already has this card rendered
-  let cardElement = null;
-  let tempWrapper = null;
-
-  const existingCard = document.querySelector('#membership-voucher-preview-container .membership-voucher-card');
-  const isMatch = currentVoucherMember && currentVoucherMember.memberId === member.memberId &&
-    currentVoucherPayment && currentVoucherPayment.month === payMonth && Number(currentVoucherPayment.year) === Number(payYear);
-
-  if (existingCard && isMatch && document.getElementById('membership-voucher-modal')?.classList.contains('active')) {
-    cardElement = existingCard;
-  } else {
-    tempWrapper = document.createElement('div');
-    tempWrapper.style.position = 'fixed';
-    tempWrapper.style.left = '-9999px';
-    tempWrapper.style.top = '0';
-    tempWrapper.style.width = '720px';
-    tempWrapper.style.background = '#ffffff';
-    tempWrapper.style.zIndex = '-9999';
-    tempWrapper.innerHTML = renderMembershipVoucherHTML(member, paymentInfo, logoBase64);
-    document.body.appendChild(tempWrapper);
-    cardElement = tempWrapper.querySelector('.membership-voucher-card') || tempWrapper;
-  }
+  // Always use a clean, isolated off-screen capture container to prevent scroll or viewport clipping
+  tempWrapper = document.createElement('div');
+  tempWrapper.style.position = 'fixed';
+  tempWrapper.style.left = '-9999px';
+  tempWrapper.style.top = '0';
+  tempWrapper.style.width = '750px';
+  tempWrapper.style.background = '#ffffff';
+  tempWrapper.style.zIndex = '-9999';
+  tempWrapper.innerHTML = renderMembershipVoucherHTML(member, paymentInfo, logoBase64, signBase64);
+  document.body.appendChild(tempWrapper);
+  cardElement = tempWrapper.querySelector('.membership-voucher-card') || tempWrapper;
 
   try {
     const html2canvasFunc = window.html2canvas || (typeof html2pdf !== 'undefined' && html2pdf.Worker && window.html2canvas);
@@ -959,7 +1073,8 @@ async function generateMembershipVoucherPDF(member, paymentInfo = {}, options = 
       logging: false,
       backgroundColor: '#ffffff',
       scrollX: 0,
-      scrollY: 0
+      scrollY: 0,
+      windowWidth: 1200
     });
 
     const imgData = canvas.toDataURL('image/jpeg', 0.98);
@@ -967,15 +1082,20 @@ async function generateMembershipVoucherPDF(member, paymentInfo = {}, options = 
 
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
-    const ratio = imgHeight / imgWidth;
 
-    // A5 Landscape dimensions: 210mm x 148mm
+    // A5 Landscape page dimensions: 210mm x 148mm
     const pdfPageWidth = 210;
     const pdfPageHeight = 148;
-    const marginX = 8;
-    const availWidth = pdfPageWidth - (marginX * 2); // 194mm
-    const calcHeight = availWidth * ratio;
-    const marginY = Math.max(5, (pdfPageHeight - calcHeight) / 2);
+    const margin = 6; // 6mm clean margins
+    const maxWidth = pdfPageWidth - (margin * 2); // 198mm
+    const maxHeight = pdfPageHeight - (margin * 2); // 136mm
+
+    // Aspect-fit: Scale so image fits completely within BOTH maxWidth and maxHeight without clipping
+    const scale = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+    const renderWidth = imgWidth * scale;
+    const renderHeight = imgHeight * scale;
+    const renderX = (pdfPageWidth - renderWidth) / 2;
+    const renderY = (pdfPageHeight - renderHeight) / 2;
 
     let pdf;
     if (jsPdfConstructor) {
@@ -985,10 +1105,10 @@ async function generateMembershipVoucherPDF(member, paymentInfo = {}, options = 
         format: 'a5',
         compress: true
       });
-      pdf.addImage(imgData, 'JPEG', marginX, marginY, availWidth, calcHeight, undefined, 'FAST');
+      pdf.addImage(imgData, 'JPEG', renderX, renderY, renderWidth, renderHeight, undefined, 'FAST');
     } else if (typeof html2pdf !== 'undefined') {
       const opt = {
-        margin: [marginY, marginX, marginY, marginX],
+        margin: [margin, margin, margin, margin],
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2.5, useCORS: true, logging: false, backgroundColor: '#ffffff' },
@@ -1081,22 +1201,25 @@ async function openMembershipVoucherModal(memberId, paymentOverride = null) {
 
   const container = document.getElementById('membership-voucher-preview-container');
   if (container) {
-    container.innerHTML = '<div style="padding:2.5rem; text-align:center; color:#64748b; font-weight:600;">Rendering official voucher preview...</div>';
+    container.innerHTML = '<div style="padding:2.5rem; text-align:center; color:#64748b; font-weight:600;">ഔദ്യോഗിക രസീത് തയ്യാറാക്കുന്നു...</div>';
   }
 
   const logoBase64 = await getLogoBase64().catch(() => 'PULARI.png');
+  const signBase64 = await getSignBase64().catch(() => 'shijas.png');
   if (container) {
-    container.innerHTML = renderMembershipVoucherHTML(member, payment, logoBase64);
+    container.innerHTML = renderMembershipVoucherHTML(member, payment, logoBase64, signBase64);
   }
 
   const subtitle = document.getElementById('voucher-modal-subtitle');
   if (subtitle) {
-    subtitle.textContent = `${member.fullName} (${member.memberId}) • ${payment.month} ${payment.year}`;
+    const malMonth = getMalayalamMonth(payment.month || AppState.selectedMonth);
+    const payYear = payment.year || AppState.selectedYear;
+    subtitle.textContent = `${member.fullName} (${member.memberId}) • ${malMonth} ${payYear}`;
   }
 
   const phonePreview = document.getElementById('voucher-phone-preview');
   if (phonePreview) {
-    phonePreview.textContent = member.phone ? `WhatsApp: ${member.phone}` : 'No phone number saved';
+    phonePreview.textContent = member.phone ? `വാട്ട്‌സ്ആപ്പ്: ${member.phone}` : 'ഫോൺ നമ്പർ നൽകിയിട്ടില്ല';
   }
 
   // Show/hide mobile share button if Web Share is supported
@@ -1134,7 +1257,7 @@ async function sendMembershipVoucherWithPDF(member, paymentInfo = {}) {
     // Copy bilingual message to clipboard
     const message = formatWhatsAppReceiptVoucher(targetMember, targetPayment);
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(message).catch(() => {});
+      await navigator.clipboard.writeText(message).catch(() => { });
     }
 
     // Try background gateway delivery if enabled
@@ -1503,12 +1626,18 @@ window.formatWhatsAppReceiptVoucher = formatWhatsAppReceiptVoucher;
 window.sendWhatsAppVoucher = sendWhatsAppVoucher;
 window.sendBulkVouchersForMonth = sendBulkVouchersForMonth;
 window.convertNumberToWordsINR = convertNumberToWordsINR;
+window.convertNumberToWordsMalayalam = convertNumberToWordsMalayalam;
+window.getMalayalamMonth = getMalayalamMonth;
+window.formatVoucherDate = formatVoucherDate;
+window.formatPaymentMethodMalayalam = formatPaymentMethodMalayalam;
 window.renderMembershipVoucherHTML = renderMembershipVoucherHTML;
 window.generateMembershipVoucherPDF = generateMembershipVoucherPDF;
 window.downloadMembershipVoucherPDF = downloadMembershipVoucherPDF;
 window.openMembershipVoucherModal = openMembershipVoucherModal;
 window.sendMembershipVoucherWithPDF = sendMembershipVoucherWithPDF;
 window.shareMembershipVoucherMobile = shareMembershipVoucherMobile;
+window.getLogoBase64 = getLogoBase64;
+window.getSignBase64 = getSignBase64;
 window.printMembershipVoucher = printMembershipVoucher;
 
 
