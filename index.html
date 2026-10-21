@@ -949,6 +949,7 @@
                 <th>Status</th>
                 <th>Date Paid</th>
                 <th>Method</th>
+                <th>Voucher</th>
               </tr>
             </thead>
             <tbody id="view-member-payments-body"></tbody>
@@ -983,13 +984,75 @@
             Send WhatsApp payment receipt voucher
           </label>
         </div>
+        <div style="margin-top:0.4rem; display:flex; align-items:center; gap:0.5rem;">
+          <input type="checkbox" id="payment-download-pdf" checked style="width:16px; height:16px; cursor:pointer;">
+          <label for="payment-download-pdf" style="font-size:0.85rem; font-weight:600; cursor:pointer; margin:0;">
+            Also generate &amp; download PDF receipt voucher 📄
+          </label>
+        </div>
         <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; margin-bottom:0;">
-          Dispatches automated voucher in the background via free gateway, or opens WhatsApp Web.
+          Dispatches automated voucher in the background via gateway, or opens WhatsApp with the downloaded PDF ready to attach.
         </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline modal-close">Cancel</button>
         <button type="button" class="btn btn-secondary" id="btn-confirm-payment">Confirm Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Membership Payment Receipt Voucher Preview Modal -->
+  <div class="modal-overlay" id="membership-voucher-modal">
+    <div class="modal-container membership-voucher-modal-container">
+      <div class="modal-header" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); color: #ffffff; border-radius: 12px 12px 0 0;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <div style="width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5h-2v1h2c.55 0 1-.45 1-1s-.45-1-1-1zm6 3h-2v-4h2c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1zm-3-1.5h-1.5v-1H12.5c.55 0 1 .45 1 1v0c0 .55-.45 1-1 1zm5.5-1.5c0 1.66-1.34 3-3 3h-3.5c-.55 0-1-.45-1-1V8.5c0-.55.45-1 1-1H15c1.66 0 3 1.34 3 3v2z"/></svg>
+          </div>
+          <div>
+            <h4 style="margin:0; font-size:1.05rem; color:#fff; font-weight:700;">Membership Payment Voucher / രസീത്</h4>
+            <p id="voucher-modal-subtitle" style="margin:0; font-size:0.75rem; color:rgba(255,255,255,0.85);">Official Digital Receipt • Pulari Arts &amp; Sports Club</p>
+          </div>
+        </div>
+        <button class="modal-close" style="color:#ffffff; opacity:0.85;">&times;</button>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div class="voucher-modal-toolbar">
+        <div class="voucher-toolbar-actions">
+          <button type="button" class="btn btn-whatsapp" id="btn-voucher-send-wa-pdf" title="Download PDF voucher & open WhatsApp with pre-filled text message" style="font-weight:700; display:inline-flex; align-items:center; gap:0.4rem;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            Send WhatsApp &amp; PDF 📥
+          </button>
+          <button type="button" class="btn btn-primary" id="btn-voucher-download-pdf" style="display:inline-flex; align-items:center; gap:0.35rem;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            Download PDF
+          </button>
+          <button type="button" class="btn btn-outline" id="btn-voucher-print" style="display:inline-flex; align-items:center; gap:0.35rem;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+            Print
+          </button>
+          <button type="button" class="btn btn-outline" id="btn-voucher-share" style="display:none; align-items:center; gap:0.35rem;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            Share (Mobile)
+          </button>
+        </div>
+        <div class="voucher-toolbar-note">
+          <span class="v-tip-badge">💡 Tip:</span>
+          <span>Click <strong>"Send WhatsApp &amp; PDF 📥"</strong> to automatically download the PDF voucher and open WhatsApp with the formatted Malayalam &amp; English text message ready to send!</span>
+        </div>
+      </div>
+
+      <!-- Live Voucher Preview Area -->
+      <div class="modal-body voucher-modal-body">
+        <div id="membership-voucher-preview-container">
+          <!-- Rendered voucher card injected here -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="background:#fff; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+        <span id="voucher-phone-preview" style="font-size:0.8rem; color:var(--text-muted); font-weight:600;"></span>
+        <button type="button" class="btn btn-outline modal-close">Close</button>
       </div>
     </div>
   </div>
@@ -1001,11 +1064,11 @@
   <script src="js/api.js"></script>
   <script src="js/app.js"></script>
   <script src="js/dashboard.js"></script>
-  <script src="js/members.js"></script>
-  <script src="js/payments.js?v=3"></script>
-  <script src="js/reports.js?v=3"></script>
+  <script src="js/members.js?v=4"></script>
+  <script src="js/payments.js?v=4"></script>
+  <script src="js/reports.js?v=4"></script>
   <script src="js/certificates.js"></script>
-  <script src="js/settings.js?v=3"></script>
+  <script src="js/settings.js?v=4"></script>
 </body>
 
 </html>

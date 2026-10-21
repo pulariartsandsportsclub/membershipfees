@@ -233,7 +233,7 @@ function viewMemberDetails(memberId) {
   const historyTbody = document.getElementById('view-member-payments-body');
   if (historyTbody) {
     if (memberPayments.length === 0) {
-      historyTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No payment records found.</td></tr>`;
+      historyTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">No payment records found.</td></tr>`;
     } else {
       historyTbody.innerHTML = memberPayments.map(p => `
         <tr>
@@ -242,6 +242,11 @@ function viewMemberDetails(memberId) {
           <td><span class="badge badge-paid">${p.status}</span></td>
           <td>${p.paymentDate}</td>
           <td>${p.paymentMethod || 'Cash'}</td>
+          <td>
+            <button type="button" class="btn btn-outline btn-xs" onclick="openMembershipVoucherModal('${memberId}', { month: '${p.month}', year: ${p.year}, amount: ${p.amount}, paymentDate: '${p.paymentDate}', paymentMethod: '${p.paymentMethod || 'Cash'}' })" title="View & Send Voucher / PDF" style="display:inline-flex; align-items:center; gap:0.25rem; padding:0.2rem 0.5rem; font-size:0.75rem;">
+              📄 Voucher
+            </button>
+          </td>
         </tr>
       `).join('');
     }

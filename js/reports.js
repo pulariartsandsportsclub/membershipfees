@@ -653,6 +653,42 @@ _${clubName}_`;
 }
 
 /**
+ * Safe HTML escaping helper
+ */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Convert Indian Rupee numbers to English Words (e.g. 30 -> Thirty Rupees Only)
+ */
+function convertNumberToWordsINR(amount) {
+  const num = Math.floor(Math.abs(Number(amount) || 0));
+  if (num === 0) return "Zero Rupees Only";
+
+  const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+    'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  function numToWords(n) {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
+    if (n < 1000) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + numToWords(n % 100) : '');
+    if (n < 100000) return numToWords(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 !== 0 ? ' ' + numToWords(n % 1000) : '');
+    if (n < 10000000) return numToWords(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 !== 0 ? ' ' + numToWords(n % 100000) : '');
+    return numToWords(Math.floor(n / 10000000)) + ' Crore' + (n % 10000000 !== 0 ? ' ' + numToWords(n % 10000000) : '');
+  }
+
+  return (numToWords(num).trim() + ' Rupees Only').replace(/\s+/g, ' ');
+}
+
+/**
  * Generate Formatted Bilingual Payment Receipt Voucher Message
  */
 function formatWhatsAppReceiptVoucher(member, paymentInfo = {}) {
@@ -663,7 +699,7 @@ function formatWhatsAppReceiptVoucher(member, paymentInfo = {}) {
   const payMonth = paymentInfo.month || selectedMonth;
   const payYear = paymentInfo.year || selectedYear;
   const paymentDate = paymentInfo.paymentDate || new Date().toISOString().split('T')[0];
-  const receiptNo = paymentInfo.paymentId || `PAY-${payYear}${String(MONTHS_LIST.indexOf(payMonth) + 1).padStart(2, '0')}-${String(member.memberId).replace(/\D/g, '') || '01'}`;
+  const receiptNo = paymentInfo.paymentId || `PAY-${payYear}${String((MONTHS_LIST.indexOf(payMonth) >= 0 ? MONTHS_LIST.indexOf(payMonth) + 1 : 1)).padStart(2, '0')}-${String(member.memberId).replace(/\D/g, '') || '01'}`;
 
   const malMonthNames = {
     "September": "സെപ്റ്റംബർ",
@@ -700,12 +736,527 @@ _${clubName} ഭരണസമിതി_`;
 }
 
 /**
+ * Render High-Resolution Official Membership Voucher Card HTML
+ */
+function renderMembershipVoucherHTML(member, paymentInfo = {}, logoBase64 = 'PULARI.png') {
+  const { settings, selectedMonth, selectedYear } = AppState;
+  const clubName = (settings && settings.club_name) || "പുലരി ആർട്സ് & സ്പോർട്സ് ക്ലബ്ബ്";
+  const currencySymbol = (settings && settings.currency) || "₹";
+  const amount = Number(paymentInfo.amount || member.monthlyFee || (settings && settings.monthly_fee) || 30);
+  const payMonth = paymentInfo.month || selectedMonth;
+  const payYear = paymentInfo.year || selectedYear;
+  const paymentDate = paymentInfo.paymentDate || new Date().toISOString().split('T')[0];
+  const receiptNo = paymentInfo.paymentId || `PAY-${payYear}${String((MONTHS_LIST.indexOf(payMonth) >= 0 ? MONTHS_LIST.indexOf(payMonth) + 1 : 1)).padStart(2, '0')}-${String(member.memberId || '01').replace(/\D/g, '') || '01'}`;
+
+  const malMonthNames = {
+    "September": "സെപ്റ്റംബർ",
+    "October": "ഒക്ടോബർ",
+    "November": "നവംബർ",
+    "December": "ഡിസംബർ",
+    "January": "ജനുവരി",
+    "February": "ഫെബ്രുവരി",
+    "March": "മാർച്ച്",
+    "April": "ഏപ്രിൽ",
+    "May": "മേയ്",
+    "June": "ജൂൺ",
+    "July": "ജൂലൈ",
+    "August": "ഓഗസ്റ്റ്"
+  };
+
+  const malMonth = malMonthNames[payMonth] || payMonth;
+  const words = convertNumberToWordsINR(amount);
+
+  return `
+    <div class="membership-voucher-card" id="membership-voucher-card">
+      <div class="vcard-inner">
+        <div class="vcard-accent-bar"></div>
+
+        <div class="vcard-header">
+          <div class="vcard-brand">
+            <img src="${logoBase64}" alt="Pulari Club Logo" class="vcard-logo">
+            <div class="vcard-titles">
+              <h2 class="vcard-club-en">PULARI ARTS &amp; SPORTS CLUB</h2>
+              <h3 class="vcard-club-ml">പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ്</h3>
+              <p class="vcard-club-sub">Reg. No: MPM/CA/355/2017 • Porur, Malappuram • Estd. 1985</p>
+            </div>
+          </div>
+          <div class="vcard-receipt-meta">
+            <div class="vcard-badge">PAYMENT RECEIPT / രസീത്</div>
+            <div class="vcard-meta-line">
+              <span class="vcard-meta-label">Receipt No:</span>
+              <span class="vcard-meta-val vcard-receipt-no">${escapeHtml(receiptNo)}</span>
+            </div>
+            <div class="vcard-meta-line">
+              <span class="vcard-meta-label">Date:</span>
+              <span class="vcard-meta-val">${escapeHtml(paymentDate)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="vcard-divider"></div>
+
+        <div class="vcard-member-grid">
+          <div class="vcard-field">
+            <span class="vcard-lbl">അംഗത്തിന്റെ പേര് / Member Name</span>
+            <span class="vcard-val vcard-name">${escapeHtml(member.fullName)}</span>
+          </div>
+          <div class="vcard-field">
+            <span class="vcard-lbl">മെമ്പർ ഐഡി / Member ID</span>
+            <span class="vcard-val"><span class="vcard-id-pill">${escapeHtml(member.memberId)}</span></span>
+          </div>
+          <div class="vcard-field">
+            <span class="vcard-lbl">ഫോൺ നമ്പർ / WhatsApp</span>
+            <span class="vcard-val">${escapeHtml(member.phone || 'N/A')}</span>
+          </div>
+          <div class="vcard-field">
+            <span class="vcard-lbl">അടച്ച മാസം / Period</span>
+            <span class="vcard-val vcard-period">${malMonth} ${payYear} <small>(${payMonth})</small></span>
+          </div>
+          <div class="vcard-field">
+            <span class="vcard-lbl">പേയ്‌മെന്റ് രീതി / Method</span>
+            <span class="vcard-val">${escapeHtml(paymentInfo.paymentMethod || 'Cash')}</span>
+          </div>
+          <div class="vcard-field">
+            <span class="vcard-lbl">സ്റ്റാറ്റസ് / Status</span>
+            <span class="vcard-val"><span class="vcard-status-pill">PAID • അടച്ചു ✓</span></span>
+          </div>
+        </div>
+
+        <table class="vcard-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">#</th>
+              <th>വിവരണം / Description</th>
+              <th>കാലയളവ് / Period</th>
+              <th class="text-right">തുക / Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>
+                <strong>പ്രതിമാസ മെമ്പർഷിപ്പ് മാസവരി</strong><br>
+                <span style="font-size:0.75rem; color:#64748b;">Monthly Membership Subscription Fee</span>
+              </td>
+              <td>${payMonth} ${payYear}</td>
+              <td class="text-right"><strong>${currencySymbol}${amount.toFixed(2)}</strong></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="vcard-words-cell">
+                <span style="font-size:0.72rem; color:#64748b; text-transform:uppercase; font-weight:700;">തുക അക്ഷരത്തിൽ / In Words:</span><br>
+                <em>${escapeHtml(words)}</em>
+              </td>
+              <td class="text-right vcard-total-cell">
+                <span style="font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:700;">ആകെ തുക / Total</span>
+                <div class="vcard-total-amt">${currencySymbol}${amount.toFixed(2)}</div>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="vcard-footer-auth">
+          <div class="vcard-auth-col">
+            <div class="vcard-sign-line"></div>
+            <span class="vcard-sign-title">തുക സ്വീകരിച്ചത് / Handled By</span>
+            <span class="vcard-sign-name">${escapeHtml(paymentInfo.handledBy || 'Authorized Official')}</span>
+          </div>
+
+          <div class="vcard-stamp-col">
+            <div class="vcard-seal">
+              <svg viewBox="0 0 100 100" class="vcard-seal-svg">
+                <circle cx="50" cy="50" r="46" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="3 2"/>
+                <circle cx="50" cy="50" r="41" fill="none" stroke="#059669" stroke-width="1.2"/>
+                <path id="seal-curve-top" d="M 18,50 A 32,32 0 1,1 82,50" fill="none"/>
+                <path id="seal-curve-bottom" d="M 82,50 A 32,32 0 1,1 18,50" fill="none"/>
+                <text font-size="7" font-weight="bold" fill="#059669" letter-spacing="1.2">
+                  <textPath href="#seal-curve-top" startOffset="50%" text-anchor="middle">PULARI ARTS &amp; SPORTS</textPath>
+                </text>
+                <text font-size="6.5" font-weight="bold" fill="#059669" letter-spacing="1">
+                  <textPath href="#seal-curve-bottom" startOffset="50%" text-anchor="middle">OFFICIAL RECEIPT • ESTD 1985</textPath>
+                </text>
+                <circle cx="50" cy="50" r="18" fill="#ecfdf5" stroke="#059669" stroke-width="1"/>
+                <text x="50" y="47" font-size="7.5" font-weight="900" fill="#065f46" text-anchor="middle">PAID</text>
+                <text x="50" y="56" font-size="6" font-weight="bold" fill="#059669" text-anchor="middle">✓ VERIFIED</text>
+              </svg>
+            </div>
+          </div>
+
+          <div class="vcard-auth-col">
+            <div class="vcard-sign-line"></div>
+            <span class="vcard-sign-title">ഖജാൻജി / സെക്രട്ടറി</span>
+            <span class="vcard-sign-name">Treasurer / Secretary</span>
+          </div>
+        </div>
+
+        <div class="vcard-note-box">
+          <p class="vcard-note-ml">
+            ✅ താങ്കളുടെ ഈ മാസത്തെ ക്ലബ്ബ് മാസവരി വിജയകരമായി ലഭിച്ചിരിക്കുന്നു. ക്ലബ്ബിന്റെ പ്രവർത്തനങ്ങളിലുള്ള താങ്കളുടെ വിലയേറിയ സഹകരണത്തിന് നന്ദി! 🙏
+          </p>
+          <div class="vcard-security-bar">
+            <span>പുലരി ആർട്സ് &amp; സ്പോർട്സ് ക്ലബ്ബ് • ഔദ്യോഗിക ഡിജിറ്റൽ രസീത്</span>
+            <span>Computer Generated Official Receipt • Reg: MPM/CA/355/2017</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Global Tracking of Currently Inspected Voucher
+ */
+let currentVoucherMember = null;
+let currentVoucherPayment = null;
+
+/**
+ * Generate PDF of Membership Voucher
+ * Returns: { pdf, blob, base64, filename, file }
+ */
+async function generateMembershipVoucherPDF(member, paymentInfo = {}, options = {}) {
+  const { selectedMonth, selectedYear } = AppState;
+  const payMonth = paymentInfo.month || selectedMonth;
+  const payYear = paymentInfo.year || selectedYear;
+  const safeName = (member.fullName || 'Member').replace(/[^a-zA-Z0-9]/g, '_');
+  const filename = options.filename || `Pulari_Voucher_${member.memberId || 'ID'}_${payMonth}_${payYear}_${safeName}.pdf`;
+
+  const logoBase64 = await getLogoBase64().catch(() => 'PULARI.png');
+
+  // Check if live preview container already has this card rendered
+  let cardElement = null;
+  let tempWrapper = null;
+
+  const existingCard = document.querySelector('#membership-voucher-preview-container .membership-voucher-card');
+  const isMatch = currentVoucherMember && currentVoucherMember.memberId === member.memberId &&
+    currentVoucherPayment && currentVoucherPayment.month === payMonth && Number(currentVoucherPayment.year) === Number(payYear);
+
+  if (existingCard && isMatch && document.getElementById('membership-voucher-modal')?.classList.contains('active')) {
+    cardElement = existingCard;
+  } else {
+    tempWrapper = document.createElement('div');
+    tempWrapper.style.position = 'fixed';
+    tempWrapper.style.left = '-9999px';
+    tempWrapper.style.top = '0';
+    tempWrapper.style.width = '720px';
+    tempWrapper.style.background = '#ffffff';
+    tempWrapper.style.zIndex = '-9999';
+    tempWrapper.innerHTML = renderMembershipVoucherHTML(member, paymentInfo, logoBase64);
+    document.body.appendChild(tempWrapper);
+    cardElement = tempWrapper.querySelector('.membership-voucher-card') || tempWrapper;
+  }
+
+  try {
+    const html2canvasFunc = window.html2canvas || (typeof html2pdf !== 'undefined' && html2pdf.Worker && window.html2canvas);
+    if (!html2canvasFunc) {
+      throw new Error('html2canvas library is not loaded');
+    }
+
+    const canvas = await html2canvasFunc(cardElement, {
+      scale: 2.5,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      scrollX: 0,
+      scrollY: 0
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+    const jsPdfConstructor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = imgHeight / imgWidth;
+
+    // A5 Landscape dimensions: 210mm x 148mm
+    const pdfPageWidth = 210;
+    const pdfPageHeight = 148;
+    const marginX = 8;
+    const availWidth = pdfPageWidth - (marginX * 2); // 194mm
+    const calcHeight = availWidth * ratio;
+    const marginY = Math.max(5, (pdfPageHeight - calcHeight) / 2);
+
+    let pdf;
+    if (jsPdfConstructor) {
+      pdf = new jsPdfConstructor({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a5',
+        compress: true
+      });
+      pdf.addImage(imgData, 'JPEG', marginX, marginY, availWidth, calcHeight, undefined, 'FAST');
+    } else if (typeof html2pdf !== 'undefined') {
+      const opt = {
+        margin: [marginY, marginX, marginY, marginX],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2.5, useCORS: true, logging: false, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a5', orientation: 'landscape' }
+      };
+      const worker = html2pdf().set(opt).from(cardElement);
+      if (options.download !== false) {
+        await worker.save();
+      }
+      return { filename };
+    } else {
+      throw new Error('PDF generator libraries not found.');
+    }
+
+    if (options.download !== false) {
+      pdf.save(filename);
+    }
+
+    const blob = pdf.output('blob');
+    const base64Uri = pdf.output('datauristring');
+    const base64 = (base64Uri.indexOf(',') >= 0) ? base64Uri.split(',')[1] : base64Uri;
+    const file = (typeof File !== 'undefined') ? new File([blob], filename, { type: 'application/pdf' }) : null;
+
+    return { pdf, blob, base64, filename, file };
+  } finally {
+    if (tempWrapper && tempWrapper.parentNode) {
+      tempWrapper.parentNode.removeChild(tempWrapper);
+    }
+  }
+}
+
+/**
+ * Direct 1-Click PDF Download for a Member
+ */
+async function downloadMembershipVoucherPDF(memberId, paymentOverride = null) {
+  const member = (AppState.members || []).find(m => m.memberId === memberId);
+  if (!member) {
+    showToast('Member not found.', 'error');
+    return;
+  }
+
+  const payment = paymentOverride || (AppState.payments || []).find(p =>
+    p.memberId === memberId &&
+    p.month === AppState.selectedMonth &&
+    Number(p.year) === Number(AppState.selectedYear) &&
+    p.status === 'Paid'
+  ) || {
+    month: AppState.selectedMonth,
+    year: AppState.selectedYear,
+    amount: member.monthlyFee || AppState.settings.monthly_fee || 30,
+    paymentDate: new Date().toISOString().split('T')[0],
+    paymentMethod: 'Cash'
+  };
+
+  showToast(`Generating PDF voucher for ${member.fullName}...`, 'info');
+  try {
+    await generateMembershipVoucherPDF(member, payment, { download: true });
+    showToast(`PDF voucher for ${member.fullName} downloaded successfully! 📄`, 'success');
+  } catch (err) {
+    console.error('Error generating PDF voucher:', err);
+    showToast('Failed to generate PDF voucher. Please try again.', 'error');
+  }
+}
+
+/**
+ * Open Interactive Membership Voucher Preview Modal
+ */
+async function openMembershipVoucherModal(memberId, paymentOverride = null) {
+  const member = (AppState.members || []).find(m => m.memberId === memberId);
+  if (!member) {
+    showToast('Member not found.', 'error');
+    return;
+  }
+
+  const payment = paymentOverride || (AppState.payments || []).find(p =>
+    p.memberId === memberId &&
+    p.month === AppState.selectedMonth &&
+    Number(p.year) === Number(AppState.selectedYear) &&
+    p.status === 'Paid'
+  ) || {
+    month: AppState.selectedMonth,
+    year: AppState.selectedYear,
+    amount: member.monthlyFee || AppState.settings.monthly_fee || 30,
+    paymentDate: new Date().toISOString().split('T')[0],
+    paymentMethod: 'Cash'
+  };
+
+  currentVoucherMember = member;
+  currentVoucherPayment = payment;
+
+  const container = document.getElementById('membership-voucher-preview-container');
+  if (container) {
+    container.innerHTML = '<div style="padding:2.5rem; text-align:center; color:#64748b; font-weight:600;">Rendering official voucher preview...</div>';
+  }
+
+  const logoBase64 = await getLogoBase64().catch(() => 'PULARI.png');
+  if (container) {
+    container.innerHTML = renderMembershipVoucherHTML(member, payment, logoBase64);
+  }
+
+  const subtitle = document.getElementById('voucher-modal-subtitle');
+  if (subtitle) {
+    subtitle.textContent = `${member.fullName} (${member.memberId}) • ${payment.month} ${payment.year}`;
+  }
+
+  const phonePreview = document.getElementById('voucher-phone-preview');
+  if (phonePreview) {
+    phonePreview.textContent = member.phone ? `WhatsApp: ${member.phone}` : 'No phone number saved';
+  }
+
+  // Show/hide mobile share button if Web Share is supported
+  const shareBtn = document.getElementById('btn-voucher-share');
+  if (shareBtn) {
+    if (navigator.share) {
+      shareBtn.style.display = 'inline-flex';
+    } else {
+      shareBtn.style.display = 'none';
+    }
+  }
+
+  openModal('membership-voucher-modal');
+}
+
+/**
+ * Send WhatsApp Voucher WITH PDF:
+ * 1. Downloads the PDF voucher file to the user's device
+ * 2. Copies formatted bilingual message to clipboard
+ * 3. Dispatches via background gateway if active (with document attachment)
+ * 4. Fallback: Opens WhatsApp Web with prefilled message
+ */
+async function sendMembershipVoucherWithPDF(member, paymentInfo = {}) {
+  const targetMember = member || currentVoucherMember;
+  const targetPayment = paymentInfo || currentVoucherPayment || {};
+  if (!targetMember) {
+    showToast('Member not found.', 'error');
+    return;
+  }
+
+  showToast(`Generating official PDF voucher for ${targetMember.fullName}...`, 'info');
+  try {
+    const pdfData = await generateMembershipVoucherPDF(targetMember, targetPayment, { download: true });
+
+    // Copy bilingual message to clipboard
+    const message = formatWhatsAppReceiptVoucher(targetMember, targetPayment);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(message).catch(() => {});
+    }
+
+    // Try background gateway delivery if enabled
+    const provider = localStorage.getItem('pulari_wa_provider') || 'evolution';
+    const url = (localStorage.getItem('pulari_wa_url') || '').trim();
+    if (provider !== 'disabled' && url) {
+      const gwRes = await sendWhatsAppVoucher({
+        member: targetMember,
+        paymentInfo: targetPayment,
+        pdfBase64: pdfData.base64,
+        filename: pdfData.filename,
+        background: true,
+        silent: false
+      });
+      if (gwRes && gwRes.success && gwRes.method === 'gateway') {
+        showToast(`PDF Voucher delivered automatically to ${targetMember.fullName} via WhatsApp Gateway! 🚀`, 'success');
+        return;
+      }
+    }
+
+    // Open WhatsApp Web with prefilled message
+    const phone = formatWhatsAppPhone(targetMember.phone);
+    if (phone) {
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      showToast(`📄 PDF downloaded & WhatsApp chat opened! Simply attach the downloaded PDF along with the text. 📎`, 'success');
+    } else {
+      showToast(`📄 PDF downloaded! (No phone number saved to open WhatsApp)`, 'info');
+    }
+  } catch (err) {
+    console.error('sendMembershipVoucherWithPDF error:', err);
+    showToast('Could not complete PDF voucher generation: ' + err.message, 'warning');
+    sendWhatsAppVoucher({ member: targetMember, paymentInfo: targetPayment, background: false });
+  }
+}
+
+/**
+ * Mobile Web Share API Integration
+ */
+async function shareMembershipVoucherMobile(member, paymentInfo = {}) {
+  const targetMember = member || currentVoucherMember;
+  const targetPayment = paymentInfo || currentVoucherPayment || {};
+  if (!targetMember) return;
+
+  showToast('Preparing PDF for sharing...', 'info');
+  try {
+    const pdfData = await generateMembershipVoucherPDF(targetMember, targetPayment, { download: false });
+    const message = formatWhatsAppReceiptVoucher(targetMember, targetPayment);
+
+    if (navigator.share && pdfData.file && navigator.canShare && navigator.canShare({ files: [pdfData.file] })) {
+      await navigator.share({
+        files: [pdfData.file],
+        title: `Pulari Membership Receipt - ${targetMember.fullName}`,
+        text: message
+      });
+      showToast('Shared successfully!', 'success');
+      return;
+    }
+
+    // Fallback if file sharing not supported: download PDF & open WhatsApp Web
+    sendMembershipVoucherWithPDF(targetMember, targetPayment);
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.warn('Share error:', err);
+      sendMembershipVoucherWithPDF(targetMember, targetPayment);
+    }
+  }
+}
+
+/**
+ * Print Membership Voucher
+ */
+function printMembershipVoucher() {
+  const card = document.querySelector('#membership-voucher-preview-container .membership-voucher-card');
+  if (!card) {
+    showToast('No voucher preview to print.', 'warning');
+    return;
+  }
+
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    showToast('Please allow popups to print voucher.', 'warning');
+    return;
+  }
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Membership Voucher - Pulari Club</title>
+      <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Noto+Sans+Malayalam:wght@500;700;800&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="css/style.css">
+      <style>
+        @page { size: A5 landscape; margin: 8mm; }
+        body { margin: 0; padding: 10px; background: #fff; display: flex; justify-content: center; }
+        .membership-voucher-card { width: 100% !important; max-width: 720px; box-shadow: none !important; border: 2px solid #065f46 !important; }
+      </style>
+    </head>
+    <body>
+      ${card.outerHTML}
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.print();
+            window.close();
+          }, 350);
+        };
+      <\/script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+/**
  * Dispatch WhatsApp Voucher:
- * 1. If Free Gateway (Evolution API / WPPConnect) is configured: Sends 100% silently in background.
+ * 1. If Free Gateway (Evolution API / WPPConnect) is configured: Sends 100% silently in background (with PDF if provided).
  * 2. Fallback: Opens WhatsApp Web (wa.me) pre-filled.
  */
 async function sendWhatsAppVoucher(options = {}) {
-  const { member, paymentInfo = {}, background = true, silent = false } = options;
+  const { member, paymentInfo = {}, background = true, silent = false, pdfBase64, filename } = options;
   if (!member) return { success: false, message: 'Member not found' };
 
   const phone = formatWhatsAppPhone(member.phone);
@@ -727,31 +1278,67 @@ async function sendWhatsAppVoucher(options = {}) {
       let fetchOpts = {};
 
       if (provider === 'evolution') {
-        endpoint = `${url}/message/sendText/${instance}`;
-        fetchOpts = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { 'apikey': token } : {})
-          },
-          body: JSON.stringify({
-            number: phone,
-            text: message
-          })
-        };
+        if (pdfBase64) {
+          endpoint = `${url}/message/sendMedia/${instance}`;
+          fetchOpts = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'apikey': token } : {})
+            },
+            body: JSON.stringify({
+              number: phone,
+              mediatype: 'document',
+              mimetype: 'application/pdf',
+              caption: message,
+              media: pdfBase64,
+              fileName: filename || `Pulari_Receipt_${member.memberId}.pdf`
+            })
+          };
+        } else {
+          endpoint = `${url}/message/sendText/${instance}`;
+          fetchOpts = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'apikey': token } : {})
+            },
+            body: JSON.stringify({
+              number: phone,
+              text: message
+            })
+          };
+        }
       } else if (provider === 'wppconnect') {
-        endpoint = `${url}/api/${instance}/send-message`;
-        fetchOpts = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-          },
-          body: JSON.stringify({
-            phone: phone,
-            message: message
-          })
-        };
+        if (pdfBase64) {
+          endpoint = `${url}/api/${instance}/send-file-base64`;
+          fetchOpts = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({
+              phone: phone,
+              base64: `data:application/pdf;base64,${pdfBase64}`,
+              filename: filename || `Pulari_Receipt_${member.memberId}.pdf`,
+              message: message
+            })
+          };
+        } else {
+          endpoint = `${url}/api/${instance}/send-message`;
+          fetchOpts = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({
+              phone: phone,
+              message: message
+            })
+          };
+        }
       } else {
         // Generic Webhook
         endpoint = url;
@@ -763,7 +1350,8 @@ async function sendWhatsAppVoucher(options = {}) {
           },
           body: JSON.stringify({
             to: phone,
-            message: message
+            message: message,
+            pdfBase64: pdfBase64 || null
           })
         };
       }
@@ -862,10 +1450,65 @@ async function sendBulkVouchersForMonth(month, year) {
   showToast(`Successfully dispatched WhatsApp vouchers to ${sentCount} members! 🎉`, 'success');
 }
 
+/**
+ * Initialize Event Listeners for Voucher Modal Action Buttons
+ */
+function initMembershipVoucherModalListeners() {
+  const sendWaPdfBtn = document.getElementById('btn-voucher-send-wa-pdf');
+  if (sendWaPdfBtn) {
+    sendWaPdfBtn.addEventListener('click', () => {
+      if (currentVoucherMember) {
+        sendMembershipVoucherWithPDF(currentVoucherMember, currentVoucherPayment);
+      }
+    });
+  }
+
+  const downloadPdfBtn = document.getElementById('btn-voucher-download-pdf');
+  if (downloadPdfBtn) {
+    downloadPdfBtn.addEventListener('click', () => {
+      if (currentVoucherMember) {
+        downloadMembershipVoucherPDF(currentVoucherMember.memberId, currentVoucherPayment);
+      }
+    });
+  }
+
+  const printBtn = document.getElementById('btn-voucher-print');
+  if (printBtn) {
+    printBtn.addEventListener('click', () => {
+      printMembershipVoucher();
+    });
+  }
+
+  const shareBtn = document.getElementById('btn-voucher-share');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', () => {
+      if (currentVoucherMember) {
+        shareMembershipVoucherMobile(currentVoucherMember, currentVoucherPayment);
+      }
+    });
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMembershipVoucherModalListeners);
+} else {
+  initMembershipVoucherModalListeners();
+}
+
 // Expose globally for payments view and onclick bindings
+window.escapeHtml = escapeHtml;
 window.formatWhatsAppPhone = formatWhatsAppPhone;
 window.sendWhatsAppReminder = sendWhatsAppReminder;
 window.formatWhatsAppReceiptVoucher = formatWhatsAppReceiptVoucher;
 window.sendWhatsAppVoucher = sendWhatsAppVoucher;
 window.sendBulkVouchersForMonth = sendBulkVouchersForMonth;
+window.convertNumberToWordsINR = convertNumberToWordsINR;
+window.renderMembershipVoucherHTML = renderMembershipVoucherHTML;
+window.generateMembershipVoucherPDF = generateMembershipVoucherPDF;
+window.downloadMembershipVoucherPDF = downloadMembershipVoucherPDF;
+window.openMembershipVoucherModal = openMembershipVoucherModal;
+window.sendMembershipVoucherWithPDF = sendMembershipVoucherWithPDF;
+window.shareMembershipVoucherMobile = shareMembershipVoucherMobile;
+window.printMembershipVoucher = printMembershipVoucher;
+
 
