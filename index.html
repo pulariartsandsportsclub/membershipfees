@@ -473,6 +473,9 @@
                 <option value="2027">2027</option>
               </select>
               <button class="btn btn-outline" id="btn-print-report">🖨️ Print View</button>
+              <button class="btn btn-outline" id="btn-report-email-dues" title="Send Monthly Due Members Report Email" style="display:inline-flex; align-items:center; gap:0.35rem; font-weight:600; color:#1d4ed8; border-color:#93c5fd;">
+                📧 Email Due List
+              </button>
               <button class="btn btn-secondary" id="btn-export-yearly-csv" title="Export Yearly Report in CSV format">📊
                 Yearly CSV</button>
               <button class="btn btn-primary" id="btn-download-yearly-report"
@@ -828,6 +831,90 @@
               </div>
             </form>
           </div>
+
+          <!-- DUE MEMBERS NOTIFICATION & EMAIL REPORT CARD -->
+          <div class="card-box" style="max-width: 680px; padding: 1.5rem; margin-top: 1.5rem; border-top: 4px solid #2563eb;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <h4 style="font-size:1.15rem; font-weight:700; margin-bottom:0.25rem; display:flex; align-items:center; gap:0.5rem;">
+                  <span>📧</span> Monthly Due Members Email Report
+                </h4>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0; line-height:1.45;">
+                  Overview of members yet to pay for each month (current & past months). Send detailed statement email to administration with one click.
+                </p>
+              </div>
+              <span class="badge badge-unpaid" id="settings-due-total-badge" style="font-size:0.8rem; padding:0.35rem 0.65rem; font-weight:700;">
+                Calculating dues...
+              </span>
+            </div>
+
+            <!-- Email Configuration -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1.25rem;">
+              <div class="form-group">
+                <label for="settings-sender-email" style="font-weight:600; font-size:0.85rem;">From Email (Club Official)</label>
+                <input type="email" id="settings-sender-email" class="form-control" value="pulariporurclub@gmail.com" readonly style="background:var(--bg-muted, #f8fafc); cursor:not-allowed; font-weight:600; color:#1e3a8a;">
+                <small style="color:var(--text-muted); font-size:0.72rem;">Official sender Google Apps Script account</small>
+              </div>
+              <div class="form-group">
+                <label for="settings-recipient-email" style="font-weight:600; font-size:0.85rem;">To Email (Recipient)</label>
+                <input type="email" id="settings-recipient-email" class="form-control" value="" required placeholder="e.g. recipient@example.com" style="font-weight:600;">
+                <small style="color:var(--text-muted); font-size:0.72rem;">Destination email for due report</small>
+              </div>
+            </div>
+
+            <!-- Month-by-Month Yet to Pay Summary Cards -->
+            <div style="margin-top:1.25rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <label style="font-size:0.85rem; font-weight:700; margin:0; display:flex; align-items:center; gap:0.35rem;">
+                  <span>📊</span> Month-Wise Unpaid Breakdown:
+                </label>
+                <span id="settings-due-months-count" style="font-size:0.75rem; color:var(--text-muted);"></span>
+              </div>
+              <div id="settings-due-months-summary" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:0.65rem;">
+                <div style="padding:0.75rem; border-radius:6px; background:#f8fafc; border:1px solid var(--border-color); text-align:center;">
+                  <span style="font-size:0.78rem; color:var(--text-muted);">Loading monthly dues...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Collapsible Live Due Members List Preview -->
+            <div style="margin-top:1.25rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <label style="font-size:0.85rem; font-weight:700; margin:0; display:flex; align-items:center; gap:0.35rem;">
+                  <span>👥</span> Due Members List (Current &amp; Past Months):
+                </label>
+                <button type="button" class="btn btn-outline btn-xs" id="btn-toggle-due-preview" style="font-size:0.75rem; font-weight:600;">
+                  👁️ <span id="due-preview-toggle-text">Show Member List</span> (<span id="due-members-count-btn">0</span>)
+                </button>
+              </div>
+
+              <!-- Collapsible preview container -->
+              <div id="settings-due-preview-container" style="display:none; margin-top:0.5rem; max-height:280px; overflow-y:auto; border:1px solid var(--border-color); border-radius:8px; background:var(--bg-card);">
+                <div id="settings-due-preview-content">
+                  <!-- Live Table of Due Members rendered by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Send Email & Action Buttons -->
+            <div style="display:flex; gap:0.75rem; margin-top:1.5rem; flex-wrap:wrap; align-items:center;">
+              <button type="button" class="btn btn-primary" id="btn-send-due-email" style="display:inline-flex; align-items:center; gap:0.5rem; background:linear-gradient(135deg, #2563eb, #1d4ed8); font-weight:700; padding:0.55rem 1.1rem; box-shadow:0 3px 8px rgba(37,99,235,0.25);">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+                Send Email
+              </button>
+              <button type="button" class="btn btn-outline" id="btn-preview-due-email" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600;">
+                📄 Preview Email
+              </button>
+              <button type="button" class="btn btn-outline" id="btn-open-gmail-web" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:600;" title="Open formatted compose window in Gmail Web">
+                🌐 Open in Gmail
+              </button>
+            </div>
+            <small style="color:var(--text-muted); font-size:0.75rem; margin-top:0.6rem; display:block; line-height:1.4;">
+              ⚡ Sends an official formatted statement from <code>pulariporurclub@gmail.com</code> with current &amp; past months due details.
+            </small>
+          </div>
         </section>
 
       </main>
@@ -1053,6 +1140,67 @@
       <div class="modal-footer" style="background:#fff; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
         <span id="voucher-phone-preview" style="font-size:0.8rem; color:var(--text-muted); font-weight:600;"></span>
         <button type="button" class="btn btn-outline modal-close">അടയ്ക്കുക</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Due Members Email Preview Modal -->
+  <div class="modal-overlay" id="due-email-preview-modal">
+    <div class="modal-container" style="max-width: 780px; width: 95%;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: #ffffff; border-radius: 12px 12px 0 0;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <div style="width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+          </div>
+          <div>
+            <h4 style="margin:0; font-size:1.05rem; color:#fff; font-weight:700;">Due Members Email Report Preview</h4>
+            <p id="due-email-modal-subtitle" style="margin:0; font-size:0.75rem; color:rgba(255,255,255,0.85);">
+              From: pulariporurclub@gmail.com
+            </p>
+          </div>
+        </div>
+        <button class="modal-close" style="color:#ffffff; opacity:0.85;">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:1rem; max-height:70vh; overflow-y:auto; background:#f8fafc;">
+        <div style="background:#fff; border:1px solid var(--border-color); border-radius:8px; padding:1rem; margin-bottom:1rem; font-size:0.85rem;">
+          <div style="display:grid; grid-template-columns: 80px 1fr; gap:0.35rem; margin-bottom:0.25rem;">
+            <strong style="color:var(--text-muted);">From:</strong>
+            <span style="font-weight:600; color:#1e3a8a;">pulariporurclub@gmail.com</span>
+          </div>
+          <div style="display:grid; grid-template-columns: 80px 1fr; gap:0.35rem; margin-bottom:0.25rem;">
+            <strong style="color:var(--text-muted);">To:</strong>
+            <span id="preview-modal-to" style="font-weight:600; color:#1e3a8a;">—</span>
+          </div>
+          <div style="display:grid; grid-template-columns: 80px 1fr; gap:0.35rem;">
+            <strong style="color:var(--text-muted);">Subject:</strong>
+            <span id="preview-modal-subject" style="font-weight:600;">Pulari Arts &amp; Sports Club - Monthly Due Members Statement</span>
+          </div>
+        </div>
+
+        <!-- Rendered Email HTML Content Container -->
+        <div id="due-email-rendered-preview" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.05); overflow:hidden;">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="background:#ffffff; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+        <div style="display:flex; gap:0.5rem;">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-copy-email-text">
+            📋 Copy Text
+          </button>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-preview-open-gmail">
+            🌐 Open in Gmail
+          </button>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button type="button" class="btn btn-outline btn-sm modal-close">Close</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-modal-send-email" style="font-weight:700;">
+            📨 Send Email Now
+          </button>
+        </div>
       </div>
     </div>
   </div>

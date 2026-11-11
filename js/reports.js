@@ -136,6 +136,15 @@ document.addEventListener('DOMContentLoaded', () => {
   if (downloadYearlyPdfBtn) {
     downloadYearlyPdfBtn.addEventListener('click', exportYearlyReportToPDF);
   }
+
+  const reportEmailDuesBtn = document.getElementById('btn-report-email-dues');
+  if (reportEmailDuesBtn) {
+    reportEmailDuesBtn.addEventListener('click', () => {
+      if (typeof window.openDueReportEmailModal === 'function') {
+        window.openDueReportEmailModal();
+      }
+    });
+  }
 });
 
 /**

@@ -77,6 +77,9 @@ function handleAction(action, payload) {
       return updateSettings(payload);
     case "LOGIN":
       return authenticateAdmin(payload);
+    case "SEND_DUE_REPORT_EMAIL":
+    case "SEND_EMAIL":
+      return sendDueReportEmail(payload);
     default:
       return { success: false, message: "Invalid API action specified." };
   }
@@ -431,4 +434,56 @@ function formatDateValue(val) {
  */
 function getTodayIsoDate() {
   return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd");
+}
+
+/**
+ * Send Due Members Report Email via GmailApp / MailApp
+ * Sender: pulariporurclub@gmail.com (the Google Account running this script)
+ */
+function sendDueReportEmail(payload) {
+  try {
+    const to = String(payload.to || "").trim();
+    const subject = String(payload.subject || "Pulari Arts & Sports Club - Pending Monthly Dues Report").trim();
+    const htmlBody = payload.htmlBody || "";
+    const textBody = payload.textBody || "Please view this email in an HTML-compatible email reader.";
+
+    if (!to) {
+      return { success: false, message: "Recipient email address is required." };
+    }
+
+    // Google Apps Script MailApp sends from the account running the script
+    MailApp.sendEmail({
+      to: to,
+      subject: subject,
+      body: textBody,
+      htmlBody: htmlBody,
+      name: "Pulari Arts & Sports Club",
+      replyTo: "pulariporurclub@gmail.com"
+    });
+
+    return {
+      success: true,
+      message: "Due members report email successfully sent to " + to
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to send email: " + error.toString()
+    };
+  }
+}
+
+/**
+ * One-Click Permission Authorizer
+ * Run this function once directly from the Apps Script editor toolbar to grant
+ * the required "https://www.googleapis.com/auth/script.send_mail" permission.
+ */
+function testSendEmailAuth(testEmail) {
+  const to = testEmail || Session.getActiveUser().getEmail() || "pulariporurclub@gmail.com";
+  MailApp.sendEmail({
+    to: to,
+    subject: "Pulari Club - Mail Authorization Test",
+    body: "Authorization successful! The web app can now send emails automatically."
+  });
+  Logger.log("Authorization successful! MailApp permission granted to: " + to);
 }

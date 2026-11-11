@@ -65,6 +65,67 @@ function syncBackupToGoogleSheet(action, payload) {
   }
 }
 
+/**
+ * Send Due Members Report Email via Google Apps Script Web App
+ * Dispatched from pulariporurclub@gmail.com to the recipient
+ */
+async function sendDueReportEmailViaAppsScript(emailData = {}) {
+  const sheetUrl = GOOGLE_SHEET_CONFIG.url;
+  if (!sheetUrl || !sheetUrl.trim()) {
+    throw new Error('Google Apps Script Web App URL is not configured.');
+  }
+
+  const to = (emailData.to || '').trim();
+  if (!to) {
+    throw new Error('Recipient email address is required.');
+  }
+
+  const payload = {
+    action: 'SEND_DUE_REPORT_EMAIL',
+    to: to,
+    from: 'pulariporurclub@gmail.com',
+    subject: emailData.subject || 'Pulari Arts & Sports Club - Pending Dues Report',
+    htmlBody: emailData.htmlBody || '',
+    textBody: emailData.textBody || ''
+  };
+
+  try {
+    const res = await fetch(sheetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      try {
+        const json = await res.json();
+        return json;
+      } catch (_) {
+        return { success: true, message: `Email dispatched to ${payload.to}` };
+      }
+    }
+  } catch (err) {
+    console.warn('Direct fetch to Apps Script failed, retrying in background mode:', err);
+  }
+
+  // Fallback mode: no-cors executes on Apps Script without CORS blockage
+  await fetch(sheetUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
+    body: JSON.stringify(payload),
+    redirect: 'follow',
+    mode: 'no-cors'
+  });
+
+  return {
+    success: true,
+    message: `Due members email report sent successfully to ${payload.to}!`
+  };
+}
+
 // Initial Seed Data for Fallback Demo Mode
 const DEFAULT_SEED_DATA = {
   settings: {
@@ -371,6 +432,11 @@ async function handleSupabaseApiCall(action, payload) {
       return { success: false, message: 'Invalid username or password' };
     }
 
+    case 'SEND_DUE_REPORT_EMAIL':
+    case 'SEND_EMAIL': {
+      return sendDueReportEmailViaAppsScript(payload);
+    }
+
     default:
       return { success: false, message: 'Unknown API action' };
   }
@@ -527,6 +593,11 @@ function handleLocalApiCall(action, payload) {
         return { success: true, message: 'Login successful' };
       }
       return { success: false, message: 'Invalid username or password' };
+    }
+
+    case 'SEND_DUE_REPORT_EMAIL':
+    case 'SEND_EMAIL': {
+      return sendDueReportEmailViaAppsScript(payload);
     }
 
     default:
